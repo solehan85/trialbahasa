@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teka Gambar BM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#DCF6D5;
+    --bg-bottom:#B7F0A8;
+    --ink:#2C2A25;
+    --ink-soft:#6B6558;
+    --wood-dark:#6E4A28;
+    --gold:#C62F99;
+    --green:#4C9A6C;
+    --green-dark:#3B7C56;
+    --indigo:#7E3D8F;
+    --indigo-dark:#592965;
+    --coral:#168838;
+    --coral-dark:#0F4D21;
+    --card:#FFFFFF;
+    --shadow:rgba(44,42,37,0.18);
+    --good:#3B7C56;
+    --bad:#C94F36;
+    --theme:#3E862D;
+    --theme-dark:#295F1C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:url('backgrounds/telukintan.jpg');background-size:cover;background-position:center;filter:blur(1px);opacity:0.40;pointer-events:none;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:560px;}
+  h1,h2,h3{font-family:'Baloo Da 2',sans-serif; margin:0;}
+  button{font-family:'Nunito',sans-serif; cursor:pointer; border:none; outline-offset:2px;}
+  button:focus-visible{outline:3px solid var(--indigo);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-title{font-size:1.05rem; font-weight:700; color:var(--wood-dark);}
+  .student-badge{font-size:0.8rem; font-weight:700; color:var(--ink-soft);}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .home-card{background:var(--card); border-radius:28px; padding:34px 26px 30px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .mascot-emoji{font-size:4.2rem; line-height:1;}
+  .home-card h1{font-size:1.9rem; color:var(--wood-dark); line-height:1.15; margin-top:8px;}
+  .home-card .tagline{color:var(--ink-soft); font-size:1rem; margin-top:10px; line-height:1.5;}
+  .cta-btn{margin-top:24px; background:var(--coral); color:#fff; font-family:'Baloo Da 2',sans-serif; font-weight:700; font-size:1.15rem; padding:14px 36px; border-radius:999px; box-shadow:0 5px 0 var(--coral-dark); transition:transform .08s ease;}
+  .cta-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--coral-dark);}
+  .cta-btn:disabled{opacity:.5; cursor:default;}
+
+  .identity-card{background:var(--card); border-radius:28px; padding:32px 26px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .identity-card h2{color:var(--wood-dark); font-size:1.4rem;}
+  .identity-card p.tagline{margin-top:8px;}
+  .id-field{text-align:left; margin-top:18px;}
+  .id-field label{display:block; font-weight:700; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;}
+  .id-field input{width:100%; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700; padding:12px 14px; border-radius:12px; border:2px solid #EAE2D2; background:#FBF8F1; color:var(--ink);}
+  .id-field input:focus{outline:none; border-color:var(--theme);}
+  .id-error{color:var(--bad); font-weight:700; font-size:0.85rem; margin-top:10px; min-height:18px;}
+  .sync-status{text-align:center; font-size:0.8rem; font-weight:700; margin-top:10px; color:var(--ink-soft);}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.err{color:var(--bad);}
+
+  /* ---------- Tahun select ---------- */
+  .tahun-wrap{background:var(--card); border-radius:28px; padding:26px 22px 28px; box-shadow:0 8px 0 var(--shadow);}
+  .tahun-title{text-align:center; color:var(--wood-dark); font-size:1.3rem; margin-bottom:18px;}
+  .tahun-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  .tahun-btn{
+    --btn-light:#FFFFFF; --btn-base:#FBF8F1; --btn-dark:#EAE2D2;
+    background:linear-gradient(160deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
+    border:none; border-radius:18px; padding:18px 8px 16px; text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 6px 0 var(--btn-dark),
+      0 10px 18px rgba(0,0,0,0.25);
+  }
+  .tahun-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 9px 0 var(--btn-dark),
+      0 14px 22px rgba(0,0,0,0.3);
+  }
+  .tahun-btn:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(0,0,0,0.18),
+      0 2px 0 var(--btn-dark),
+      0 4px 8px rgba(0,0,0,0.2);
+  }
+  .tahun-btn .tnum{font-family:'Baloo Da 2',sans-serif; font-weight:800; font-size:1.35rem; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,0.28);}
+  .tahun-btn .tstars{font-size:0.95rem; margin-top:6px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));}
+  .tahun-btn.t1{--btn-light:#FF8A7E; --btn-base:#FF5C4D; --btn-dark:#D93A2B;}
+  .tahun-btn.t2{--btn-light:#FFC168; --btn-base:#FF9F1C; --btn-dark:#CC7900;}
+  .tahun-btn.t3{--btn-light:#6EE2A0; --btn-base:#2ECC71; --btn-dark:#1F9C57;}
+  .tahun-btn.t4{--btn-light:#6BD9EC; --btn-base:#17B6D4; --btn-dark:#0E8CA6;}
+  .tahun-btn.t5{--btn-light:#B79CFA; --btn-base:#8B5CF6; --btn-dark:#6636D9;}
+  .tahun-btn.t6{--btn-light:#F589BC; --btn-base:#EC4899; --btn-dark:#C22D74;}
+  @media (max-width:420px){ .tahun-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
+  .game-card{background:var(--card); border-radius:28px; padding:22px 20px 26px; box-shadow:0 8px 0 var(--shadow);}
+  .game-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .back-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.9rem; padding:6px 10px; border-radius:10px;}
+  .back-btn:hover{background:#F2EEE4;}
+  .game-tag{font-family:'Baloo Da 2',sans-serif; font-weight:700; padding:6px 14px; border-radius:999px; color:#fff; font-size:0.85rem; background:var(--theme);}
+  .progress-track{height:10px; background:#EFEAE0; border-radius:999px; overflow:hidden; margin-bottom:22px;}
+  .progress-fill{height:100%; border-radius:999px; transition:width .35s ease; background:var(--theme);}
+  .q-count{text-align:center; color:var(--ink-soft); font-weight:700; font-size:0.85rem; margin-bottom:6px; letter-spacing:.03em; text-transform:uppercase;}
+  .q-emoji{font-size:3.8rem; text-align:center; margin:6px 0 10px;}
+  .q-prompt{text-align:center; font-size:1.15rem; font-weight:700; margin-bottom:20px; line-height:1.4;}
+  .options-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .opt-btn{background:#FBF8F1; border:2px solid #EAE2D2; border-radius:16px; padding:14px 10px; font-size:1rem; font-weight:700; color:var(--ink); text-align:center; transition:all .12s ease;}
+  .opt-btn:hover:not(:disabled){border-color:var(--gold); background:#FFF9EC;}
+  .opt-btn.correct{background:#E4F3E8; border-color:var(--good); color:var(--good);}
+  .opt-btn.wrong{background:#FBE7E2; border-color:var(--bad); color:var(--bad);}
+  .opt-btn:disabled{cursor:default;}
+
+  .feedback{text-align:center; font-weight:800; font-family:'Baloo Da 2',sans-serif; font-size:1.05rem; min-height:30px; margin:14px 0 4px;}
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  .next-btn{display:block; margin:14px auto 0; background:var(--indigo); color:#fff; font-family:'Baloo Da 2',sans-serif; font-weight:700; font-size:1rem; padding:12px 30px; border-radius:999px; box-shadow:0 4px 0 var(--indigo-dark);}
+  .next-btn:active{transform:translateY(2px); box-shadow:0 2px 0 var(--indigo-dark);}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,42,37,0.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.active{display:flex;}
+  .result-card{background:var(--card); border-radius:26px; padding:32px 26px; text-align:center; max-width:380px; width:100%; box-shadow:0 10px 0 var(--shadow);}
+  .result-stars{font-size:2.4rem; letter-spacing:6px; margin:14px 0;}
+  .result-score{font-family:'Baloo Da 2',sans-serif; font-size:1.3rem; font-weight:700; color:var(--wood-dark);}
+  .result-msg{color:var(--ink-soft); margin:10px 0 20px; line-height:1.5;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .result-btn{font-family:'Baloo Da 2',sans-serif; font-weight:700; padding:11px 22px; border-radius:999px; font-size:0.95rem;}
+  .result-btn.primary{background:var(--green); color:#fff; box-shadow:0 4px 0 var(--green-dark);}
+  .result-btn.secondary{background:#F2EEE4; color:var(--ink);}
+
+  @media (max-width:420px){
+    .options-grid{grid-template-columns:1fr;}
+    .q-emoji{font-size:3rem;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#3E862D"/><text x="17" y="23" font-size="17" text-anchor="middle" font-family="Baloo Da 2">🖼️</text></svg>
+      <span class="brand-title">Teka Gambar BM</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="student-badge" id="studentBadge"></span>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <div class="mascot-emoji">🖼️🔤</div>
+      <h1>Teka Gambar BM</h1>
+      <p class="tagline">Lihat gambar, teka perkataan Bahasa Melayu yang betul! Sesuai untuk kosa kata pelbagai tema — haiwan, buah-buahan, anggota badan dan banyak lagi.</p>
+      <button class="cta-btn" onclick="showIdentityScreen()">Mula Main</button>
+    </div>
+  </section>
+
+  <!-- IDENTITY SCREEN -->
+  <section class="screen" id="screen-identity">
+    <div class="identity-card">
+      <h2>Siapa nama awak?</h2>
+      <p class="tagline">Kami perlukan nama, kelas dan PIN untuk simpan markah awak — PIN yang sama boleh digunakan untuk semua permainan Seronoknya Bahasa.</p>
+      <div class="id-field">
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Contoh: Ali bin Ahmad" maxlength="40">
+      </div>
+      <div class="id-field">
+        <label for="inputKelas">Kelas</label>
+        <input type="text" id="inputKelas" placeholder="Contoh: 4 Bestari" maxlength="30">
+      </div>
+      <div class="id-field">
+        <label for="inputPin">PIN (4 digit)</label>
+        <input type="text" id="inputPin" placeholder="Contoh: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <div style="font-size:0.75rem; color:var(--ink-soft); font-weight:600; margin-top:5px;">Kali pertama? Cipta PIN baru. Dah pernah main? Masukkan PIN yang sama.</div>
+      </div>
+      <div class="id-error" id="idError"></div>
+      <button class="cta-btn" id="identitySubmitBtn" onclick="submitIdentity()">Sedia, Mula!</button>
+      <div class="sync-status" id="identitySyncStatus"></div>
+    </div>
+  </section>
+
+  <!-- TAHUN SELECT SCREEN -->
+  <section class="screen" id="screen-tahun">
+    <div class="tahun-wrap">
+      <h2 class="tahun-title">Pilih Tahun</h2>
+      <div class="tahun-grid" id="tahunGrid"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screen-game">
+    <div class="game-card">
+      <div class="game-header">
+        <button class="back-btn" onclick="goToTahunSelect()">← Tahun</button>
+        <span class="game-tag" id="gameTag">Teka Gambar BM</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="q-count" id="qCount"></div>
+
+      <div id="questionArea"></div>
+
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Seterusnya →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <h2 id="resultTitle" style="color:var(--wood-dark);">Selesai!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="sync-status" id="resultSyncStatus"></div>
+    <div class="result-actions">
+      <button class="result-btn secondary" onclick="retryGame()">Main Lagi</button>
+      <button class="result-btn primary" onclick="closeResult()">Tahun Lain</button>
+    </div>
+  </div>
+</div>
+
+<script>window.SERONOK_GAME_ID = 'teka-gambar-bm';</script>
+<script type="module" src="firebase-shared.js"></script>
+
+<script>
+/* ================= DATA ================= */
+const TAHUN_BANKS = {
+  1: [
+    {emoji:'🐱', answer:'kucing', options:['kucing','anjing','ayam','arnab']},
+    {emoji:'🐘', answer:'gajah', options:['gajah','harimau','singa','kuda']},
+    {emoji:'🐦', answer:'burung', options:['burung','ayam','itik','kucing']},
+    {emoji:'🐟', answer:'ikan', options:['ikan','udang','ketam','siput']},
+    {emoji:'🍎', answer:'epal', options:['epal','pisang','mangga','nanas']},
+    {emoji:'🍌', answer:'pisang', options:['pisang','epal','anggur','tembikai']},
+    {emoji:'👁️', answer:'mata', options:['mata','hidung','telinga','mulut']},
+    {emoji:'👃', answer:'hidung', options:['hidung','mata','telinga','mulut']},
+    {emoji:'✋', answer:'tangan', options:['tangan','kaki','kepala','perut']},
+    {emoji:'☀️', answer:'matahari', options:['matahari','bulan','bintang','awan']},
+    {emoji:'🌙', answer:'bulan', options:['bulan','matahari','bintang','awan']},
+    {emoji:'🏠', answer:'rumah', options:['rumah','sekolah','kedai','pejabat']},
+    {emoji:'⚽', answer:'bola', options:['bola','raket','gelung','layang-layang']},
+    {emoji:'🚗', answer:'kereta', options:['kereta','bas','motosikal','basikal']},
+    {emoji:'🐕', answer:'anjing', options:['anjing','kucing','ayam','itik']},
+    {emoji:'🐔', answer:'ayam', options:['ayam','itik','angsa','burung']},
+    {emoji:'🦆', answer:'itik', options:['itik','ayam','angsa','burung']},
+    {emoji:'🐴', answer:'kuda', options:['kuda','lembu','kambing','kerbau']},
+    {emoji:'🦁', answer:'singa', options:['singa','harimau','gajah','kucing']},
+    {emoji:'🐢', answer:'kura-kura', options:['kura-kura','siput','katak','ikan']},
+    {emoji:'🐸', answer:'katak', options:['katak','kura-kura','ikan','siput']},
+    {emoji:'🦋', answer:'rama-rama', options:['rama-rama','lebah','lalat','nyamuk']},
+    {emoji:'🐝', answer:'lebah', options:['lebah','rama-rama','lalat','nyamuk']},
+    {emoji:'🍇', answer:'anggur', options:['anggur','epal','pisang','oren']},
+    {emoji:'🍊', answer:'oren', options:['oren','epal','mangga','nanas']},
+    {emoji:'🍉', answer:'tembikai', options:['tembikai','epal','pisang','nanas']},
+    {emoji:'🍓', answer:'strawberi', options:['strawberi','anggur','oren','epal']},
+    {emoji:'👂', answer:'telinga', options:['telinga','mata','hidung','mulut']},
+    {emoji:'👄', answer:'mulut', options:['mulut','mata','hidung','telinga']},
+    {emoji:'🦶', answer:'kaki', options:['kaki','tangan','kepala','perut']},
+    {emoji:'👶', answer:'bayi', options:['bayi','kanak-kanak','dewasa','orang tua']},
+    {emoji:'☁️', answer:'awan', options:['awan','matahari','bulan','bintang']},
+    {emoji:'🌟', answer:'bintang', options:['bintang','bulan','matahari','awan']},
+    {emoji:'🎈', answer:'belon', options:['belon','bola','guli','layang-layang']},
+    {emoji:'🪁', answer:'layang-layang', options:['layang-layang','belon','bola','guli']},
+    {emoji:'🚲', answer:'basikal', options:['basikal','kereta','bas','motosikal']},
+    {emoji:'🚌', answer:'bas', options:['bas','kereta','basikal','motosikal']},
+    {emoji:'🏫', answer:'sekolah', options:['sekolah','rumah','kedai','hospital']},
+    {emoji:'🪑', answer:'kerusi', options:['kerusi','meja','katil','almari']},
+    {emoji:'🛏️', answer:'katil', options:['katil','kerusi','meja','almari']},
+    {emoji:'👗', answer:'baju', options:['baju','seluar','kasut','topi']},
+    {emoji:'🧢', answer:'topi', options:['topi','baju','kasut','seluar']},
+  ],
+  2: [
+    {emoji:'📚', answer:'buku', options:['buku','pensel','beg','pembaris']},
+    {emoji:'✏️', answer:'pensel', options:['pensel','buku','pemadam','pembaris']},
+    {emoji:'🎒', answer:'beg sekolah', options:['beg sekolah','buku','kasut','topi']},
+    {emoji:'☂️', answer:'payung', options:['payung','topi','cermin mata','jam']},
+    {emoji:'🌧️', answer:'hujan', options:['hujan','panas','cerah','berangin']},
+    {emoji:'⭐', answer:'bintang', options:['bintang','bulan','matahari','awan']},
+    {emoji:'🚌', answer:'bas', options:['bas','teksi','kereta','lori']},
+    {emoji:'🚲', answer:'basikal', options:['basikal','motosikal','kereta','bas']},
+    {emoji:'🍰', answer:'kek', options:['kek','roti','biskut','aiskrim']},
+    {emoji:'🥛', answer:'susu', options:['susu','air','jus','teh']},
+    {emoji:'🪟', answer:'tingkap', options:['tingkap','pintu','dinding','bumbung']},
+    {emoji:'🚪', answer:'pintu', options:['pintu','tingkap','dinding','bumbung']},
+    {emoji:'⏰', answer:'jam', options:['jam','kalendar','kompas','peta']},
+    {emoji:'👕', answer:'baju', options:['baju','seluar','kasut','topi']},
+    {emoji:'✂️', answer:'gunting', options:['gunting','pensel','pemadam','pembaris']},
+    {emoji:'📏', answer:'pembaris', options:['pembaris','pensel','gunting','pemadam']},
+    {emoji:'🧽', answer:'pemadam', options:['pemadam','pensel','pembaris','gunting']},
+    {emoji:'🖍️', answer:'krayon', options:['krayon','pensel','pen','gunting']},
+    {emoji:'👟', answer:'kasut', options:['kasut','baju','topi','payung']},
+    {emoji:'🧦', answer:'stokin', options:['stokin','kasut','baju','topi']},
+    {emoji:'👖', answer:'seluar', options:['seluar','baju','kasut','topi']},
+    {emoji:'🕶️', answer:'cermin mata', options:['cermin mata','payung','topi','jam']},
+    {emoji:'🥵', answer:'panas', options:['panas','sejuk','basah','kering']},
+    {emoji:'❄️', answer:'sejuk', options:['sejuk','panas','basah','kering']},
+    {emoji:'💧', answer:'air', options:['air','susu','jus','teh']},
+    {emoji:'🧃', answer:'jus', options:['jus','susu','air','teh']},
+    {emoji:'🍞', answer:'roti', options:['roti','kek','biskut','aiskrim']},
+    {emoji:'🍪', answer:'biskut', options:['biskut','roti','kek','aiskrim']},
+    {emoji:'🍦', answer:'aiskrim', options:['aiskrim','roti','kek','biskut']},
+    {emoji:'🧱', answer:'dinding', options:['dinding','tingkap','pintu','bumbung']},
+    {emoji:'🗓️', answer:'kalendar', options:['kalendar','jam','kompas','peta']},
+    {emoji:'🧭', answer:'kompas', options:['kompas','jam','kalendar','peta']},
+    {emoji:'🗺️', answer:'peta', options:['peta','kalendar','kompas','jam']},
+    {emoji:'🚕', answer:'teksi', options:['teksi','bas','kereta','lori']},
+    {emoji:'🚛', answer:'lori', options:['lori','bas','teksi','kereta']},
+    {emoji:'🏍️', answer:'motosikal', options:['motosikal','basikal','bas','kereta']},
+    {emoji:'🚗', answer:'kereta', options:['kereta','bas','basikal','teksi']},
+    {emoji:'🏬', answer:'pasar', options:['pasar','kedai','sekolah','hospital']},
+    {emoji:'🎡', answer:'taman permainan', options:['taman permainan','padang','sekolah','kedai']},
+    {emoji:'💡', answer:'lampu', options:['lampu','jam','kalendar','payung']},
+    {emoji:'☕', answer:'cawan', options:['cawan','pinggan','mangkuk','sudu']},
+    {emoji:'🍽️', answer:'pinggan', options:['pinggan','cawan','mangkuk','sudu']},
+  ],
+  3: [
+    {emoji:'👨‍🌾', answer:'petani', options:['petani','nelayan','peniaga','doktor']},
+    {emoji:'👮', answer:'polis', options:['polis','bomba','tentera','jururawat']},
+    {emoji:'👨‍🚒', answer:'bomba', options:['bomba','polis','doktor','peniaga']},
+    {emoji:'⛰️', answer:'gunung', options:['gunung','bukit','lembah','tasik']},
+    {emoji:'🌊', answer:'laut', options:['laut','sungai','tasik','kolam']},
+    {emoji:'🌳', answer:'pokok', options:['pokok','bunga','rumput','semak']},
+    {emoji:'🏥', answer:'hospital', options:['hospital','sekolah','kedai','masjid']},
+    {emoji:'🏫', answer:'sekolah', options:['sekolah','hospital','kedai','rumah']},
+    {emoji:'🌾', answer:'sawah', options:['sawah','ladang','kebun','taman']},
+    {emoji:'🐄', answer:'lembu', options:['lembu','kambing','kerbau','kuda']},
+    {emoji:'🦆', answer:'itik', options:['itik','ayam','angsa','burung']},
+    {emoji:'🕌', answer:'masjid', options:['masjid','gereja','tokong','sekolah']},
+    {emoji:'🏪', answer:'kedai', options:['kedai','pasar','hospital','sekolah']},
+    {emoji:'🧭', answer:'kompas', options:['kompas','peta','jam','kalendar']},
+    {emoji:'👨‍⚕️', answer:'doktor', options:['doktor','jururawat','polis','peniaga']},
+    {emoji:'👩‍⚕️', answer:'jururawat', options:['jururawat','doktor','polis','peniaga']},
+    {emoji:'🎣', answer:'nelayan', options:['nelayan','petani','peniaga','polis']},
+    {emoji:'🛒', answer:'peniaga', options:['peniaga','petani','nelayan','polis']},
+    {emoji:'💂', answer:'tentera', options:['tentera','polis','bomba','doktor']},
+    {emoji:'👩‍🏫', answer:'guru', options:['guru','murid','doktor','peniaga']},
+    {emoji:'🧑‍🎓', answer:'murid', options:['murid','guru','doktor','peniaga']},
+    {emoji:'🐐', answer:'kambing', options:['kambing','lembu','kerbau','kuda']},
+    {emoji:'🐃', answer:'kerbau', options:['kerbau','lembu','kambing','kuda']},
+    {emoji:'🐴', answer:'kuda', options:['kuda','lembu','kambing','kerbau']},
+    {emoji:'🐔', answer:'ayam', options:['ayam','itik','angsa','burung']},
+    {emoji:'🦢', answer:'angsa', options:['angsa','itik','ayam','burung']},
+    {emoji:'🌸', answer:'bunga', options:['bunga','pokok','rumput','semak']},
+    {emoji:'🌱', answer:'rumput', options:['rumput','pokok','bunga','semak']},
+    {emoji:'⛪', answer:'gereja', options:['gereja','masjid','tokong','sekolah']},
+    {emoji:'🛕', answer:'tokong', options:['tokong','masjid','gereja','sekolah']},
+    {emoji:'🏬', answer:'pasar', options:['pasar','kedai','hospital','sekolah']},
+    {emoji:'📚', answer:'perpustakaan', options:['perpustakaan','sekolah','hospital','kedai']},
+    {emoji:'🚓', answer:'balai polis', options:['balai polis','balai bomba','hospital','sekolah']},
+    {emoji:'🚒', answer:'balai bomba', options:['balai bomba','balai polis','hospital','sekolah']},
+    {emoji:'🚜', answer:'ladang', options:['ladang','sawah','kebun','kilang']},
+    {emoji:'🌻', answer:'kebun', options:['kebun','ladang','sawah','taman']},
+    {emoji:'⌚', answer:'jam tangan', options:['jam tangan','kompas','peta','kalendar']},
+    {emoji:'🔭', answer:'teropong', options:['teropong','kompas','kamera','cermin']},
+    {emoji:'🪂', answer:'payung terjun', options:['payung terjun','payung','belon','layang-layang']},
+    {emoji:'🚀', answer:'roket', options:['roket','kapal terbang','kapal laut','belon']},
+    {emoji:'🛶', answer:'perahu', options:['perahu','kapal','bot','rakit']},
+    {emoji:'🛥️', answer:'bot', options:['bot','perahu','kapal','rakit']},
+  ],
+  4: [
+    {emoji:'🏊', answer:'berenang', options:['berenang','berlari','melompat','memanjat']},
+    {emoji:'🏀', answer:'bola keranjang', options:['bola keranjang','bola sepak','bola tampar','badminton']},
+    {emoji:'🎨', answer:'melukis', options:['melukis','menulis','membaca','menyanyi']},
+    {emoji:'🎵', answer:'muzik', options:['muzik','lukisan','tarian','drama']},
+    {emoji:'🚑', answer:'ambulans', options:['ambulans','lori bomba','kereta polis','teksi']},
+    {emoji:'🚒', answer:'lori bomba', options:['lori bomba','ambulans','kereta polis','bas']},
+    {emoji:'✈️', answer:'kapal terbang', options:['kapal terbang','kapal laut','keretapi','bas']},
+    {emoji:'🚢', answer:'kapal laut', options:['kapal laut','kapal terbang','keretapi','bot']},
+    {emoji:'🏛️', answer:'bangunan kerajaan', options:['bangunan kerajaan','rumah kedai','kilang','gudang']},
+    {emoji:'🌉', answer:'jambatan', options:['jambatan','terowong','lebuh raya','lorong']},
+    {emoji:'🏟️', answer:'stadium', options:['stadium','dewan','padang','taman']},
+    {emoji:'🎪', answer:'khemah', options:['khemah','rumah','pondok','istana']},
+    {emoji:'🏰', answer:'istana', options:['istana','rumah','kota','benteng']},
+    {emoji:'🗼', answer:'menara', options:['menara','jambatan','bangunan','rumah']},
+    {emoji:'🏃', answer:'berlari', options:['berlari','berenang','melompat','memanjat']},
+    {emoji:'🤸', answer:'melompat', options:['melompat','berlari','berenang','memanjat']},
+    {emoji:'🧗', answer:'memanjat', options:['memanjat','berlari','berenang','melompat']},
+    {emoji:'🎤', answer:'menyanyi', options:['menyanyi','melukis','menulis','membaca']},
+    {emoji:'💃', answer:'menari', options:['menari','menyanyi','melukis','bermain']},
+    {emoji:'🏸', answer:'badminton', options:['badminton','bola keranjang','bola sepak','bola tampar']},
+    {emoji:'⚽', answer:'bola sepak', options:['bola sepak','bola keranjang','badminton','bola tampar']},
+    {emoji:'🏐', answer:'bola tampar', options:['bola tampar','bola sepak','badminton','bola keranjang']},
+    {emoji:'🏓', answer:'ping pong', options:['ping pong','badminton','bola tampar','bola sepak']},
+    {emoji:'♟️', answer:'catur', options:['catur','bola sepak','muzik','melukis']},
+    {emoji:'🚆', answer:'keretapi', options:['keretapi','kapal terbang','bas','kapal laut']},
+    {emoji:'🛥️', answer:'bot', options:['bot','kapal laut','perahu','rakit']},
+    {emoji:'🚁', answer:'helikopter', options:['helikopter','kapal terbang','roket','belon']},
+    {emoji:'🕳️', answer:'terowong', options:['terowong','jambatan','lebuh raya','lorong']},
+    {emoji:'🛣️', answer:'lebuh raya', options:['lebuh raya','jambatan','terowong','lorong']},
+    {emoji:'🎭', answer:'dewan', options:['dewan','stadium','padang','taman']},
+    {emoji:'🏖️', answer:'kolam renang', options:['kolam renang','padang','taman','stadium']},
+    {emoji:'🎢', answer:'taman tema', options:['taman tema','khemah','istana','menara']},
+    {emoji:'🖼️', answer:'muzium', options:['muzium','perpustakaan','dewan','stadium']},
+    {emoji:'📖', answer:'perpustakaan', options:['perpustakaan','sekolah','muzium','dewan']},
+    {emoji:'🎙️', answer:'pentas', options:['pentas','dewan','muzium','perpustakaan']},
+    {emoji:'🎫', answer:'tiket', options:['tiket','wang','kad','surat']},
+    {emoji:'💵', answer:'wang', options:['wang','tiket','kad','surat']},
+    {emoji:'🚩', answer:'bendera', options:['bendera','lambang','logo','poster']},
+    {emoji:'⛑️', answer:'topi keledar', options:['topi keledar','topi','cermin mata','payung']},
+    {emoji:'🛴', answer:'skuter', options:['skuter','basikal','motosikal','kereta']},
+    {emoji:'🚛', answer:'lori sampah', options:['lori sampah','bas','teksi','kereta']},
+    {emoji:'🚜', answer:'traktor', options:['traktor','lori','bas','kereta']},
+  ],
+  5: [
+    {emoji:'💻', answer:'komputer riba', options:['komputer riba','telefon pintar','tablet','pencetak']},
+    {emoji:'📱', answer:'telefon pintar', options:['telefon pintar','komputer riba','tablet','kamera']},
+    {emoji:'🏦', answer:'bank', options:['bank','pejabat pos','mahkamah','perpustakaan']},
+    {emoji:'🛰️', answer:'satelit', options:['satelit','roket','kapal angkasa','pesawat']},
+    {emoji:'🔬', answer:'mikroskop', options:['mikroskop','teleskop','kamera','kanta']},
+    {emoji:'🚉', answer:'stesen keretapi', options:['stesen keretapi','lapangan terbang','pelabuhan','terminal bas']},
+    {emoji:'🏭', answer:'kilang', options:['kilang','ladang','kedai','pejabat']},
+    {emoji:'🗳️', answer:'peti undi', options:['peti undi','tabung derma','bekas surat','peti simpanan']},
+    {emoji:'🌐', answer:'internet', options:['internet','telefon','radio','televisyen']},
+    {emoji:'📰', answer:'akhbar', options:['akhbar','majalah','buku','risalah']},
+    {emoji:'🎓', answer:'graduan', options:['graduan','pelajar','guru','pensyarah']},
+    {emoji:'🏢', answer:'pencakar langit', options:['pencakar langit','rumah kedai','kilang','gudang']},
+    {emoji:'💼', answer:'beg dokumen', options:['beg dokumen','beg sekolah','beg tangan','beg pakaian']},
+    {emoji:'🖥️', answer:'komputer meja', options:['komputer meja','komputer riba','tablet','telefon']},
+    {emoji:'📲', answer:'tablet', options:['tablet','komputer riba','telefon pintar','pencetak']},
+    {emoji:'🖨️', answer:'pencetak', options:['pencetak','komputer riba','telefon pintar','tablet']},
+    {emoji:'📷', answer:'kamera', options:['kamera','mikroskop','teleskop','kanta']},
+    {emoji:'📮', answer:'pejabat pos', options:['pejabat pos','bank','mahkamah','perpustakaan']},
+    {emoji:'⚖️', answer:'mahkamah', options:['mahkamah','bank','pejabat pos','perpustakaan']},
+    {emoji:'✈️', answer:'lapangan terbang', options:['lapangan terbang','stesen keretapi','pelabuhan','terminal bas']},
+    {emoji:'⚓', answer:'pelabuhan', options:['pelabuhan','stesen keretapi','lapangan terbang','terminal bas']},
+    {emoji:'🚏', answer:'terminal bas', options:['terminal bas','stesen keretapi','lapangan terbang','pelabuhan']},
+    {emoji:'🔋', answer:'kereta elektrik', options:['kereta elektrik','kereta','motosikal','basikal']},
+    {emoji:'☀️', answer:'tenaga suria', options:['tenaga suria','tenaga angin','tenaga air','tenaga arang batu']},
+    {emoji:'🪐', answer:'sistem suria', options:['sistem suria','galaksi','bintang','bulan']},
+    {emoji:'🌌', answer:'galaksi', options:['galaksi','sistem suria','bintang','bulan']},
+    {emoji:'🤖', answer:'robot', options:['robot','komputer','mesin','alat']},
+    {emoji:'🚁', answer:'dron', options:['dron','kapal terbang','helikopter','roket']},
+    {emoji:'📧', answer:'e-mel', options:['e-mel','surat','akhbar','risalah']},
+    {emoji:'🏫', answer:'bilik darjah', options:['bilik darjah','perpustakaan','dewan','pejabat']},
+    {emoji:'⌚', answer:'jam tangan pintar', options:['jam tangan pintar','telefon pintar','komputer riba','tablet']},
+    {emoji:'🎧', answer:'fon kepala', options:['fon kepala','telefon','komputer','radio']},
+    {emoji:'💳', answer:'kad kredit', options:['kad kredit','wang tunai','cek','baucar']},
+    {emoji:'💰', answer:'e-dompet', options:['e-dompet','wang tunai','kad kredit','cek']},
+    {emoji:'🏙️', answer:'bangunan pejabat', options:['bangunan pejabat','kilang','gudang','rumah kedai']},
+    {emoji:'📦', answer:'gudang', options:['gudang','kilang','ladang','kedai']},
+    {emoji:'🛒', answer:'troli', options:['troli','bakul','beg','kotak']},
+    {emoji:'🧺', answer:'mesin basuh', options:['mesin basuh','peti sejuk','ketuhar','penghawa dingin']},
+    {emoji:'🧊', answer:'peti sejuk', options:['peti sejuk','mesin basuh','ketuhar','penghawa dingin']},
+    {emoji:'📝', answer:'bilik peperiksaan', options:['bilik peperiksaan','bilik darjah','pejabat','perpustakaan']},
+    {emoji:'📄', answer:'sijil kelahiran', options:['sijil kelahiran','kad pengenalan','pasport','lesen']},
+    {emoji:'🛂', answer:'pasport', options:['pasport','kad pengenalan','sijil kelahiran','lesen']},
+  ],
+  6: [
+    {emoji:'🌍', answer:'dunia', options:['dunia','negara','benua','planet']},
+    {emoji:'🏆', answer:'piala', options:['piala','pingat','sijil','hadiah']},
+    {emoji:'🎖️', answer:'pingat', options:['pingat','piala','sijil','reben']},
+    {emoji:'📜', answer:'sijil', options:['sijil','piala','pingat','surat']},
+    {emoji:'🚀', answer:'roket', options:['roket','satelit','kapal angkasa','pesawat']},
+    {emoji:'🛡️', answer:'perisai', options:['perisai','pedang','topi keledar','baju besi']},
+    {emoji:'🏳️', answer:'bendera', options:['bendera','lambang','logo','poster']},
+    {emoji:'⚖️', answer:'neraca keadilan', options:['neraca keadilan','mahkamah','undang-undang','hakim']},
+    {emoji:'🗿', answer:'monumen', options:['monumen','patung','tugu','binaan']},
+    {emoji:'🎗️', answer:'reben peringatan', options:['reben peringatan','pingat','sijil','lencana']},
+    {emoji:'🏺', answer:'artifak', options:['artifak','patung','lukisan','permaidani']},
+    {emoji:'🔭', answer:'teleskop', options:['teleskop','mikroskop','kamera','binokular']},
+    {emoji:'🗺️', answer:'peta dunia', options:['peta dunia','atlas','glob','carta']},
+    {emoji:'🏛️', answer:'bangunan parlimen', options:['bangunan parlimen','mahkamah','istana','muzium']},
+    {emoji:'🪐', answer:'planet', options:['planet','dunia','bintang','bulan']},
+    {emoji:'👨‍🚀', answer:'angkasawan', options:['angkasawan','saintis','jurutera','doktor']},
+    {emoji:'🛸', answer:'kapal angkasa', options:['kapal angkasa','roket','satelit','pesawat']},
+    {emoji:'🏯', answer:'tugu negara', options:['tugu negara','monumen','istana','menara']},
+    {emoji:'🦅', answer:'lambang negara', options:['lambang negara','bendera','logo','lencana']},
+    {emoji:'📛', answer:'jata negara', options:['jata negara','bendera','lambang','lencana']},
+    {emoji:'📃', answer:'perjanjian', options:['perjanjian','kontrak','surat','sijil']},
+    {emoji:'👨‍⚖️', answer:'mahkamah agung', options:['mahkamah agung','bangunan parlimen','istana','muzium']},
+    {emoji:'🤝', answer:'duta', options:['duta','diplomat','menteri','setiausaha']},
+    {emoji:'🗣️', answer:'dewan perbahasan', options:['dewan perbahasan','bangunan parlimen','mahkamah','istana']},
+    {emoji:'📋', answer:'piagam', options:['piagam','perlembagaan','undang-undang','dasar']},
+    {emoji:'🗽', answer:'arca', options:['arca','patung','tugu','monumen']},
+    {emoji:'🖼️', answer:'lukisan gua', options:['lukisan gua','artifak','patung','ukiran']},
+    {emoji:'🍶', answer:'tembikar', options:['tembikar','artifak','patung','ukiran']},
+    {emoji:'🔎', answer:'binokular', options:['binokular','teleskop','mikroskop','kanta']},
+    {emoji:'📗', answer:'atlas', options:['atlas','peta dunia','buku','glob']},
+    {emoji:'🌐', answer:'glob', options:['glob','peta dunia','atlas','carta']},
+    {emoji:'🏤', answer:'bangunan mahkamah', options:['bangunan mahkamah','mahkamah','istana','muzium']},
+    {emoji:'👑', answer:'istana negara', options:['istana negara','bangunan parlimen','muzium','mahkamah']},
+    {emoji:'🏕️', answer:'perkhemahan antarabangsa', options:['perkhemahan antarabangsa','persidangan','perhimpunan','forum']},
+    {emoji:'🎤', answer:'persidangan', options:['persidangan','mesyuarat','forum','seminar']},
+    {emoji:'📊', answer:'mesyuarat', options:['mesyuarat','persidangan','seminar','forum']},
+    {emoji:'💬', answer:'rundingan', options:['rundingan','mesyuarat','persidangan','perjanjian']},
+    {emoji:'🥇', answer:'pingat emas', options:['pingat emas','pingat perak','pingat gangsa','piala']},
+    {emoji:'🥈', answer:'pingat perak', options:['pingat perak','pingat emas','pingat gangsa','piala']},
+    {emoji:'🥉', answer:'pingat gangsa', options:['pingat gangsa','pingat emas','pingat perak','piala']},
+    {emoji:'🌟', answer:'anugerah khas', options:['anugerah khas','piala','pingat','sijil']},
+    {emoji:'📔', answer:'buku rekod', options:['buku rekod','sijil','piala','pingat']},
+  ],
+};
+const TAHUN_LIST = Object.keys(TAHUN_BANKS).map(Number).sort((a,b)=>a-b);
+const SET_SIZE = 14;
+const SET_COUNT = 3; // setiap Tahun ada 42 soalan (3 set x 14) supaya tidak berulang sehingga 3 kali main
+
+/* ================= STATE (in-memory only) ================= */
+let state = {
+  tahun: null,
+  deck: [],
+  qIndex: 0,
+  correctCount: 0,
+  answered: false,
+  stars: {},
+  playCounts: {},
+  studentName: '',
+  studentClass: '',
+  studentId: ''
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================= NAV ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showIdentityScreen(){
+  document.getElementById('idError').textContent = '';
+  document.getElementById('identitySyncStatus').textContent = '';
+  showScreen('screen-identity');
+}
+
+async function submitIdentity(){
+  const nama = document.getElementById('inputNama').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const pin = document.getElementById('inputPin').value.trim();
+  const errEl = document.getElementById('idError');
+  const statusEl = document.getElementById('identitySyncStatus');
+  const btn = document.getElementById('identitySubmitBtn');
+
+  errEl.textContent = '';
+
+  if(!nama || !kelas){
+    errEl.textContent = 'Sila isi nama dan kelas awak.';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(pin)){
+    errEl.textContent = 'PIN mesti 4 digit nombor (contoh: 1234).';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Menyahkan identiti...';
+  statusEl.className = 'sync-status';
+
+  if(!(window.FirebaseAPI && window.FirebaseAPI.isReady())){
+    const fbErr = (window.FirebaseAPI && window.FirebaseAPI.getInitError && window.FirebaseAPI.getInitError()) || '';
+    statusEl.textContent = fbErr ? ('⚠️ Firebase gagal sambung: ' + fbErr) : '⚠️ Sambungan awan belum tersedia — cuba buka fail ini terus dalam pelayar (bukan pratonton chat) untuk sahkan Firebase.';
+    statusEl.className = 'sync-status err';
+    btn.disabled = false;
+    return;
+  }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+
+  try{
+    const pinHash = await window.FirebaseAPI.sha256Hex(pin);
+    const result = await window.FirebaseAPI.verifyOrCreateProfile(studentId, nama, kelas, pinHash);
+
+    if(!result.ok){
+      if(result.status === 'mismatch'){
+        errEl.textContent = 'Nama & kelas ini sudah didaftarkan dengan PIN lain. Sila masukkan PIN asal awak, atau guna nama/kelas sedikit berbeza kalau ini murid lain.';
+      } else {
+        errEl.textContent = 'Gagal menyemak profil. Sila cuba sekali lagi.';
+      }
+      statusEl.textContent = '';
+      btn.disabled = false;
+      return;
+    }
+
+    state.studentName = nama;
+    state.studentClass = kelas;
+    state.studentId = studentId;
+    document.getElementById('studentBadge').textContent = `👋 ${nama} (${kelas})`;
+
+    statusEl.textContent = result.status === 'created' ? 'Profil baru dicipta ✅' : 'PIN disahkan ✅';
+    statusEl.className = 'sync-status ok';
+
+    const levelIds = TAHUN_LIST.map(n=>`tahun-${n}`);
+    const levelData = await window.FirebaseAPI.loadLevelData(state.studentId, levelIds);
+    state.stars = {};
+    state.playCounts = {};
+    for(const lid of levelIds){
+      state.stars[lid] = (levelData[lid] && levelData[lid].stars) || 0;
+      state.playCounts[lid] = (levelData[lid] && levelData[lid].playCount) || 0;
+    }
+
+  }catch(e){
+    statusEl.textContent = 'Gagal sambung — bermain tanpa simpan awan buat masa ini.';
+    statusEl.className = 'sync-status err';
+  }
+
+  btn.disabled = false;
+  goToTahunSelect();
+}
+
+/* ================= TAHUN SELECT ================= */
+function goToTahunSelect(){
+  renderTahunGrid();
+  showScreen('screen-tahun');
+}
+
+function renderTahunGrid(){
+  const grid = document.getElementById('tahunGrid');
+  grid.innerHTML = TAHUN_LIST.map(n=>{
+    const stars = state.stars[`tahun-${n}`] || 0;
+    return `<button class="tahun-btn t${n}" onclick="selectTahun(${n})">
+      <div class="tnum">Tahun ${n}</div>
+      <div class="tstars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectTahun(n){
+  state.tahun = n;
+  startGame();
+}
+
+/* ================= GAME FLOW ================= */
+function startGame(){
+  const levelId = `tahun-${state.tahun}`;
+  const playCount = state.playCounts[levelId] || 0;
+  const setIndex = playCount % SET_COUNT;
+  const fullBank = TAHUN_BANKS[state.tahun];
+  const setQuestions = fullBank.slice(setIndex*SET_SIZE, setIndex*SET_SIZE + SET_SIZE);
+
+  state.deck = shuffle(setQuestions);
+  state.qIndex = 0;
+  state.correctCount = 0;
+
+  document.getElementById('gameTag').textContent = `Teka Gambar BM · Tahun ${state.tahun}`;
+  showScreen('screen-game');
+  startQuestion();
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  startGame();
+}
+
+function startQuestion(){
+  state.answered = false;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const total = state.deck.length;
+  document.getElementById('qCount').textContent = `Soalan ${state.qIndex+1} daripada ${total}`;
+  document.getElementById('progressFill').style.width = `${(state.qIndex/total)*100}%`;
+
+  const q = state.deck[state.qIndex];
+  const area = document.getElementById('questionArea');
+  const opts = shuffle(q.options);
+  area.innerHTML = `
+    <div class="q-emoji">${q.emoji}</div>
+    <div class="q-prompt">Apakah perkataan yang betul?</div>
+    <div class="options-grid">${opts.map(o=>`<button class="opt-btn" onclick="checkMcq(this,${JSON.stringify(o).replace(/"/g,'&quot;')},${JSON.stringify(q.answer).replace(/"/g,'&quot;')})">${o}</button>`).join('')}</div>
+  `;
+}
+
+function checkMcq(btn, chosen, correct){
+  if(state.answered) return;
+  state.answered = true;
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach(b=>b.disabled = true);
+  const isCorrect = chosen === correct;
+  if(isCorrect){
+    btn.classList.add('correct');
+    state.correctCount++;
+    showFeedback(true);
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === correct) b.classList.add('correct'); });
+    showFeedback(false);
+  }
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function showFeedback(good, customMsg){
+  if(window.FirebaseAPI && window.FirebaseAPI.sound){ good ? window.FirebaseAPI.sound.playCorrect() : window.FirebaseAPI.sound.playWrong(); }
+  const el = document.getElementById('feedback');
+  if(good){
+    el.textContent = 'Betul! Syabas! 🎉';
+    el.className = 'feedback good';
+  } else {
+    el.textContent = customMsg || 'Belum tepat, cuba lagi nanti!';
+    el.className = 'feedback bad';
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex >= state.deck.length){
+    finishGame();
+  } else {
+    startQuestion();
+  }
+}
+
+async function finishGame(){
+  const total = state.deck.length;
+  const score = state.correctCount;
+  let stars = 0;
+  if(score === total) stars = 3;
+  else if(score >= Math.ceil(total*0.6)) stars = 2;
+  else if(score >= Math.ceil(total*0.4)) stars = 1;
+
+  const levelId = `tahun-${state.tahun}`;
+  const prevStars = state.stars[levelId] || 0;
+  const bestStars = Math.max(stars, prevStars);
+  state.stars[levelId] = bestStars;
+
+  const newPlayCount = (state.playCounts[levelId] || 0) + 1;
+  state.playCounts[levelId] = newPlayCount;
+
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent = `Skor: ${score} / ${total}`;
+
+  let msg = '';
+  if(stars === 3) msg = 'Cemerlang! Awak menguasai semua perkataan ini.';
+  else if(stars === 2) msg = 'Bagus! Sikit lagi untuk jadi cemerlang.';
+  else if(stars === 1) msg = 'Baik punya cubaan! Cuba lagi untuk tambah bintang.';
+  else msg = 'Jangan risau, cuba lagi ya!';
+  document.getElementById('resultMsg').textContent = msg;
+
+  document.getElementById('resultOverlay').classList.add('active');
+
+  const syncEl = document.getElementById('resultSyncStatus');
+  syncEl.textContent = 'Menyimpan markah...';
+  syncEl.className = 'sync-status';
+
+  if(window.FirebaseAPI && window.FirebaseAPI.isReady() && state.studentId){
+    const res = await window.FirebaseAPI.saveScore(levelId, state.studentId, {
+      name: state.studentName,
+      kelas: state.studentClass,
+      score: score,
+      total: total,
+      stars: bestStars,
+      playCount: newPlayCount
+    });
+    if(res.ok){
+      syncEl.textContent = 'Markah disimpan ke awan ✅';
+      syncEl.className = 'sync-status ok';
+    } else {
+      syncEl.textContent = '⚠️ Gagal simpan ke awan — markah disimpan dalam peranti sahaja buat masa ini.';
+      syncEl.className = 'sync-status err';
+    }
+  } else {
+    syncEl.textContent = '⚠️ Tiada sambungan awan — markah disimpan dalam peranti sahaja buat masa ini.';
+    syncEl.className = 'sync-status err';
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  goToTahunSelect();
+}
+</script>
+</body>
+</html>

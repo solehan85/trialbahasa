@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Susun & Bina Ayat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#D5F6E2;
+    --bg-bottom:#A8F0C5;
+    --ink:#2C2A25;
+    --ink-soft:#6B6558;
+    --wood-dark:#6E4A28;
+    --gold:#C62F3E;
+    --green:#4C9A6C;
+    --green-dark:#3B7C56;
+    --indigo:#8F3D6E;
+    --indigo-dark:#65294D;
+    --coral:#158479;
+    --coral-dark:#0E4943;
+    --card:#FFFFFF;
+    --shadow:rgba(44,42,37,0.18);
+    --good:#3B7C56;
+    --bad:#C94F36;
+    --theme:#2D8650;
+    --theme-dark:#1C5F36;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:url('backgrounds/postermalaysia.jpg');background-size:cover;background-position:center;filter:blur(1px);opacity:0.40;pointer-events:none;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:560px;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif; margin:0;}
+  button{font-family:'Nunito',sans-serif; cursor:pointer; border:none; outline-offset:2px;}
+  button:focus-visible{outline:3px solid var(--indigo);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-title{font-size:1.05rem; font-weight:700; color:var(--wood-dark);}
+  .student-badge{font-size:0.8rem; font-weight:700; color:var(--ink-soft);}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .home-card{background:var(--card); border-radius:28px; padding:34px 26px 30px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .mascot-emoji{font-size:4.2rem; line-height:1;}
+  .home-card h1{font-size:1.9rem; color:var(--wood-dark); line-height:1.15; margin-top:8px;}
+  .home-card .tagline{color:var(--ink-soft); font-size:1rem; margin-top:10px; line-height:1.5;}
+  .cta-btn{margin-top:24px; background:var(--coral); color:#fff; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.15rem; padding:14px 36px; border-radius:999px; box-shadow:0 5px 0 var(--coral-dark); transition:transform .08s ease;}
+  .cta-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--coral-dark);}
+  .cta-btn:disabled{opacity:.5; cursor:default;}
+
+  .identity-card{background:var(--card); border-radius:28px; padding:32px 26px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .identity-card h2{color:var(--wood-dark); font-size:1.4rem;}
+  .identity-card p.tagline{margin-top:8px;}
+  .id-field{text-align:left; margin-top:18px;}
+  .id-field label{display:block; font-weight:700; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;}
+  .id-field input{width:100%; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700; padding:12px 14px; border-radius:12px; border:2px solid #EAE2D2; background:#FBF8F1; color:var(--ink);}
+  .id-field input:focus{outline:none; border-color:var(--theme);}
+  .id-error{color:var(--bad); font-weight:700; font-size:0.85rem; margin-top:10px; min-height:18px;}
+  .sync-status{text-align:center; font-size:0.8rem; font-weight:700; margin-top:10px; color:var(--ink-soft);}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.err{color:var(--bad);}
+
+  /* ---------- Tahun select ---------- */
+  .tahun-wrap{background:var(--card); border-radius:28px; padding:26px 22px 28px; box-shadow:0 8px 0 var(--shadow);}
+  .tahun-title{text-align:center; color:var(--wood-dark); font-size:1.3rem; margin-bottom:18px;}
+  .tahun-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  .tahun-btn{
+    --btn-light:#FFFFFF; --btn-base:#FBF8F1; --btn-dark:#EAE2D2;
+    background:linear-gradient(160deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
+    border:none; border-radius:18px; padding:18px 8px 16px; text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 6px 0 var(--btn-dark),
+      0 10px 18px rgba(0,0,0,0.25);
+  }
+  .tahun-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 9px 0 var(--btn-dark),
+      0 14px 22px rgba(0,0,0,0.3);
+  }
+  .tahun-btn:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(0,0,0,0.18),
+      0 2px 0 var(--btn-dark),
+      0 4px 8px rgba(0,0,0,0.2);
+  }
+  .tahun-btn .tnum{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.35rem; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,0.28);}
+  .tahun-btn .tstars{font-size:0.95rem; margin-top:6px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));}
+  .tahun-btn.t1{--btn-light:#FF8A7E; --btn-base:#FF5C4D; --btn-dark:#D93A2B;}
+  .tahun-btn.t2{--btn-light:#FFC168; --btn-base:#FF9F1C; --btn-dark:#CC7900;}
+  .tahun-btn.t3{--btn-light:#6EE2A0; --btn-base:#2ECC71; --btn-dark:#1F9C57;}
+  .tahun-btn.t4{--btn-light:#6BD9EC; --btn-base:#17B6D4; --btn-dark:#0E8CA6;}
+  .tahun-btn.t5{--btn-light:#B79CFA; --btn-base:#8B5CF6; --btn-dark:#6636D9;}
+  .tahun-btn.t6{--btn-light:#F589BC; --btn-base:#EC4899; --btn-dark:#C22D74;}
+  @media (max-width:420px){ .tahun-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
+  .game-card{background:var(--card); border-radius:28px; padding:22px 20px 26px; box-shadow:0 8px 0 var(--shadow);}
+  .game-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .back-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.9rem; padding:6px 10px; border-radius:10px;}
+  .back-btn:hover{background:#F2EEE4;}
+  .game-tag{font-family:'Baloo 2',sans-serif; font-weight:700; padding:6px 14px; border-radius:999px; color:#fff; font-size:0.85rem; background:var(--theme);}
+  .progress-track{height:10px; background:#EFEAE0; border-radius:999px; overflow:hidden; margin-bottom:22px;}
+  .progress-fill{height:100%; border-radius:999px; transition:width .35s ease; background:var(--theme);}
+  .q-count{text-align:center; color:var(--ink-soft); font-weight:700; font-size:0.85rem; margin-bottom:14px; letter-spacing:.03em; text-transform:uppercase;}
+  .q-prompt{text-align:center; font-size:1.05rem; font-weight:700; margin-bottom:16px; line-height:1.4; color:var(--wood-dark);}
+
+  .token-answer{min-height:56px; display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; background:#FBF8F1; border:2px dashed #DCD2BB; border-radius:16px; padding:12px; margin-bottom:16px;}
+  .token-chip{background:var(--gold); color:#fff; font-weight:800; font-family:'Baloo 2',sans-serif; padding:8px 14px; border-radius:10px; font-size:1rem;}
+  .token-bank{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .token-btn{background:#fff; border:2px solid #EAE2D2; color:var(--ink); font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1rem; padding:10px 16px; border-radius:12px;}
+  .token-btn:hover:not(:disabled){border-color:var(--theme); background:#EEF8F0;}
+  .token-btn:disabled{opacity:.35; cursor:default;}
+  .undo-row{text-align:center; margin-bottom:6px;}
+  .undo-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.85rem; text-decoration:underline; padding:4px;}
+
+  .feedback{text-align:center; font-weight:800; font-family:'Baloo 2',sans-serif; font-size:1.05rem; min-height:30px; margin:14px 0 4px;}
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  .next-btn{display:block; margin:14px auto 0; background:var(--indigo); color:#fff; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1rem; padding:12px 30px; border-radius:999px; box-shadow:0 4px 0 var(--indigo-dark);}
+  .next-btn:active{transform:translateY(2px); box-shadow:0 2px 0 var(--indigo-dark);}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,42,37,0.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.active{display:flex;}
+  .result-card{background:var(--card); border-radius:26px; padding:32px 26px; text-align:center; max-width:380px; width:100%; box-shadow:0 10px 0 var(--shadow);}
+  .result-stars{font-size:2.4rem; letter-spacing:6px; margin:14px 0;}
+  .result-score{font-family:'Baloo 2',sans-serif; font-size:1.3rem; font-weight:700; color:var(--wood-dark);}
+  .result-msg{color:var(--ink-soft); margin:10px 0 20px; line-height:1.5;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .result-btn{font-family:'Baloo 2',sans-serif; font-weight:700; padding:11px 22px; border-radius:999px; font-size:0.95rem;}
+  .result-btn.primary{background:var(--green); color:#fff; box-shadow:0 4px 0 var(--green-dark);}
+  .result-btn.secondary{background:#F2EEE4; color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#2D8650"/><text x="17" y="23" font-size="17" text-anchor="middle" font-family="Baloo 2">🧩</text></svg>
+      <span class="brand-title">Susun & Bina Ayat</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="student-badge" id="studentBadge"></span>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <div class="mascot-emoji">🧩✍️</div>
+      <h1>Susun & Bina Ayat</h1>
+      <p class="tagline">Susun perkataan yang bertaburan mengikut turutan yang betul untuk membina ayat yang gramatis dan bermakna.</p>
+      <button class="cta-btn" onclick="showIdentityScreen()">Mula Main</button>
+    </div>
+  </section>
+
+  <!-- IDENTITY SCREEN -->
+  <section class="screen" id="screen-identity">
+    <div class="identity-card">
+      <h2>Siapa nama awak?</h2>
+      <p class="tagline">Kami perlukan nama, kelas dan PIN untuk simpan markah awak — PIN yang sama boleh digunakan untuk semua permainan Seronoknya Bahasa.</p>
+      <div class="id-field">
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Contoh: Ali bin Ahmad" maxlength="40">
+      </div>
+      <div class="id-field">
+        <label for="inputKelas">Kelas</label>
+        <input type="text" id="inputKelas" placeholder="Contoh: 4 Bestari" maxlength="30">
+      </div>
+      <div class="id-field">
+        <label for="inputPin">PIN (4 digit)</label>
+        <input type="text" id="inputPin" placeholder="Contoh: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <div style="font-size:0.75rem; color:var(--ink-soft); font-weight:600; margin-top:5px;">Kali pertama? Cipta PIN baru. Dah pernah main? Masukkan PIN yang sama.</div>
+      </div>
+      <div class="id-error" id="idError"></div>
+      <button class="cta-btn" id="identitySubmitBtn" onclick="submitIdentity()">Sedia, Mula!</button>
+      <div class="sync-status" id="identitySyncStatus"></div>
+    </div>
+  </section>
+
+  <!-- TAHUN SELECT SCREEN -->
+  <section class="screen" id="screen-tahun">
+    <div class="tahun-wrap">
+      <h2 class="tahun-title">Pilih Tahun</h2>
+      <div class="tahun-grid" id="tahunGrid"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screen-game">
+    <div class="game-card">
+      <div class="game-header">
+        <button class="back-btn" onclick="goToTahunSelect()">← Tahun</button>
+        <span class="game-tag" id="gameTag">Susun & Bina Ayat</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="q-count" id="qCount"></div>
+
+      <div class="q-prompt">Susun perkataan menjadi ayat yang betul</div>
+      <div class="token-answer" id="tokenAnswer"></div>
+      <div class="undo-row"><button class="undo-btn" onclick="undoToken()">Padam perkataan terakhir</button></div>
+      <div class="token-bank" id="tokenBank"></div>
+
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Seterusnya →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <h2 id="resultTitle" style="color:var(--wood-dark);">Selesai!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="sync-status" id="resultSyncStatus"></div>
+    <div class="result-actions">
+      <button class="result-btn secondary" onclick="retryGame()">Main Lagi</button>
+      <button class="result-btn primary" onclick="closeResult()">Tahun Lain</button>
+    </div>
+  </div>
+</div>
+
+<script>window.SERONOK_GAME_ID = 'susun-bina-ayat';</script>
+<script type="module" src="firebase-shared.js"></script>
+
+<script>
+/* ================= DATA ================= */
+const TAHUN_BANKS = {
+  1: [
+    'Saya suka buku.','Ali makan nasi.','Kucing itu comel.','Ibu memasak sup.','Ayah minum kopi.',
+    'Adik main bola.','Burung itu terbang.','Kami pergi sekolah.','Dia suka menyanyi.','Emak beli ikan.',
+    'Saya suka susu.','Ali basuh tangan.','Anjing itu comel.','Ibu masak nasi.','Ayah baca surat.',
+    'Adik tutup pintu.','Ikan itu berenang.','Kami balik rumah.','Dia suka melukis.','Nenek jahit baju.',
+    'Kucing suka tidur.','Saya pakai baju.','Abang basuh kereta.','Kakak sapu lantai.','Ayam itu berkokok.',
+    'Kami main bola.','Atuk baca akhbar.','Emak jemur baju.','Budak itu menangis.','Saya suka bermain.',
+  ],
+  2: [
+    'Saya pergi ke sekolah setiap hari.','Ali bermain bola di padang.','Ibu memasak nasi lemak untuk sarapan.',
+    'Kucing itu tidur di atas kerusi.','Kami membaca buku di perpustakaan.','Adik menangis kerana kehilangan mainan.',
+    'Ayah memandu kereta ke pejabat.','Murid-murid menyanyi lagu kebangsaan.','Nenek menanam bunga di kebun.',
+    'Doktor merawat pesakit di hospital.',
+    'Kami berjalan kaki ke kedai.','Ali menyapu sampah di halaman.','Ibu membeli sayur di pasar.',
+    'Guru mengajar kami di kelas.','Adik bermain layang-layang di padang.','Ayah menonton berita di rumah.',
+    'Kami berkumpul di dewan sekolah.','Polis menjaga keselamatan di jalan.','Nelayan menangkap ikan di sungai.',
+    'Murid itu menulis karangan panjang.','Kucing itu mengejar tikus kecil.','Kami menyanyi lagu bersama-sama.',
+    'Ali menyimpan wang dalam tabung.','Emak menjahit baju untuk adik.','Kami bermain di taman permainan.',
+    'Ayah membaca surat khabar setiap pagi.','Doktor memeriksa pesakit dengan teliti.','Kami menghadiri majlis hari sukan.',
+    'Ali menolong emak membasuh pinggan.','Kami menonton wayang pada petang Sabtu.',
+  ],
+  3: [
+    'Pada waktu petang, kami bermain di taman.','Guru itu mengajar kami dengan penuh sabar.',
+    'Selepas hujan, pelangi muncul di langit.','Setiap pagi, ayah bersenam sebelum pergi bekerja.',
+    'Murid itu menyiapkan kerja rumah dengan tekun.','Nelayan itu menangkap ikan di laut dalam.',
+    'Kami menonton wayang pada hujung minggu lalu.','Adik saya suka melukis gambar haiwan liar.',
+    'Petani menanam padi di sawah yang luas.','Pelajar-pelajar berkumpul di dewan untuk perhimpunan.',
+    'Setiap malam, saya membaca buku sebelum tidur.','Kami bergotong-royong membersihkan taman permainan sekolah.',
+    'Doktor itu merawat pesakit dengan penuh sabar.','Selepas makan, kami membasuh pinggan bersama-sama.',
+    'Murid-murid berbaris dengan kemas sebelum masuk kelas.','Ayah membaiki basikal yang rosak di garaj.',
+    'Kami menanam pokok bunga di halaman rumah.','Nelayan pulang ke kampung selepas menangkap ikan.',
+    'Cikgu memberi ganjaran kepada murid yang rajin.','Kami berlatih bernyanyi untuk pertandingan sekolah.',
+    'Ibu menghidangkan makanan yang lazat untuk keluarga.','Ayah menghantar saya ke sekolah setiap pagi.',
+    'Kami membaca buku cerita di perpustakaan sekolah.','Petani itu menuai padi dengan bantuan jiran.',
+    'Murid itu meminta maaf kerana melakukan kesilapan.','Kami berkelah di tepi sungai pada cuti sekolah.',
+    'Ayah memasang lampu baharu di ruang tamu.','Kami mengumpul sampah plastik di kawasan pantai.',
+    'Guru besar berucap semasa perhimpunan pagi Isnin.','Kami berlatih sukan setiap petang selepas sekolah.',
+  ],
+  4: [
+    'Walaupun penat, dia tetap menyiapkan kerja sekolahnya.','Kami bergotong-royong membersihkan kawasan sekolah pada Sabtu.',
+    'Ibu bapa dijemput menghadiri hari sukan tahunan sekolah.','Pasukan itu berlatih bersungguh-sungguh sebelum pertandingan bermula esok.',
+    'Perpustakaan sekolah menyediakan pelbagai bahan bacaan yang berguna.','Selepas menyiapkan tugasan, murid-murid bermain di padang sekolah.',
+    'Jawatankuasa sekolah merancang aktiviti bagi minggu kebudayaan tahun ini.','Ramai pelawat datang menyaksikan pameran sains anjuran sekolah.',
+    'Pengawal keselamatan memastikan semua murid selamat semasa waktu rehat.','Kakitangan sekolah bekerjasama menjayakan program kebersihan alam sekitar.',
+    'Murid-murid diminta membawa payung semasa musim hujan.','Sekolah menganjurkan kem motivasi untuk murid tahun enam.',
+    'Guru menasihati murid supaya sentiasa menjaga kesihatan diri.','Kami menyertai pertandingan mengarang pada peringkat daerah tahun ini.',
+    'Ibu bapa digalakkan menghantar anak ke sekolah lebih awal.','Jawatankuasa keselamatan sekolah mengadakan latihan kebakaran setiap tahun.',
+    'Murid-murid diminta menjaga kebersihan tandas sekolah setiap hari.','Sekolah menyediakan kelas tambahan untuk murid yang lemah.',
+    'Kami membantu adik-adik tadika menyertai aktiviti sukan tahunan.','Guru mendisiplinkan murid yang melanggar peraturan sekolah dengan tegas.',
+    'Pihak sekolah memberi galakan kepada murid yang cemerlang dalam peperiksaan.','Kami berbincang tentang cara menjimatkan penggunaan air di rumah.',
+    'Sukarelawan sekolah membantu mangsa banjir di kawasan sekitar.','Murid-murid mempelajari cara pertolongan cemas semasa kelas kesihatan.',
+    'Kami menghias dewan sekolah untuk sambutan hari kemerdekaan.','Ibu bapa dan guru bekerjasama memantau kemajuan pelajaran murid.',
+    'Sekolah mengadakan kempen kitar semula bagi mengurangkan sisa pepejal.','Murid tahun enam menjadi role model kepada murid tahun satu.',
+    'Kami menyertai program keusahawanan yang dianjurkan oleh sekolah.','Pihak sekolah menekankan kepentingan sarapan sebelum ke sekolah.',
+  ],
+  5: [
+    'Meskipun cuaca tidak menentu, perkhemahan tahunan tetap diteruskan seperti dirancang.',
+    'Kerjasama erat antara ibu bapa dan guru penting untuk kejayaan murid.',
+    'Selepas berbincang panjang, jawatankuasa bersetuju menganjurkan karnival sekolah bulan depan.',
+    'Sikap bertanggungjawab perlu dipupuk dalam diri setiap murid sejak awal lagi.',
+    'Pameran sains itu menampilkan pelbagai inovasi kreatif hasil ciptaan murid tahun enam.',
+    'Guru besar menekankan kepentingan disiplin dalam ucapan perhimpunan pagi tadi.',
+    'Aktiviti gotong-royong itu berjaya mengeratkan hubungan antara penduduk kampung.',
+    'Program mentor-mentee ini membantu murid lemah menguasai kemahiran membaca dengan lebih yakin.',
+    'Usaha berterusan pihak sekolah membuahkan hasil apabila pencapaian akademik meningkat mendadak.',
+    'Kempen kesedaran alam sekitar itu mendapat sambutan menggalakkan daripada seluruh komuniti sekolah.',
+    'Pihak sekolah berbangga dengan pencapaian cemerlang murid dalam pertandingan kebangsaan.',
+    'Semangat kerjasama dalam kalangan murid perlu dipupuk sejak bangku sekolah rendah.',
+    'Kempen membaca yang dianjurkan sekolah berjaya meningkatkan minat murid terhadap buku.',
+    'Guru-guru bekerja lebih masa untuk memastikan murid bersedia menghadapi peperiksaan.',
+    'Jawatankuasa disiplin sekolah mengambil tindakan tegas terhadap pelajar yang ponteng kelas.',
+    'Program keusahawanan remaja mendedahkan murid kepada asas pengurusan perniagaan kecil-kecilan.',
+    'Ibu bapa yang prihatin sentiasa memantau perkembangan pembelajaran anak masing-masing.',
+    'Kerjasama erat antara pihak sekolah dan komuniti setempat memacu kemajuan pendidikan.',
+    'Murid-murid digalakkan menyertai aktiviti sukarelawan bagi memupuk semangat prihatin sesama insan.',
+    'Pameran kerjaya yang dianjurkan sekolah membuka minda murid tentang pelbagai bidang pekerjaan.',
+    'Sikap positif terhadap pembelajaran membantu murid mengatasi cabaran akademik dengan lebih yakin.',
+    'Kejayaan pasukan sekolah dalam kejohanan negeri membanggakan seluruh warga sekolah.',
+    'Guru kaunseling membantu murid yang menghadapi tekanan emosi akibat peperiksaan.',
+    'Aktiviti luar bilik darjah memberi peluang murid mengaplikasikan ilmu secara praktikal.',
+    'Sekolah memperkenalkan sistem ganjaran bagi menggalakkan tingkah laku positif dalam kalangan murid.',
+    'Kempen anti-buli yang dijalankan sekolah bertujuan mewujudkan persekitaran pembelajaran yang selamat.',
+    'Kerjasama antara sekolah dan ibu bapa penting bagi memastikan kesejahteraan mental murid.',
+    'Pencapaian cemerlang dalam sukan mengangkat imej sekolah di peringkat kebangsaan.',
+    'Program bimbingan rakan sebaya membantu murid baharu menyesuaikan diri dengan persekitaran sekolah.',
+    'Usaha gigih guru dan murid membuahkan kejayaan dalam pertandingan kokurikulum peringkat kebangsaan.',
+  ],
+  6: [
+    'Kegigihan dan ketekunan murid itu akhirnya membuahkan kejayaan cemerlang dalam peperiksaan.',
+    'Pihak sekolah sentiasa berusaha melahirkan generasi yang berilmu, berakhlak, dan berdaya saing.',
+    'Perpaduan kaum yang utuh menjadi asas kepada kestabilan dan kemakmuran sesebuah negara.',
+    'Penggunaan teknologi dalam pengajaran telah mengubah cara murid memahami sesuatu topik secara mendalam.',
+    'Sebagai warganegara yang bertanggungjawab, kita perlu menjaga kebersihan dan keharmonian alam sekitar.',
+    'Semangat kesukarelawanan dalam kalangan belia amat penting bagi membina masyarakat penyayang.',
+    'Kejayaan sesuatu bangsa banyak bergantung kepada kualiti pendidikan yang diterima oleh rakyatnya.',
+    'Ketokohan seseorang pemimpin dapat dilihat melalui keputusan bijaksana yang diambil demi kepentingan rakyat.',
+    'Pembangunan lestari memerlukan keseimbangan antara kemajuan ekonomi dan pemuliharaan alam semula jadi.',
+    'Nilai murni seperti hormat-menghormati perlu diterapkan sejak di bangku sekolah rendah lagi.',
+    'Kestabilan politik dan ekonomi negara amat bergantung kepada kepimpinan yang berwibawa dan telus.',
+    'Generasi muda perlu dilengkapi dengan kemahiran berfikir secara kritis dan kreatif demi masa depan.',
+    'Kemajuan sesebuah negara tidak bermakna sekiranya rakyatnya tidak menghayati nilai-nilai murni dan bertoleransi.',
+    'Pendidikan berkualiti merupakan pelaburan jangka panjang yang paling bernilai bagi pembangunan sesebuah negara.',
+    'Kerjasama serantau amat penting bagi menangani cabaran global seperti perubahan iklim dan wabak penyakit.',
+    'Semangat patriotisme perlu disemai dalam jiwa setiap rakyat tanpa mengira kaum dan agama.',
+    'Inovasi teknologi memberi impak besar terhadap cara masyarakat berkomunikasi, bekerja, dan berniaga hari ini.',
+    'Pembangunan modal insan yang seimbang meliputi aspek jasmani, emosi, rohani, intelek, dan sosial.',
+    'Kepelbagaian budaya di negara ini seharusnya dilihat sebagai kekuatan, bukan punca perpecahan.',
+    'Kesedaran sivik dalam kalangan rakyat memainkan peranan penting dalam membentuk masyarakat yang harmoni.',
+    'Kestabilan kewangan keluarga banyak bergantung kepada kebijaksanaan menguruskan pendapatan dan perbelanjaan bulanan.',
+    'Amalan kelestarian alam sekitar perlu menjadi tanggungjawab bersama, bukan hanya golongan tertentu sahaja.',
+    'Kepimpinan yang berintegriti mampu membina keyakinan rakyat terhadap sesebuah kerajaan yang memerintah.',
+    'Pendekatan pendidikan holistik memberi penekanan kepada perkembangan akademik dan sahsiah pelajar secara seimbang.',
+    'Perubahan sikap masyarakat terhadap alam sekitar memerlukan usaha berterusan daripada semua peringkat.',
+    'Ketahanan mental amat penting bagi membolehkan seseorang berdepan dengan tekanan kehidupan moden.',
+    'Semangat gotong-royong yang semakin pudar dalam masyarakat bandar perlu dihidupkan semula.',
+    'Sistem pendidikan yang inklusif memastikan setiap kanak-kanak mendapat peluang yang saksama untuk berjaya.',
+    'Globalisasi membawa peluang dan cabaran yang perlu ditangani dengan bijaksana oleh setiap negara.',
+    'Warisan budaya bangsa perlu dipelihara agar tidak dilupakan oleh generasi akan datang.',
+  ],
+};
+const TAHUN_LIST = Object.keys(TAHUN_BANKS).map(Number).sort((a,b)=>a-b);
+const SET_SIZE = 10;
+const SET_COUNT = 3; // setiap Tahun ada 30 ayat (3 set x 10) supaya tidak berulang sehingga 3 kali main
+
+/* ================= STATE (in-memory only) ================= */
+let state = {
+  tahun: null,
+  deck: [],
+  qIndex: 0,
+  correctCount: 0,
+  answer: [],
+  tokenAnswer: [],
+  tokenUsed: [],
+  answered: false,
+  stars: {},
+  playCounts: {},
+  studentName: '',
+  studentClass: '',
+  studentId: ''
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================= NAV ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showIdentityScreen(){
+  document.getElementById('idError').textContent = '';
+  document.getElementById('identitySyncStatus').textContent = '';
+  showScreen('screen-identity');
+}
+
+async function submitIdentity(){
+  const nama = document.getElementById('inputNama').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const pin = document.getElementById('inputPin').value.trim();
+  const errEl = document.getElementById('idError');
+  const statusEl = document.getElementById('identitySyncStatus');
+  const btn = document.getElementById('identitySubmitBtn');
+
+  errEl.textContent = '';
+
+  if(!nama || !kelas){
+    errEl.textContent = 'Sila isi nama dan kelas awak.';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(pin)){
+    errEl.textContent = 'PIN mesti 4 digit nombor (contoh: 1234).';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Menyahkan identiti...';
+  statusEl.className = 'sync-status';
+
+  if(!(window.FirebaseAPI && window.FirebaseAPI.isReady())){
+    const fbErr = (window.FirebaseAPI && window.FirebaseAPI.getInitError && window.FirebaseAPI.getInitError()) || '';
+    statusEl.textContent = fbErr ? ('⚠️ Firebase gagal sambung: ' + fbErr) : '⚠️ Sambungan awan belum tersedia — cuba buka fail ini terus dalam pelayar (bukan pratonton chat) untuk sahkan Firebase.';
+    statusEl.className = 'sync-status err';
+    btn.disabled = false;
+    return;
+  }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+
+  try{
+    const pinHash = await window.FirebaseAPI.sha256Hex(pin);
+    const result = await window.FirebaseAPI.verifyOrCreateProfile(studentId, nama, kelas, pinHash);
+
+    if(!result.ok){
+      if(result.status === 'mismatch'){
+        errEl.textContent = 'Nama & kelas ini sudah didaftarkan dengan PIN lain. Sila masukkan PIN asal awak, atau guna nama/kelas sedikit berbeza kalau ini murid lain.';
+      } else {
+        errEl.textContent = 'Gagal menyemak profil. Sila cuba sekali lagi.';
+      }
+      statusEl.textContent = '';
+      btn.disabled = false;
+      return;
+    }
+
+    state.studentName = nama;
+    state.studentClass = kelas;
+    state.studentId = studentId;
+    document.getElementById('studentBadge').textContent = `👋 ${nama} (${kelas})`;
+
+    statusEl.textContent = result.status === 'created' ? 'Profil baru dicipta ✅' : 'PIN disahkan ✅';
+    statusEl.className = 'sync-status ok';
+
+    const levelIds = TAHUN_LIST.map(n=>`tahun-${n}`);
+    const levelData = await window.FirebaseAPI.loadLevelData(state.studentId, levelIds);
+    state.stars = {};
+    state.playCounts = {};
+    for(const lid of levelIds){
+      state.stars[lid] = (levelData[lid] && levelData[lid].stars) || 0;
+      state.playCounts[lid] = (levelData[lid] && levelData[lid].playCount) || 0;
+    }
+
+  }catch(e){
+    statusEl.textContent = 'Gagal sambung — bermain tanpa simpan awan buat masa ini.';
+    statusEl.className = 'sync-status err';
+  }
+
+  btn.disabled = false;
+  goToTahunSelect();
+}
+
+/* ================= TAHUN SELECT ================= */
+function goToTahunSelect(){
+  renderTahunGrid();
+  showScreen('screen-tahun');
+}
+
+function renderTahunGrid(){
+  const grid = document.getElementById('tahunGrid');
+  grid.innerHTML = TAHUN_LIST.map(n=>{
+    const stars = state.stars[`tahun-${n}`] || 0;
+    return `<button class="tahun-btn t${n}" onclick="selectTahun(${n})">
+      <div class="tnum">Tahun ${n}</div>
+      <div class="tstars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectTahun(n){
+  state.tahun = n;
+  startGame();
+}
+
+/* ================= GAME FLOW ================= */
+function startGame(){
+  const levelId = `tahun-${state.tahun}`;
+  const playCount = state.playCounts[levelId] || 0;
+  const setIndex = playCount % SET_COUNT;
+  const fullBank = TAHUN_BANKS[state.tahun];
+  const setSentences = fullBank.slice(setIndex*SET_SIZE, setIndex*SET_SIZE + SET_SIZE);
+
+  state.deck = shuffle(setSentences);
+  state.qIndex = 0;
+  state.correctCount = 0;
+
+  document.getElementById('gameTag').textContent = `Susun & Bina Ayat · Tahun ${state.tahun}`;
+  showScreen('screen-game');
+  startQuestion();
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  startGame();
+}
+
+function startQuestion(){
+  state.answered = false;
+  state.tokenAnswer = [];
+  state.tokenUsed = [];
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const total = state.deck.length;
+  document.getElementById('qCount').textContent = `Ayat ${state.qIndex+1} daripada ${total}`;
+  document.getElementById('progressFill').style.width = `${(state.qIndex/total)*100}%`;
+
+  const sentence = state.deck[state.qIndex];
+  state.answer = sentence.split(' ');
+
+  const shuffled = state.answer.map((w,idx)=>({w,idx})).sort(()=>Math.random()-0.5);
+  document.getElementById('tokenBank').innerHTML = shuffled.map(item=>`<button class="token-btn" data-idx="${item.idx}" onclick="pickToken(this,${JSON.stringify(item.w).replace(/"/g,'&quot;')},${item.idx})">${item.w}</button>`).join('');
+  renderTokenAnswer();
+}
+
+function pickToken(btn, word, idx){
+  if(state.answered) return;
+  if(state.tokenUsed.includes(idx)) return;
+  state.tokenUsed.push(idx);
+  state.tokenAnswer.push(word);
+  btn.disabled = true;
+  renderTokenAnswer();
+
+  if(state.tokenAnswer.length === state.answer.length){
+    state.answered = true;
+    const isCorrect = state.tokenAnswer.every((w,i)=>w===state.answer[i]);
+    if(isCorrect){
+      state.correctCount++;
+      showFeedback(true);
+    } else {
+      showFeedback(false, `Susunan yang betul: ${state.answer.join(' ')}`);
+    }
+    document.getElementById('nextBtn').style.display = 'block';
+  }
+}
+
+function undoToken(){
+  if(state.answered || state.tokenAnswer.length===0) return;
+  state.tokenAnswer.pop();
+  const lastIdx = state.tokenUsed.pop();
+  const bankBtn = document.querySelector(`#tokenBank .token-btn[data-idx="${lastIdx}"]`);
+  if(bankBtn) bankBtn.disabled = false;
+  renderTokenAnswer();
+}
+
+function renderTokenAnswer(){
+  document.getElementById('tokenAnswer').innerHTML = state.tokenAnswer.map(w=>`<span class="token-chip">${w}</span>`).join('') || '<span style="color:#B5AC98; font-weight:600;">Pilih perkataan di bawah</span>';
+}
+
+function showFeedback(good, customMsg){
+  if(window.FirebaseAPI && window.FirebaseAPI.sound){ good ? window.FirebaseAPI.sound.playCorrect() : window.FirebaseAPI.sound.playWrong(); }
+  const el = document.getElementById('feedback');
+  if(good){
+    el.textContent = 'Betul! Syabas! 🎉';
+    el.className = 'feedback good';
+  } else {
+    el.textContent = customMsg || 'Belum tepat, cuba lagi nanti!';
+    el.className = 'feedback bad';
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex >= state.deck.length){
+    finishGame();
+  } else {
+    startQuestion();
+  }
+}
+
+async function finishGame(){
+  const total = state.deck.length;
+  const score = state.correctCount;
+  let stars = 0;
+  if(score === total) stars = 3;
+  else if(score >= Math.ceil(total*0.6)) stars = 2;
+  else if(score >= Math.ceil(total*0.4)) stars = 1;
+
+  const levelId = `tahun-${state.tahun}`;
+  const prevStars = state.stars[levelId] || 0;
+  const bestStars = Math.max(stars, prevStars);
+  state.stars[levelId] = bestStars;
+
+  const newPlayCount = (state.playCounts[levelId] || 0) + 1;
+  state.playCounts[levelId] = newPlayCount;
+
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent = `Skor: ${score} / ${total}`;
+
+  let msg = '';
+  if(stars === 3) msg = 'Cemerlang! Ayat awak sungguh gramatis.';
+  else if(stars === 2) msg = 'Bagus! Sikit lagi untuk jadi cemerlang.';
+  else if(stars === 1) msg = 'Baik punya cubaan! Cuba lagi untuk tambah bintang.';
+  else msg = 'Jangan risau, cuba lagi ya!';
+  document.getElementById('resultMsg').textContent = msg;
+
+  document.getElementById('resultOverlay').classList.add('active');
+
+  const syncEl = document.getElementById('resultSyncStatus');
+  syncEl.textContent = 'Menyimpan markah...';
+  syncEl.className = 'sync-status';
+
+  if(window.FirebaseAPI && window.FirebaseAPI.isReady() && state.studentId){
+    const res = await window.FirebaseAPI.saveScore(levelId, state.studentId, {
+      name: state.studentName,
+      kelas: state.studentClass,
+      score: score,
+      total: total,
+      stars: bestStars,
+      playCount: newPlayCount
+    });
+    if(res.ok){
+      syncEl.textContent = 'Markah disimpan ke awan ✅';
+      syncEl.className = 'sync-status ok';
+    } else {
+      syncEl.textContent = '⚠️ Gagal simpan ke awan — markah disimpan dalam peranti sahaja buat masa ini.';
+      syncEl.className = 'sync-status err';
+    }
+  } else {
+    syncEl.textContent = '⚠️ Tiada sambungan awan — markah disimpan dalam peranti sahaja buat masa ini.';
+    syncEl.className = 'sync-status err';
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  goToTahunSelect();
+}
+</script>
+</body>
+</html>

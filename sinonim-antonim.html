@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinonim & Antonim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#EFD5F6;
+    --bg-bottom:#E1A8F0;
+    --ink:#2C2A25;
+    --ink-soft:#6B6558;
+    --wood-dark:#6E4A28;
+    --gold:#20883F;
+    --green:#4C9A6C;
+    --green-dark:#3B7C56;
+    --indigo:#488439;
+    --indigo-dark:#305B25;
+    --coral:#D723A1;
+    --coral-dark:#9A1D75;
+    --card:#FFFFFF;
+    --shadow:rgba(44,42,37,0.18);
+    --good:#3B7C56;
+    --bad:#C94F36;
+    --theme:#853399;
+    --theme-dark:#622173;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:url('backgrounds/perlis-malaysia.jpg');background-size:cover;background-position:center;filter:blur(1px);opacity:0.40;pointer-events:none;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:560px;}
+  h1,h2,h3{font-family:'Lilita One',sans-serif; margin:0;}
+  button{font-family:'Nunito',sans-serif; cursor:pointer; border:none; outline-offset:2px;}
+  button:focus-visible{outline:3px solid var(--indigo);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-title{font-size:1.05rem; font-weight:700; color:var(--wood-dark);}
+  .student-badge{font-size:0.8rem; font-weight:700; color:var(--ink-soft);}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .home-card{background:var(--card); border-radius:28px; padding:34px 26px 30px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .mascot-emoji{font-size:4.2rem; line-height:1;}
+  .home-card h1{font-size:1.9rem; color:var(--wood-dark); line-height:1.15; margin-top:8px;}
+  .home-card .tagline{color:var(--ink-soft); font-size:1rem; margin-top:10px; line-height:1.5;}
+  .cta-btn{margin-top:24px; background:var(--coral); color:#fff; font-family:'Lilita One',sans-serif; font-weight:700; font-size:1.15rem; padding:14px 36px; border-radius:999px; box-shadow:0 5px 0 var(--coral-dark); transition:transform .08s ease;}
+  .cta-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--coral-dark);}
+  .cta-btn:disabled{opacity:.5; cursor:default;}
+
+  .identity-card{background:var(--card); border-radius:28px; padding:32px 26px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .identity-card h2{color:var(--wood-dark); font-size:1.4rem;}
+  .identity-card p.tagline{margin-top:8px;}
+  .id-field{text-align:left; margin-top:18px;}
+  .id-field label{display:block; font-weight:700; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;}
+  .id-field input{width:100%; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700; padding:12px 14px; border-radius:12px; border:2px solid #EAE2D2; background:#FBF8F1; color:var(--ink);}
+  .id-field input:focus{outline:none; border-color:var(--theme);}
+  .id-error{color:var(--bad); font-weight:700; font-size:0.85rem; margin-top:10px; min-height:18px;}
+  .sync-status{text-align:center; font-size:0.8rem; font-weight:700; margin-top:10px; color:var(--ink-soft);}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.err{color:var(--bad);}
+
+  /* ---------- Tahun select ---------- */
+  .tahun-wrap{background:var(--card); border-radius:28px; padding:26px 22px 28px; box-shadow:0 8px 0 var(--shadow);}
+  .tahun-title{text-align:center; color:var(--wood-dark); font-size:1.3rem; margin-bottom:18px;}
+  .tahun-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  .tahun-btn{
+    --btn-light:#FFFFFF; --btn-base:#FBF8F1; --btn-dark:#EAE2D2;
+    background:linear-gradient(160deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
+    border:none; border-radius:18px; padding:18px 8px 16px; text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 6px 0 var(--btn-dark),
+      0 10px 18px rgba(0,0,0,0.25);
+  }
+  .tahun-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 9px 0 var(--btn-dark),
+      0 14px 22px rgba(0,0,0,0.3);
+  }
+  .tahun-btn:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(0,0,0,0.18),
+      0 2px 0 var(--btn-dark),
+      0 4px 8px rgba(0,0,0,0.2);
+  }
+  .tahun-btn .tnum{font-family:'Lilita One',sans-serif; font-weight:800; font-size:1.35rem; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,0.28);}
+  .tahun-btn .tstars{font-size:0.95rem; margin-top:6px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));}
+  .tahun-btn.t1{--btn-light:#FF8A7E; --btn-base:#FF5C4D; --btn-dark:#D93A2B;}
+  .tahun-btn.t2{--btn-light:#FFC168; --btn-base:#FF9F1C; --btn-dark:#CC7900;}
+  .tahun-btn.t3{--btn-light:#6EE2A0; --btn-base:#2ECC71; --btn-dark:#1F9C57;}
+  .tahun-btn.t4{--btn-light:#6BD9EC; --btn-base:#17B6D4; --btn-dark:#0E8CA6;}
+  .tahun-btn.t5{--btn-light:#B79CFA; --btn-base:#8B5CF6; --btn-dark:#6636D9;}
+  .tahun-btn.t6{--btn-light:#F589BC; --btn-base:#EC4899; --btn-dark:#C22D74;}
+  @media (max-width:420px){ .tahun-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
+  .game-card{background:var(--card); border-radius:28px; padding:22px 20px 26px; box-shadow:0 8px 0 var(--shadow);}
+  .game-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .back-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.9rem; padding:6px 10px; border-radius:10px;}
+  .back-btn:hover{background:#F2EEE4;}
+  .game-tag{font-family:'Lilita One',sans-serif; font-weight:700; padding:6px 14px; border-radius:999px; color:#fff; font-size:0.85rem; background:var(--theme);}
+  .progress-track{height:10px; background:#EFEAE0; border-radius:999px; overflow:hidden; margin-bottom:22px;}
+  .progress-fill{height:100%; border-radius:999px; transition:width .35s ease; background:var(--theme);}
+  .q-count{text-align:center; color:var(--ink-soft); font-weight:700; font-size:0.85rem; margin-bottom:14px; letter-spacing:.03em; text-transform:uppercase;}
+
+  .type-tag{display:block; width:fit-content; margin:0 auto 14px; font-family:'Lilita One',sans-serif; font-weight:800; font-size:0.85rem; padding:6px 18px; border-radius:999px; color:#fff; letter-spacing:.03em;}
+  .type-tag.sinonim{background:var(--green);}
+  .type-tag.antonim{background:var(--coral);}
+  .q-word{text-align:center; font-family:'Lilita One',sans-serif; font-size:2rem; font-weight:800; color:var(--wood-dark); margin-bottom:6px;}
+  .q-prompt{text-align:center; font-size:1rem; font-weight:700; color:var(--ink-soft); margin-bottom:20px;}
+
+  .options-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .opt-btn{background:#FBF8F1; border:2px solid #EAE2D2; border-radius:16px; padding:14px 10px; font-size:1.05rem; font-weight:700; color:var(--ink); text-align:center; transition:all .12s ease;}
+  .opt-btn:hover:not(:disabled){border-color:var(--gold); background:#FFF9EC;}
+  .opt-btn.correct{background:#E4F3E8; border-color:var(--good); color:var(--good);}
+  .opt-btn.wrong{background:#FBE7E2; border-color:var(--bad); color:var(--bad);}
+  .opt-btn:disabled{cursor:default;}
+
+  .feedback{text-align:center; font-weight:800; font-family:'Lilita One',sans-serif; font-size:1.05rem; min-height:30px; margin:16px 0 4px;}
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+  .explain-box{text-align:center; font-size:0.85rem; color:var(--ink-soft); line-height:1.5; min-height:18px; padding:0 6px; margin-bottom:4px;}
+
+  .next-btn{display:block; margin:14px auto 0; background:var(--indigo); color:#fff; font-family:'Lilita One',sans-serif; font-weight:700; font-size:1rem; padding:12px 30px; border-radius:999px; box-shadow:0 4px 0 var(--indigo-dark);}
+  .next-btn:active{transform:translateY(2px); box-shadow:0 2px 0 var(--indigo-dark);}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,42,37,0.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.active{display:flex;}
+  .result-card{background:var(--card); border-radius:26px; padding:32px 26px; text-align:center; max-width:380px; width:100%; box-shadow:0 10px 0 var(--shadow);}
+  .result-stars{font-size:2.4rem; letter-spacing:6px; margin:14px 0;}
+  .result-score{font-family:'Lilita One',sans-serif; font-size:1.3rem; font-weight:700; color:var(--wood-dark);}
+  .result-msg{color:var(--ink-soft); margin:10px 0 20px; line-height:1.5;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .result-btn{font-family:'Lilita One',sans-serif; font-weight:700; padding:11px 22px; border-radius:999px; font-size:0.95rem;}
+  .result-btn.primary{background:var(--green); color:#fff; box-shadow:0 4px 0 var(--green-dark);}
+  .result-btn.secondary{background:#F2EEE4; color:var(--ink);}
+
+  @media (max-width:420px){ .options-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#853399"/><text x="17" y="23" font-size="15" text-anchor="middle" font-family="Lilita One">⇄</text></svg>
+      <span class="brand-title">Sinonim & Antonim</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="student-badge" id="studentBadge"></span>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <div class="mascot-emoji">⇄🔤</div>
+      <h1>Sinonim & Antonim</h1>
+      <p class="tagline">Teka sama ada anda perlu cari perkataan seerti (sinonim) atau lawan kata (antonim). Perhatikan label di atas setiap soalan!</p>
+      <button class="cta-btn" onclick="showIdentityScreen()">Mula Main</button>
+    </div>
+  </section>
+
+  <!-- IDENTITY SCREEN -->
+  <section class="screen" id="screen-identity">
+    <div class="identity-card">
+      <h2>Siapa nama awak?</h2>
+      <p class="tagline">Kami perlukan nama, kelas dan PIN untuk simpan markah awak — PIN yang sama boleh digunakan untuk semua permainan Seronoknya Bahasa.</p>
+      <div class="id-field">
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Contoh: Ali bin Ahmad" maxlength="40">
+      </div>
+      <div class="id-field">
+        <label for="inputKelas">Kelas</label>
+        <input type="text" id="inputKelas" placeholder="Contoh: 4 Bestari" maxlength="30">
+      </div>
+      <div class="id-field">
+        <label for="inputPin">PIN (4 digit)</label>
+        <input type="text" id="inputPin" placeholder="Contoh: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <div style="font-size:0.75rem; color:var(--ink-soft); font-weight:600; margin-top:5px;">Kali pertama? Cipta PIN baru. Dah pernah main? Masukkan PIN yang sama.</div>
+      </div>
+      <div class="id-error" id="idError"></div>
+      <button class="cta-btn" id="identitySubmitBtn" onclick="submitIdentity()">Sedia, Mula!</button>
+      <div class="sync-status" id="identitySyncStatus"></div>
+    </div>
+  </section>
+
+  <!-- TAHUN SELECT SCREEN -->
+  <section class="screen" id="screen-tahun">
+    <div class="tahun-wrap">
+      <h2 class="tahun-title">Pilih Tahun</h2>
+      <div class="tahun-grid" id="tahunGrid"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screen-game">
+    <div class="game-card">
+      <div class="game-header">
+        <button class="back-btn" onclick="goToTahunSelect()">← Tahun</button>
+        <span class="game-tag" id="gameTag">Sinonim & Antonim</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="q-count" id="qCount"></div>
+
+      <div id="questionArea"></div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="explain-box" id="explainBox"></div>
+      <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Seterusnya →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <h2 id="resultTitle" style="color:var(--wood-dark);">Selesai!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="sync-status" id="resultSyncStatus"></div>
+    <div class="result-actions">
+      <button class="result-btn secondary" onclick="retryGame()">Main Lagi</button>
+      <button class="result-btn primary" onclick="closeResult()">Tahun Lain</button>
+    </div>
+  </div>
+</div>
+
+<script>window.SERONOK_GAME_ID = 'sinonim-antonim';</script>
+<script type="module" src="firebase-shared.js"></script>
+
+<script>
+/* ================= DATA ================= */
+const TAHUN_BANKS = {
+  1: [
+    {word:"gembira", type:"sinonim", correct:"riang", options:["riang","sedih","marah","bosan"], explanation:"'Riang' bermaksud sama seperti 'gembira', iaitu perasaan senang hati."},
+    {word:"cantik", type:"sinonim", correct:"indah", options:["indah","hodoh","kotor","usang"], explanation:"'Indah' ialah sinonim bagi 'cantik' kerana kedua-duanya bermaksud elok dipandang."},
+    {word:"pantas", type:"sinonim", correct:"laju", options:["laju","perlahan","malas","lemah"], explanation:"'Laju' bermaksud sama seperti 'pantas', iaitu bergerak dengan cepat."},
+    {word:"kuat", type:"sinonim", correct:"gagah", options:["gagah","lemah","kecil","pendek"], explanation:"'Gagah' ialah sinonim bagi 'kuat' kerana kedua-duanya menerangkan tenaga yang besar."},
+    {word:"bijak", type:"sinonim", correct:"pandai", options:["pandai","bodoh","malas","nakal"], explanation:"'Pandai' bermaksud sama seperti 'bijak', iaitu berkebolehan berfikir dengan baik."},
+    {word:"sedih", type:"sinonim", correct:"pilu", options:["pilu","gembira","riang","tenang"], explanation:"'Pilu' ialah sinonim bagi 'sedih' kerana kedua-duanya menerangkan perasaan hiba."},
+    {word:"takut", type:"sinonim", correct:"gerun", options:["gerun","berani","tenang","gembira"], explanation:"'Gerun' bermaksud sama seperti 'takut', iaitu perasaan bimbang menghadapi bahaya."},
+    {word:"marah", type:"sinonim", correct:"geram", options:["geram","senang","gembira","tenang"], explanation:"'Geram' ialah sinonim bagi 'marah' kerana kedua-duanya menerangkan perasaan tidak puas hati."},
+    {word:"besar", type:"antonim", correct:"kecil", options:["kecil","gergasi","tinggi","luas"], explanation:"'Kecil' ialah antonim (lawan kata) bagi 'besar'."},
+    {word:"tinggi", type:"antonim", correct:"rendah", options:["rendah","besar","luas","kuat"], explanation:"'Rendah' ialah lawan kata bagi 'tinggi'."},
+    {word:"panjang", type:"antonim", correct:"pendek", options:["pendek","luas","nipis","kecil"], explanation:"'Pendek' ialah lawan kata bagi 'panjang'."},
+    {word:"tebal", type:"antonim", correct:"nipis", options:["nipis","keras","lembut","kasar"], explanation:"'Nipis' ialah lawan kata bagi 'tebal'."},
+    {word:"panas", type:"antonim", correct:"sejuk", options:["sejuk","kering","basah","gelap"], explanation:"'Sejuk' ialah lawan kata bagi 'panas'."},
+    {word:"terang", type:"antonim", correct:"gelap", options:["gelap","cerah","jernih","bersih"], explanation:"'Gelap' ialah lawan kata bagi 'terang'."},
+    {word:"kuat", type:"antonim", correct:"lemah", options:["lemah","gagah","tegap","sasa"], explanation:"'Lemah' ialah lawan kata bagi 'kuat'."},
+    {word:"cepat", type:"antonim", correct:"perlahan", options:["perlahan","pantas","laju","deras"], explanation:"'Perlahan' ialah lawan kata bagi 'cepat'."},
+    {word:"rajin", type:"sinonim", correct:"giat", options:["giat","malas","leka","nakal"], explanation:"'Giat' bermaksud sama seperti 'rajin'."},
+    {word:"nakal", type:"sinonim", correct:"degil", options:["degil","baik","penurut","rajin"], explanation:"'Degil' bermaksud sama seperti 'nakal'."},
+    {word:"hebat", type:"sinonim", correct:"handal", options:["handal","lemah","teruk","biasa"], explanation:"'Handal' bermaksud sama seperti 'hebat'."},
+    {word:"elok", type:"sinonim", correct:"molek", options:["molek","hodoh","buruk","kotor"], explanation:"'Molek' bermaksud sama seperti 'elok'."},
+    {word:"segar", type:"sinonim", correct:"nyaman", options:["nyaman","busuk","layu","tua"], explanation:"'Nyaman' bermaksud sama seperti 'segar'."},
+    {word:"comel", type:"sinonim", correct:"manis", options:["manis","hodoh","garang","buruk"], explanation:"'Manis' bermaksud sama seperti 'comel' apabila menerangkan rupa yang menawan."},
+    {word:"tegap", type:"sinonim", correct:"gagah", options:["gagah","lemah","kurus","kecil"], explanation:"'Gagah' bermaksud sama seperti 'tegap'."},
+    {word:"lincah", type:"sinonim", correct:"pantas", options:["pantas","malas","lemah","lembap"], explanation:"'Pantas' bermaksud sama seperti 'lincah'."},
+    {word:"gemuk", type:"antonim", correct:"kurus", options:["kurus","tegap","besar","tinggi"], explanation:"'Kurus' ialah lawan kata bagi 'gemuk'."},
+    {word:"tua", type:"antonim", correct:"muda", options:["muda","tinggi","besar","kuat"], explanation:"'Muda' ialah lawan kata bagi 'tua'."},
+    {word:"siang", type:"antonim", correct:"malam", options:["malam","pagi","petang","senja"], explanation:"'Malam' ialah lawan kata bagi 'siang'."},
+    {word:"atas", type:"antonim", correct:"bawah", options:["bawah","tepi","depan","belakang"], explanation:"'Bawah' ialah lawan kata bagi 'atas'."},
+    {word:"kiri", type:"antonim", correct:"kanan", options:["kanan","atas","bawah","tepi"], explanation:"'Kanan' ialah lawan kata bagi 'kiri'."},
+    {word:"dekat", type:"antonim", correct:"jauh", options:["jauh","hampir","rapat","sisi"], explanation:"'Jauh' ialah lawan kata bagi 'dekat'."},
+    {word:"mahal", type:"antonim", correct:"murah", options:["murah","tinggi","banyak","besar"], explanation:"'Murah' ialah lawan kata bagi 'mahal'."},
+    {word:"penuh", type:"antonim", correct:"kosong", options:["kosong","padat","banyak","sarat"], explanation:"'Kosong' ialah lawan kata bagi 'penuh'."},
+    {word:"lucu", type:"sinonim", correct:"kelakar", options:["kelakar","garang","serius","sedih"], explanation:"'Kelakar' bermaksud sama seperti 'lucu'."},
+    {word:"garang", type:"sinonim", correct:"bengis", options:["bengis","peramah","lembut","baik"], explanation:"'Bengis' bermaksud sama seperti 'garang'."},
+    {word:"damai", type:"sinonim", correct:"aman", options:["aman","kacau","huru-hara","gawat"], explanation:"'Aman' bermaksud sama seperti 'damai'."},
+    {word:"cergas", type:"sinonim", correct:"aktif", options:["aktif","lemah","malas","lesu"], explanation:"'Aktif' bermaksud sama seperti 'cergas'."},
+    {word:"kemas", type:"sinonim", correct:"teratur", options:["teratur","berselerak","kotor","huru-hara"], explanation:"'Teratur' bermaksud sama seperti 'kemas'."},
+    {word:"jelas", type:"sinonim", correct:"nyata", options:["nyata","kabur","samar","tersembunyi"], explanation:"'Nyata' bermaksud sama seperti 'jelas'."},
+    {word:"was-was", type:"sinonim", correct:"ragu-ragu", options:["ragu-ragu","yakin","pasti","tegas"], explanation:"'Ragu-ragu' bermaksud sama seperti 'was-was'."},
+    {word:"riuh", type:"sinonim", correct:"bising", options:["bising","senyap","sunyi","tenang"], explanation:"'Bising' bermaksud sama seperti 'riuh'."},
+    {word:"basah", type:"antonim", correct:"kering", options:["kering","lembap","sejuk","panas"], explanation:"'Kering' ialah lawan kata bagi 'basah'."},
+    {word:"keras", type:"antonim", correct:"lembut", options:["lembut","kasar","tegar","tebal"], explanation:"'Lembut' ialah lawan kata bagi 'keras'."},
+    {word:"licin", type:"antonim", correct:"kasar", options:["kasar","lembut","nipis","tebal"], explanation:"'Kasar' ialah lawan kata bagi 'licin'."},
+    {word:"tajam", type:"antonim", correct:"tumpul", options:["tumpul","runcing","keras","kukuh"], explanation:"'Tumpul' ialah lawan kata bagi 'tajam'."},
+    {word:"longgar", type:"antonim", correct:"ketat", options:["ketat","luas","besar","lebar"], explanation:"'Ketat' ialah lawan kata bagi 'longgar'."},
+    {word:"senyap", type:"antonim", correct:"bising", options:["bising","tenang","aman","damai"], explanation:"'Bising' ialah lawan kata bagi 'senyap'."},
+    {word:"rapat", type:"antonim", correct:"renggang", options:["renggang","dekat","ketat","padat"], explanation:"'Renggang' ialah lawan kata bagi 'rapat'."},
+    {word:"luas", type:"antonim", correct:"sempit", options:["sempit","lapang","lebar","panjang"], explanation:"'Sempit' ialah lawan kata bagi 'luas'."},
+  ],
+  2: [
+    {word:"rajin", type:"sinonim", correct:"tekun", options:["tekun","malas","nakal","degil"], explanation:"'Tekun' bermaksud sama seperti 'rajin', iaitu bersungguh-sungguh melakukan sesuatu."},
+    {word:"mudah", type:"sinonim", correct:"senang", options:["senang","susah","sukar","rumit"], explanation:"'Senang' ialah sinonim bagi 'mudah' kerana kedua-duanya bermaksud tidak sukar dilakukan."},
+    {word:"elok", type:"sinonim", correct:"baik", options:["baik","buruk","teruk","jahat"], explanation:"'Baik' bermaksud sama seperti 'elok'."},
+    {word:"lekas", type:"sinonim", correct:"segera", options:["segera","lambat","kemudian","perlahan"], explanation:"'Segera' ialah sinonim bagi 'lekas', iaitu dengan cepat."},
+    {word:"cerdik", type:"sinonim", correct:"bijaksana", options:["bijaksana","bodoh","dungu","lalai"], explanation:"'Bijaksana' bermaksud sama seperti 'cerdik'."},
+    {word:"gembira", type:"sinonim", correct:"suka", options:["suka","benci","marah","sedih"], explanation:"'Suka' ialah sinonim bagi 'gembira' dalam konteks perasaan senang hati."},
+    {word:"kotor", type:"sinonim", correct:"comot", options:["comot","bersih","kemas","licin"], explanation:"'Comot' bermaksud sama seperti 'kotor'."},
+    {word:"sukar", type:"sinonim", correct:"susah", options:["susah","mudah","senang","ringan"], explanation:"'Susah' ialah sinonim bagi 'sukar'."},
+    {word:"rajin", type:"antonim", correct:"malas", options:["malas","tekun","giat","cergas"], explanation:"'Malas' ialah lawan kata bagi 'rajin'."},
+    {word:"bersih", type:"antonim", correct:"kotor", options:["kotor","kemas","licin","cantik"], explanation:"'Kotor' ialah lawan kata bagi 'bersih'."},
+    {word:"gembira", type:"antonim", correct:"sedih", options:["sedih","riang","suka","senang"], explanation:"'Sedih' ialah lawan kata bagi 'gembira'."},
+    {word:"mudah", type:"antonim", correct:"susah", options:["susah","senang","ringan","lekas"], explanation:"'Susah' ialah lawan kata bagi 'mudah'."},
+    {word:"naik", type:"antonim", correct:"turun", options:["turun","atas","tinggi","panjat"], explanation:"'Turun' ialah lawan kata bagi 'naik'."},
+    {word:"masuk", type:"antonim", correct:"keluar", options:["keluar","dalam","atas","hadapan"], explanation:"'Keluar' ialah lawan kata bagi 'masuk'."},
+    {word:"depan", type:"antonim", correct:"belakang", options:["belakang","samping","atas","bawah"], explanation:"'Belakang' ialah lawan kata bagi 'depan'."},
+    {word:"buka", type:"antonim", correct:"tutup", options:["tutup","bina","pecah","gantung"], explanation:"'Tutup' ialah lawan kata bagi 'buka'."},
+    {word:"pandai", type:"sinonim", correct:"cerdas", options:["cerdas","bodoh","dungu","lalai"], explanation:"'Cerdas' bermaksud sama seperti 'pandai'."},
+    {word:"kuat", type:"sinonim", correct:"perkasa", options:["perkasa","lemah","kecil","pendek"], explanation:"'Perkasa' bermaksud sama seperti 'kuat'."},
+    {word:"ramah", type:"sinonim", correct:"mesra", options:["mesra","garang","sombong","bengis"], explanation:"'Mesra' bermaksud sama seperti 'ramah'."},
+    {word:"senang", type:"sinonim", correct:"gembira", options:["gembira","sedih","marah","takut"], explanation:"'Gembira' bermaksud sama seperti 'senang' (perasaan)."},
+    {word:"teliti", type:"sinonim", correct:"cermat", options:["cermat","cuai","gopoh","lalai"], explanation:"'Cermat' bermaksud sama seperti 'teliti'."},
+    {word:"berani", type:"sinonim", correct:"gagah", options:["gagah","penakut","pengecut","takut"], explanation:"'Gagah' bermaksud sama seperti 'berani' (contohnya dalam 'gagah berani')."},
+    {word:"tenang", type:"sinonim", correct:"aman", options:["aman","gelisah","cemas","resah"], explanation:"'Aman' bermaksud sama seperti 'tenang'."},
+    {word:"indah", type:"sinonim", correct:"permai", options:["permai","buruk","kotor","usang"], explanation:"'Permai' bermaksud sama seperti 'indah'."},
+    {word:"panjang", type:"antonim", correct:"pendek", options:["pendek","luas","nipis","kecil"], explanation:"'Pendek' ialah lawan kata bagi 'panjang'."},
+    {word:"tinggi", type:"antonim", correct:"rendah", options:["rendah","besar","luas","kuat"], explanation:"'Rendah' ialah lawan kata bagi 'tinggi'."},
+    {word:"cepat", type:"antonim", correct:"perlahan", options:["perlahan","pantas","laju","deras"], explanation:"'Perlahan' ialah lawan kata bagi 'cepat'."},
+    {word:"berat", type:"antonim", correct:"ringan", options:["ringan","besar","tebal","keras"], explanation:"'Ringan' ialah lawan kata bagi 'berat'."},
+    {word:"terang", type:"antonim", correct:"gelap", options:["gelap","cerah","jernih","bersih"], explanation:"'Gelap' ialah lawan kata bagi 'terang'."},
+    {word:"kaya", type:"antonim", correct:"miskin", options:["miskin","mewah","senang","selesa"], explanation:"'Miskin' ialah lawan kata bagi 'kaya'."},
+    {word:"hidup", type:"antonim", correct:"mati", options:["mati","segar","sihat","cergas"], explanation:"'Mati' ialah lawan kata bagi 'hidup'."},
+    {word:"lama", type:"antonim", correct:"baharu", options:["baharu","usang","lusuh","lapuk"], explanation:"'Baharu' ialah lawan kata bagi 'lama'."},
+    {word:"cantik", type:"sinonim", correct:"jelita", options:["jelita","hodoh","buruk","kasar"], explanation:"'Jelita' bermaksud sama seperti 'cantik'."},
+    {word:"pintar", type:"sinonim", correct:"bijak", options:["bijak","bodoh","dungu","jahil"], explanation:"'Bijak' bermaksud sama seperti 'pintar'."},
+    {word:"cepat", type:"sinonim", correct:"deras", options:["deras","perlahan","lambat","lengah"], explanation:"'Deras' bermaksud sama seperti 'cepat', khusus untuk pergerakan atau aliran."},
+    {word:"riang", type:"sinonim", correct:"gembira", options:["gembira","sedih","marah","resah"], explanation:"'Gembira' bermaksud sama seperti 'riang'."},
+    {word:"hebat", type:"sinonim", correct:"handal", options:["handal","lemah","teruk","biasa"], explanation:"'Handal' bermaksud sama seperti 'hebat'."},
+    {word:"jujur", type:"sinonim", correct:"ikhlas", options:["ikhlas","bohong","tipu","khianat"], explanation:"'Ikhlas' bermaksud sama seperti 'jujur' dalam konteks ini."},
+    {word:"selamat", type:"sinonim", correct:"aman", options:["aman","bahaya","cemas","gawat"], explanation:"'Aman' bermaksud sama seperti 'selamat'."},
+    {word:"gigih", type:"sinonim", correct:"tekun", options:["tekun","malas","leka","lalai"], explanation:"'Tekun' bermaksud sama seperti 'gigih'."},
+    {word:"gemuk", type:"antonim", correct:"kurus", options:["kurus","tegap","besar","tinggi"], explanation:"'Kurus' ialah lawan kata bagi 'gemuk'."},
+    {word:"tua", type:"antonim", correct:"muda", options:["muda","tinggi","besar","kuat"], explanation:"'Muda' ialah lawan kata bagi 'tua'."},
+    {word:"suka", type:"antonim", correct:"benci", options:["benci","gembira","riang","senang"], explanation:"'Benci' ialah lawan kata bagi 'suka'."},
+    {word:"senyum", type:"antonim", correct:"menangis", options:["menangis","ketawa","gembira","riang"], explanation:"'Menangis' ialah lawan kata bagi 'senyum'."},
+    {word:"lebar", type:"antonim", correct:"sempit", options:["sempit","luas","panjang","tinggi"], explanation:"'Sempit' ialah lawan kata bagi 'lebar'."},
+    {word:"bangun", type:"antonim", correct:"tidur", options:["tidur","jaga","duduk","berdiri"], explanation:"'Tidur' ialah lawan kata bagi 'bangun'."},
+    {word:"ingat", type:"antonim", correct:"lupa", options:["lupa","kenang","sedar","faham"], explanation:"'Lupa' ialah lawan kata bagi 'ingat'."},
+    {word:"menang", type:"antonim", correct:"kalah", options:["kalah","juara","unggul","cemerlang"], explanation:"'Kalah' ialah lawan kata bagi 'menang'."},
+  ],
+  3: [
+    {word:"indah", type:"sinonim", correct:"permai", options:["permai","buruk","kotor","usang"], explanation:"'Permai' bermaksud sama seperti 'indah', selalu digunakan untuk menerangkan keindahan alam."},
+    {word:"luas", type:"sinonim", correct:"lapang", options:["lapang","sempit","kecil","padat"], explanation:"'Lapang' ialah sinonim bagi 'luas'."},
+    {word:"nyaman", type:"sinonim", correct:"selesa", options:["selesa","tidak selesa","bising","panas"], explanation:"'Selesa' bermaksud sama seperti 'nyaman'."},
+    {word:"gagah", type:"sinonim", correct:"perkasa", options:["perkasa","lemah","kecil","pengecut"], explanation:"'Perkasa' bermaksud sama seperti 'gagah'."},
+    {word:"terkenal", type:"sinonim", correct:"masyhur", options:["masyhur","asing","baharu","biasa"], explanation:"'Masyhur' bermaksud sama seperti 'terkenal'."},
+    {word:"rajin", type:"sinonim", correct:"giat", options:["giat","malas","leka","lalai"], explanation:"'Giat' bermaksud sama seperti 'rajin'."},
+    {word:"cantik", type:"sinonim", correct:"molek", options:["molek","hodoh","buruk","kasar"], explanation:"'Molek' bermaksud sama seperti 'cantik'."},
+    {word:"cepat", type:"sinonim", correct:"segera", options:["segera","perlahan","lambat","lengah"], explanation:"'Segera' bermaksud sama seperti 'cepat'."},
+    {word:"subur", type:"antonim", correct:"tandus", options:["tandus","gembur","lembap","rimbun"], explanation:"'Tandus' ialah lawan kata bagi 'subur', iaitu tanah yang tidak boleh ditanami."},
+    {word:"luas", type:"antonim", correct:"sempit", options:["sempit","lapang","lebar","panjang"], explanation:"'Sempit' ialah lawan kata bagi 'luas'."},
+    {word:"jernih", type:"antonim", correct:"keruh", options:["keruh","tenang","deras","cetek"], explanation:"'Keruh' ialah lawan kata bagi 'jernih', menerangkan air yang tidak jernih."},
+    {word:"dalam", type:"antonim", correct:"cetek", options:["cetek","luas","deras","tenang"], explanation:"'Cetek' ialah lawan kata bagi 'dalam' (air)."},
+    {word:"deras", type:"antonim", correct:"tenang", options:["tenang","tinggi","jernih","keruh"], explanation:"'Tenang' ialah lawan kata bagi 'deras', menerangkan aliran air yang perlahan."},
+    {word:"curam", type:"antonim", correct:"landai", options:["landai","tinggi","tajam","gondol"], explanation:"'Landai' ialah lawan kata bagi 'curam'."},
+    {word:"lasak", type:"antonim", correct:"lemah", options:["lemah","kuat","cergas","gagah"], explanation:"'Lemah' ialah lawan kata bagi 'lasak'."},
+    {word:"kaya", type:"antonim", correct:"miskin", options:["miskin","mewah","senang","selesa"], explanation:"'Miskin' ialah lawan kata bagi 'kaya'."},
+    {word:"elok", type:"sinonim", correct:"menarik", options:["menarik","buruk","hodoh","kasar"], explanation:"'Menarik' bermaksud sama seperti 'elok'."},
+    {word:"tenteram", type:"sinonim", correct:"aman", options:["aman","huru-hara","kacau","gawat"], explanation:"'Aman' bermaksud sama seperti 'tenteram'."},
+    {word:"bijaksana", type:"sinonim", correct:"arif", options:["arif","jahil","dungu","bebal"], explanation:"'Arif' bermaksud sama seperti 'bijaksana'."},
+    {word:"teguh", type:"sinonim", correct:"kukuh", options:["kukuh","rapuh","goyah","longgar"], explanation:"'Kukuh' bermaksud sama seperti 'teguh'."},
+    {word:"mewah", type:"sinonim", correct:"kaya", options:["kaya","miskin","daif","susah"], explanation:"'Kaya' bermaksud sama seperti 'mewah' dalam konteks kehidupan."},
+    {word:"petah", type:"sinonim", correct:"fasih", options:["fasih","gagap","pendiam","malu"], explanation:"'Fasih' bermaksud sama seperti 'petah', iaitu lancar bertutur."},
+    {word:"rimbun", type:"sinonim", correct:"lebat", options:["lebat","gondol","gundul","kering"], explanation:"'Lebat' bermaksud sama seperti 'rimbun'."},
+    {word:"selamat", type:"sinonim", correct:"sejahtera", options:["sejahtera","bahaya","gawat","cemas"], explanation:"'Sejahtera' bermaksud sama seperti 'selamat'."},
+    {word:"gembur", type:"antonim", correct:"keras", options:["keras","lembut","basah","kering"], explanation:"'Keras' ialah lawan kata bagi 'gembur' (tanah)."},
+    {word:"terang", type:"antonim", correct:"gelap", options:["gelap","cerah","jernih","bersih"], explanation:"'Gelap' ialah lawan kata bagi 'terang'."},
+    {word:"bersih", type:"antonim", correct:"kotor", options:["kotor","kemas","licin","cantik"], explanation:"'Kotor' ialah lawan kata bagi 'bersih'."},
+    {word:"tinggi", type:"antonim", correct:"rendah", options:["rendah","besar","luas","kuat"], explanation:"'Rendah' ialah lawan kata bagi 'tinggi'."},
+    {word:"ramai", type:"antonim", correct:"lengang", options:["lengang","padat","penuh","sesak"], explanation:"'Lengang' ialah lawan kata bagi 'ramai'."},
+    {word:"basah", type:"antonim", correct:"kering", options:["kering","lembap","sejuk","panas"], explanation:"'Kering' ialah lawan kata bagi 'basah'."},
+    {word:"mahal", type:"antonim", correct:"murah", options:["murah","tinggi","banyak","besar"], explanation:"'Murah' ialah lawan kata bagi 'mahal'."},
+    {word:"lambat", type:"antonim", correct:"awal", options:["awal","lewat","lengah","tunda"], explanation:"'Awal' ialah lawan kata bagi 'lambat'."},
+    {word:"gigih", type:"sinonim", correct:"tabah", options:["tabah","putus asa","lemah semangat","malas"], explanation:"'Tabah' bermaksud sama seperti 'gigih'."},
+    {word:"pandai", type:"sinonim", correct:"mahir", options:["mahir","jahil","dungu","cetek ilmu"], explanation:"'Mahir' bermaksud sama seperti 'pandai' dalam sesuatu kemahiran."},
+    {word:"murni", type:"sinonim", correct:"tulen", options:["tulen","palsu","tiruan","kotor"], explanation:"'Tulen' bermaksud sama seperti 'murni'."},
+    {word:"gemilang", type:"sinonim", correct:"cemerlang", options:["cemerlang","malap","pudar","suram"], explanation:"'Cemerlang' bermaksud sama seperti 'gemilang'."},
+    {word:"deras", type:"sinonim", correct:"laju", options:["laju","perlahan","tenang","lembap"], explanation:"'Laju' bermaksud sama seperti 'deras'."},
+    {word:"makmur", type:"sinonim", correct:"sejahtera", options:["sejahtera","daif","miskin","mundur"], explanation:"'Sejahtera' bermaksud sama seperti 'makmur'."},
+    {word:"nyata", type:"sinonim", correct:"jelas", options:["jelas","kabur","samar","tersembunyi"], explanation:"'Jelas' bermaksud sama seperti 'nyata'."},
+    {word:"gagah", type:"sinonim", correct:"perwira", options:["perwira","pengecut","penakut","lemah"], explanation:"'Perwira' bermaksud sama seperti 'gagah' dalam konteks keberanian."},
+    {word:"cerah", type:"antonim", correct:"mendung", options:["mendung","terang","nyata","jelas"], explanation:"'Mendung' ialah lawan kata bagi 'cerah'."},
+    {word:"tebal", type:"antonim", correct:"nipis", options:["nipis","keras","lembut","kasar"], explanation:"'Nipis' ialah lawan kata bagi 'tebal'."},
+    {word:"panas", type:"antonim", correct:"sejuk", options:["sejuk","kering","basah","gelap"], explanation:"'Sejuk' ialah lawan kata bagi 'panas'."},
+    {word:"kuat", type:"antonim", correct:"lemah", options:["lemah","gagah","tegap","sasa"], explanation:"'Lemah' ialah lawan kata bagi 'kuat'."},
+    {word:"cepat", type:"antonim", correct:"perlahan", options:["perlahan","pantas","laju","deras"], explanation:"'Perlahan' ialah lawan kata bagi 'cepat'."},
+    {word:"besar", type:"antonim", correct:"kecil", options:["kecil","gergasi","tinggi","luas"], explanation:"'Kecil' ialah lawan kata bagi 'besar'."},
+    {word:"gemilang", type:"antonim", correct:"malap", options:["malap","cemerlang","gilang-gemilang","terang"], explanation:"'Malap' ialah lawan kata bagi 'gemilang'."},
+    {word:"murni", type:"antonim", correct:"tercemar", options:["tercemar","tulen","bersih","jernih"], explanation:"'Tercemar' ialah lawan kata bagi 'murni'."},
+  ],
+  4: [
+    {word:"jujur", type:"sinonim", correct:"amanah", options:["amanah","khianat","tipu","culas"], explanation:"'Amanah' bermaksud sama seperti 'jujur', iaitu boleh dipercayai."},
+    {word:"tanggungjawab", type:"sinonim", correct:"kewajipan", options:["kewajipan","kebebasan","kemalasan","keegoan"], explanation:"'Kewajipan' bermaksud sama seperti 'tanggungjawab'."},
+    {word:"mesra", type:"sinonim", correct:"peramah", options:["peramah","sombong","garang","pemarah"], explanation:"'Peramah' bermaksud sama seperti 'mesra'."},
+    {word:"harmoni", type:"sinonim", correct:"aman", options:["aman","huru-hara","kacau","gawat"], explanation:"'Aman' bermaksud sama seperti 'harmoni'."},
+    {word:"bersatu", type:"sinonim", correct:"bersepadu", options:["bersepadu","berpecah","bercerai","bermusuhan"], explanation:"'Bersepadu' bermaksud sama seperti 'bersatu'."},
+    {word:"bijaksana", type:"sinonim", correct:"arif", options:["arif","jahil","dungu","bebal"], explanation:"'Arif' bermaksud sama seperti 'bijaksana'."},
+    {word:"gigih", type:"sinonim", correct:"tabah", options:["tabah","putus asa","lemah semangat","malas"], explanation:"'Tabah' bermaksud sama seperti 'gigih'."},
+    {word:"sopan", type:"sinonim", correct:"beradab", options:["beradab","biadab","kurang ajar","lancang"], explanation:"'Beradab' bermaksud sama seperti 'sopan'."},
+    {word:"jujur", type:"antonim", correct:"bohong", options:["bohong","amanah","ikhlas","telus"], explanation:"'Bohong' ialah lawan kata bagi 'jujur'."},
+    {word:"bersatu", type:"antonim", correct:"berpecah", options:["berpecah","bersepadu","bergabung","berkumpul"], explanation:"'Berpecah' ialah lawan kata bagi 'bersatu'."},
+    {word:"mesra", type:"antonim", correct:"sombong", options:["sombong","riang","gembira","ceria"], explanation:"'Sombong' ialah lawan kata bagi 'mesra'."},
+    {word:"gigih", type:"antonim", correct:"putus asa", options:["putus asa","tabah","cekal","rajin"], explanation:"'Putus asa' ialah lawan kata bagi 'gigih'."},
+    {word:"sopan", type:"antonim", correct:"biadab", options:["biadab","beradab","hormat","santun"], explanation:"'Biadab' ialah lawan kata bagi 'sopan'."},
+    {word:"harmoni", type:"antonim", correct:"huru-hara", options:["huru-hara","aman","tenteram","damai"], explanation:"'Huru-hara' ialah lawan kata bagi 'harmoni'."},
+    {word:"jimat", type:"antonim", correct:"boros", options:["boros","berjimat","cermat","hemat"], explanation:"'Boros' ialah lawan kata bagi 'jimat'."},
+    {word:"selamat", type:"antonim", correct:"berbahaya", options:["berbahaya","terjamin","terkawal","aman"], explanation:"'Berbahaya' ialah lawan kata bagi 'selamat'."},
+    {word:"rajin", type:"sinonim", correct:"tekun", options:["tekun","malas","leka","lalai"], explanation:"'Tekun' bermaksud sama seperti 'rajin'."},
+    {word:"berdikari", type:"sinonim", correct:"mandiri", options:["mandiri","bergantung","manja","lemah"], explanation:"'Mandiri' bermaksud sama seperti 'berdikari'."},
+    {word:"hormat", type:"sinonim", correct:"taat", options:["taat","derhaka","ingkar","degil"], explanation:"'Taat' bermaksud sama seperti 'hormat' dalam konteks patuh."},
+    {word:"gembira", type:"sinonim", correct:"ceria", options:["ceria","murung","sedih","muram"], explanation:"'Ceria' bermaksud sama seperti 'gembira'."},
+    {word:"bersih", type:"sinonim", correct:"suci", options:["suci","kotor","ternoda","cemar"], explanation:"'Suci' bermaksud sama seperti 'bersih' (hati)."},
+    {word:"berani", type:"sinonim", correct:"gagah", options:["gagah","penakut","pengecut","gentar"], explanation:"'Gagah' bermaksud sama seperti 'berani'."},
+    {word:"prihatin", type:"sinonim", correct:"ambil berat", options:["ambil berat","acuh tak acuh","tidak peduli","lalai"], explanation:"'Ambil berat' bermaksud sama seperti 'prihatin'."},
+    {word:"setia", type:"sinonim", correct:"patuh", options:["patuh","khianat","derhaka","ingkar"], explanation:"'Patuh' bermaksud sama seperti 'setia'."},
+    {word:"rajin", type:"antonim", correct:"malas", options:["malas","tekun","giat","cergas"], explanation:"'Malas' ialah lawan kata bagi 'rajin'."},
+    {word:"berdikari", type:"antonim", correct:"bergantung", options:["bergantung","mandiri","berdiri sendiri","yakin"], explanation:"'Bergantung' ialah lawan kata bagi 'berdikari'."},
+    {word:"gembira", type:"antonim", correct:"murung", options:["murung","ceria","riang","suka"], explanation:"'Murung' ialah lawan kata bagi 'gembira'."},
+    {word:"berani", type:"antonim", correct:"penakut", options:["penakut","gagah","perkasa","tabah"], explanation:"'Penakut' ialah lawan kata bagi 'berani'."},
+    {word:"setia", type:"antonim", correct:"khianat", options:["khianat","taat","patuh","ikhlas"], explanation:"'Khianat' ialah lawan kata bagi 'setia'."},
+    {word:"prihatin", type:"antonim", correct:"acuh tak acuh", options:["acuh tak acuh","ambil berat","peka","cakna"], explanation:"'Acuh tak acuh' ialah lawan kata bagi 'prihatin'."},
+    {word:"tekun", type:"antonim", correct:"leka", options:["leka","rajin","giat","cergas"], explanation:"'Leka' ialah lawan kata bagi 'tekun'."},
+    {word:"hormat", type:"antonim", correct:"biadab", options:["biadab","taat","segan","patuh"], explanation:"'Biadab' ialah lawan kata bagi 'hormat'."},
+    {word:"adil", type:"sinonim", correct:"saksama", options:["saksama","zalim","berat sebelah","pilih kasih"], explanation:"'Saksama' bermaksud sama seperti 'adil'."},
+    {word:"bertanggungjawab", type:"sinonim", correct:"amanah", options:["amanah","cuai","alpa","leka"], explanation:"'Amanah' bermaksud sama seperti 'bertanggungjawab'."},
+    {word:"bersungguh-sungguh", type:"sinonim", correct:"gigih", options:["gigih","leka","malas","alpa"], explanation:"'Gigih' bermaksud sama seperti 'bersungguh-sungguh'."},
+    {word:"peduli", type:"sinonim", correct:"ambil berat", options:["ambil berat","tidak peduli","acuh tak acuh","lalai"], explanation:"'Ambil berat' bermaksud sama seperti 'peduli'."},
+    {word:"tulus", type:"sinonim", correct:"ikhlas", options:["ikhlas","khianat","pura-pura","munafik"], explanation:"'Ikhlas' bermaksud sama seperti 'tulus'."},
+    {word:"rukun", type:"sinonim", correct:"harmoni", options:["harmoni","huru-hara","kacau","gawat"], explanation:"'Harmoni' bermaksud sama seperti 'rukun'."},
+    {word:"bekerjasama", type:"sinonim", correct:"bergotong-royong", options:["bergotong-royong","bersaing","bermusuhan","berpecah"], explanation:"'Bergotong-royong' bermaksud sama seperti 'bekerjasama'."},
+    {word:"berdisiplin", type:"sinonim", correct:"patuh peraturan", options:["patuh peraturan","ingkar peraturan","degil","biadab"], explanation:"'Patuh peraturan' bermaksud sama seperti 'berdisiplin'."},
+    {word:"adil", type:"antonim", correct:"zalim", options:["zalim","saksama","telus","waras"], explanation:"'Zalim' ialah lawan kata bagi 'adil'."},
+    {word:"tulus", type:"antonim", correct:"munafik", options:["munafik","ikhlas","jujur","telus"], explanation:"'Munafik' ialah lawan kata bagi 'tulus'."},
+    {word:"rukun", type:"antonim", correct:"huru-hara", options:["huru-hara","aman","tenteram","damai"], explanation:"'Huru-hara' ialah lawan kata bagi 'rukun'."},
+    {word:"bekerjasama", type:"antonim", correct:"bersaing", options:["bersaing","bergotong-royong","berganding bahu","bersepadu"], explanation:"'Bersaing' ialah lawan kata bagi 'bekerjasama' dalam sesetengah konteks."},
+    {word:"berdisiplin", type:"antonim", correct:"degil", options:["degil","patuh","taat","akur"], explanation:"'Degil' ialah lawan kata bagi 'berdisiplin'."},
+    {word:"amanah", type:"antonim", correct:"khianat", options:["khianat","jujur","ikhlas","telus"], explanation:"'Khianat' ialah lawan kata bagi 'amanah'."},
+    {word:"bertanggungjawab", type:"antonim", correct:"alpa", options:["alpa","cermat","teliti","rajin"], explanation:"'Alpa' ialah lawan kata bagi 'bertanggungjawab'."},
+    {word:"peduli", type:"antonim", correct:"lalai", options:["lalai","ambil berat","cakna","peka"], explanation:"'Lalai' ialah lawan kata bagi 'peduli'."},
+  ],
+  5: [
+    {word:"makmur", type:"sinonim", correct:"sejahtera", options:["sejahtera","mundur","daif","miskin"], explanation:"'Sejahtera' bermaksud sama seperti 'makmur'."},
+    {word:"pesat", type:"sinonim", correct:"rancak", options:["rancak","perlahan","lembap","tersekat"], explanation:"'Rancak' bermaksud sama seperti 'pesat', menerangkan perkembangan yang cepat."},
+    {word:"penting", type:"sinonim", correct:"mustahak", options:["mustahak","remeh","kecil","biasa"], explanation:"'Mustahak' bermaksud sama seperti 'penting'."},
+    {word:"yakin", type:"sinonim", correct:"pasti", options:["pasti","ragu-ragu","syak","keliru"], explanation:"'Pasti' bermaksud sama seperti 'yakin'."},
+    {word:"inovatif", type:"sinonim", correct:"kreatif", options:["kreatif","kolot","ketinggalan","jumud"], explanation:"'Kreatif' bermaksud sama seperti 'inovatif'."},
+    {word:"mantap", type:"sinonim", correct:"kukuh", options:["kukuh","goyah","rapuh","longgar"], explanation:"'Kukuh' bermaksud sama seperti 'mantap'."},
+    {word:"berkesan", type:"sinonim", correct:"efektif", options:["efektif","sia-sia","gagal","lemah"], explanation:"'Efektif' bermaksud sama seperti 'berkesan'."},
+    {word:"adil", type:"sinonim", correct:"saksama", options:["saksama","berat sebelah","zalim","pilih kasih"], explanation:"'Saksama' bermaksud sama seperti 'adil'."},
+    {word:"makmur", type:"antonim", correct:"mundur", options:["mundur","sejahtera","maju","pesat"], explanation:"'Mundur' ialah lawan kata bagi 'makmur'."},
+    {word:"yakin", type:"antonim", correct:"ragu-ragu", options:["ragu-ragu","pasti","tegas","kukuh"], explanation:"'Ragu-ragu' ialah lawan kata bagi 'yakin'."},
+    {word:"mantap", type:"antonim", correct:"goyah", options:["goyah","kukuh","stabil","teguh"], explanation:"'Goyah' ialah lawan kata bagi 'mantap'."},
+    {word:"adil", type:"antonim", correct:"zalim", options:["zalim","saksama","telus","waras"], explanation:"'Zalim' ialah lawan kata bagi 'adil'."},
+    {word:"pesat", type:"antonim", correct:"lembap", options:["lembap","rancak","pantas","laju"], explanation:"'Lembap' ialah lawan kata bagi 'pesat' (dalam konteks perkembangan)."},
+    {word:"moden", type:"antonim", correct:"kolot", options:["kolot","canggih","terkini","inovatif"], explanation:"'Kolot' ialah lawan kata bagi 'moden'."},
+    {word:"jelas", type:"antonim", correct:"kabur", options:["kabur","nyata","terang","tepat"], explanation:"'Kabur' ialah lawan kata bagi 'jelas'."},
+    {word:"bebas", type:"antonim", correct:"terkongkong", options:["terkongkong","leluasa","merdeka","terlepas"], explanation:"'Terkongkong' ialah lawan kata bagi 'bebas'."},
+    {word:"stabil", type:"sinonim", correct:"mantap", options:["mantap","goyah","rapuh","longgar"], explanation:"'Mantap' bermaksud sama seperti 'stabil'."},
+    {word:"drastik", type:"sinonim", correct:"mendadak", options:["mendadak","perlahan-lahan","beransur-ansur","lambat"], explanation:"'Mendadak' bermaksud sama seperti 'drastik'."},
+    {word:"lestari", type:"sinonim", correct:"mampan", options:["mampan","pupus","musnah","rosak"], explanation:"'Mampan' bermaksud sama seperti 'lestari'."},
+    {word:"strategik", type:"sinonim", correct:"penting", options:["penting","remeh","kecil","biasa"], explanation:"'Penting' bermaksud sama seperti 'strategik' dalam sesetengah konteks."},
+    {word:"telus", type:"sinonim", correct:"terbuka", options:["terbuka","tertutup","rahsia","sulit"], explanation:"'Terbuka' bermaksud sama seperti 'telus'."},
+    {word:"berdaulat", type:"sinonim", correct:"merdeka", options:["merdeka","terjajah","dijajah","dikuasai"], explanation:"'Merdeka' bermaksud sama seperti 'berdaulat'."},
+    {word:"produktif", type:"sinonim", correct:"berdaya hasil", options:["berdaya hasil","malas","sia-sia","lembap"], explanation:"'Berdaya hasil' bermaksud sama seperti 'produktif'."},
+    {word:"optimistik", type:"sinonim", correct:"yakin", options:["yakin","pesimistik","ragu-ragu","putus asa"], explanation:"'Yakin' bermaksud sama seperti 'optimistik'."},
+    {word:"stabil", type:"antonim", correct:"goyah", options:["goyah","mantap","kukuh","teguh"], explanation:"'Goyah' ialah lawan kata bagi 'stabil'."},
+    {word:"lestari", type:"antonim", correct:"pupus", options:["pupus","mampan","berterusan","berkekalan"], explanation:"'Pupus' ialah lawan kata bagi 'lestari'."},
+    {word:"telus", type:"antonim", correct:"tertutup", options:["tertutup","terbuka","jujur","ikhlas"], explanation:"'Tertutup' ialah lawan kata bagi 'telus'."},
+    {word:"berdaulat", type:"antonim", correct:"terjajah", options:["terjajah","merdeka","bebas","berkuasa"], explanation:"'Terjajah' ialah lawan kata bagi 'berdaulat'."},
+    {word:"optimistik", type:"antonim", correct:"pesimistik", options:["pesimistik","yakin","positif","gembira"], explanation:"'Pesimistik' ialah lawan kata bagi 'optimistik'."},
+    {word:"produktif", type:"antonim", correct:"lembap", options:["lembap","cergas","rancak","giat"], explanation:"'Lembap' ialah lawan kata bagi 'produktif'."},
+    {word:"maju", type:"antonim", correct:"mundur", options:["mundur","pesat","rancak","pantas"], explanation:"'Mundur' ialah lawan kata bagi 'maju'."},
+    {word:"berkesan", type:"antonim", correct:"sia-sia", options:["sia-sia","efektif","berjaya","berhasil"], explanation:"'Sia-sia' ialah lawan kata bagi 'berkesan'."},
+    {word:"unggul", type:"sinonim", correct:"terbilang", options:["terbilang","biasa","rendah","lemah"], explanation:"'Terbilang' bermaksud sama seperti 'unggul'."},
+    {word:"wawasan", type:"sinonim", correct:"visi", options:["visi","kekeliruan","kekaburan","keraguan"], explanation:"'Visi' bermaksud sama seperti 'wawasan'."},
+    {word:"berpotensi", type:"sinonim", correct:"berbakat", options:["berbakat","tidak berupaya","lemah","daif"], explanation:"'Berbakat' bermaksud sama seperti 'berpotensi'."},
+    {word:"mendesak", type:"sinonim", correct:"mustahak", options:["mustahak","remeh","kecil","biasa"], explanation:"'Mustahak' bermaksud sama seperti 'mendesak'."},
+    {word:"konsisten", type:"sinonim", correct:"tekal", options:["tekal","berubah-ubah","goyah","tidak menentu"], explanation:"'Tekal' bermaksud sama seperti 'konsisten'."},
+    {word:"transparensi", type:"sinonim", correct:"ketelusan", options:["ketelusan","kerahsiaan","penipuan","penyembunyian"], explanation:"'Ketelusan' bermaksud sama seperti 'transparensi'."},
+    {word:"berintegriti", type:"sinonim", correct:"jujur", options:["jujur","khianat","bohong","tipu"], explanation:"'Jujur' bermaksud sama seperti 'berintegriti'."},
+    {word:"dinamik", type:"sinonim", correct:"aktif", options:["aktif","statik","jumud","pasif"], explanation:"'Aktif' bermaksud sama seperti 'dinamik'."},
+    {word:"unggul", type:"antonim", correct:"lemah", options:["lemah","terbilang","cemerlang","gemilang"], explanation:"'Lemah' ialah lawan kata bagi 'unggul'."},
+    {word:"konsisten", type:"antonim", correct:"berubah-ubah", options:["berubah-ubah","tekal","tetap","kekal"], explanation:"'Berubah-ubah' ialah lawan kata bagi 'konsisten'."},
+    {word:"berintegriti", type:"antonim", correct:"khianat", options:["khianat","jujur","amanah","ikhlas"], explanation:"'Khianat' ialah lawan kata bagi 'berintegriti'."},
+    {word:"dinamik", type:"antonim", correct:"statik", options:["statik","aktif","pantas","rancak"], explanation:"'Statik' ialah lawan kata bagi 'dinamik'."},
+    {word:"transparensi", type:"antonim", correct:"kerahsiaan", options:["kerahsiaan","ketelusan","keterbukaan","kejujuran"], explanation:"'Kerahsiaan' ialah lawan kata bagi 'transparensi'."},
+    {word:"mendesak", type:"antonim", correct:"remeh", options:["remeh","mustahak","penting","genting"], explanation:"'Remeh' ialah lawan kata bagi 'mendesak'."},
+    {word:"berpotensi", type:"antonim", correct:"tidak berdaya", options:["tidak berdaya","berbakat","berkeupayaan","cekap"], explanation:"'Tidak berdaya' ialah lawan kata bagi 'berpotensi'."},
+    {word:"wawasan", type:"antonim", correct:"kekeliruan", options:["kekeliruan","visi","hala tuju","matlamat"], explanation:"'Kekeliruan' ialah lawan kata bagi 'wawasan'."},
+  ],
+  6: [
+    {word:"ketara", type:"sinonim", correct:"nyata", options:["nyata","kabur","samar","tersembunyi"], explanation:"'Nyata' bermaksud sama seperti 'ketara', iaitu jelas kelihatan."},
+    {word:"unggul", type:"sinonim", correct:"terbilang", options:["terbilang","biasa","rendah","lemah"], explanation:"'Terbilang' bermaksud sama seperti 'unggul', iaitu cemerlang atau terkemuka."},
+    {word:"teguh", type:"sinonim", correct:"kukuh", options:["kukuh","rapuh","goyah","longgar"], explanation:"'Kukuh' bermaksud sama seperti 'teguh'."},
+    {word:"bermutu", type:"sinonim", correct:"berkualiti", options:["berkualiti","teruk","rendah mutu","buruk"], explanation:"'Berkualiti' bermaksud sama seperti 'bermutu'."},
+    {word:"pelbagai", type:"sinonim", correct:"beraneka", options:["beraneka","seragam","tunggal","sama"], explanation:"'Beraneka' bermaksud sama seperti 'pelbagai'."},
+    {word:"gigih", type:"sinonim", correct:"tekun", options:["tekun","malas","leka","lalai"], explanation:"'Tekun' bermaksud sama seperti 'gigih'."},
+    {word:"telus", type:"sinonim", correct:"terbuka", options:["terbuka","tertutup","rahsia","sulit"], explanation:"'Terbuka' bermaksud sama seperti 'telus', iaitu tidak menyembunyikan sesuatu."},
+    {word:"progresif", type:"sinonim", correct:"maju", options:["maju","mundur","statik","jumud"], explanation:"'Maju' bermaksud sama seperti 'progresif'."},
+    {word:"unggul", type:"antonim", correct:"rendah", options:["rendah","terbilang","cemerlang","gemilang"], explanation:"'Rendah' ialah lawan kata bagi 'unggul'."},
+    {word:"teguh", type:"antonim", correct:"rapuh", options:["rapuh","kukuh","gagah","tegap"], explanation:"'Rapuh' ialah lawan kata bagi 'teguh'."},
+    {word:"telus", type:"antonim", correct:"tertutup", options:["tertutup","terbuka","jujur","ikhlas"], explanation:"'Tertutup' ialah lawan kata bagi 'telus'."},
+    {word:"progresif", type:"antonim", correct:"mundur", options:["mundur","maju","pesat","pantas"], explanation:"'Mundur' ialah lawan kata bagi 'progresif'."},
+    {word:"bersatu", type:"antonim", correct:"berpecah", options:["berpecah","bersepadu","berkumpul","bergabung"], explanation:"'Berpecah' ialah lawan kata bagi 'bersatu'."},
+    {word:"bermoral", type:"antonim", correct:"bejat", options:["bejat","berakhlak","mulia","terpuji"], explanation:"'Bejat' ialah lawan kata bagi 'bermoral'."},
+    {word:"stabil", type:"antonim", correct:"goyah", options:["goyah","kukuh","teguh","mantap"], explanation:"'Goyah' ialah lawan kata bagi 'stabil'."},
+    {word:"inklusif", type:"antonim", correct:"eksklusif", options:["eksklusif","terbuka","merangkumi","menyeluruh"], explanation:"'Eksklusif' ialah lawan kata bagi 'inklusif'."},
+    {word:"autonomi", type:"sinonim", correct:"kebebasan", options:["kebebasan","kongkongan","belenggu","tekanan"], explanation:"'Kebebasan' bermaksud sama seperti 'autonomi' dalam mentadbir diri sendiri."},
+    {word:"holistik", type:"sinonim", correct:"menyeluruh", options:["menyeluruh","separa","sebahagian","terhad"], explanation:"'Menyeluruh' bermaksud sama seperti 'holistik'."},
+    {word:"signifikan", type:"sinonim", correct:"ketara", options:["ketara","kecil","remeh","tidak penting"], explanation:"'Ketara' bermaksud sama seperti 'signifikan'."},
+    {word:"sistematik", type:"sinonim", correct:"tersusun", options:["tersusun","berselerak","huru-hara","kucar-kacir"], explanation:"'Tersusun' bermaksud sama seperti 'sistematik'."},
+    {word:"kolaboratif", type:"sinonim", correct:"bekerjasama", options:["bekerjasama","bersaing","bermusuhan","berpecah"], explanation:"'Bekerjasama' bermaksud sama seperti 'kolaboratif'."},
+    {word:"autentik", type:"sinonim", correct:"tulen", options:["tulen","palsu","tiruan","ciplak"], explanation:"'Tulen' bermaksud sama seperti 'autentik'."},
+    {word:"resilien", type:"sinonim", correct:"berdaya tahan", options:["berdaya tahan","lemah semangat","mudah putus asa","rapuh"], explanation:"'Berdaya tahan' bermaksud sama seperti 'resilien'."},
+    {word:"objektif", type:"sinonim", correct:"saksama", options:["saksama","berat sebelah","berpihak","prejudis"], explanation:"'Saksama' bermaksud sama seperti 'objektif'."},
+    {word:"holistik", type:"antonim", correct:"separa", options:["separa","menyeluruh","lengkap","keseluruhan"], explanation:"'Separa' ialah lawan kata bagi 'holistik'."},
+    {word:"sistematik", type:"antonim", correct:"huru-hara", options:["huru-hara","tersusun","teratur","kemas"], explanation:"'Huru-hara' ialah lawan kata bagi 'sistematik'."},
+    {word:"autentik", type:"antonim", correct:"palsu", options:["palsu","tulen","asli","sebenar"], explanation:"'Palsu' ialah lawan kata bagi 'autentik'."},
+    {word:"objektif", type:"antonim", correct:"berat sebelah", options:["berat sebelah","saksama","adil","waras"], explanation:"'Berat sebelah' ialah lawan kata bagi 'objektif'."},
+    {word:"resilien", type:"antonim", correct:"rapuh", options:["rapuh","kukuh","teguh","tegap"], explanation:"'Rapuh' ialah lawan kata bagi 'resilien'."},
+    {word:"autonomi", type:"antonim", correct:"kebergantungan", options:["kebergantungan","kebebasan","kemerdekaan","kedaulatan"], explanation:"'Kebergantungan' ialah lawan kata bagi 'autonomi'."},
+    {word:"kolaboratif", type:"antonim", correct:"individualistik", options:["individualistik","bekerjasama","bersepadu","berpasukan"], explanation:"'Individualistik' ialah lawan kata bagi 'kolaboratif'."},
+    {word:"signifikan", type:"antonim", correct:"remeh", options:["remeh","ketara","penting","genting"], explanation:"'Remeh' ialah lawan kata bagi 'signifikan'."},
+    {word:"inovatif", type:"sinonim", correct:"kreatif", options:["kreatif","kolot","ketinggalan","jumud"], explanation:"'Kreatif' bermaksud sama seperti 'inovatif'."},
+    {word:"berwibawa", type:"sinonim", correct:"berkarisma", options:["berkarisma","lemah","tidak berpengaruh","longgar"], explanation:"'Berkarisma' bermaksud sama seperti 'berwibawa'."},
+    {word:"mendalam", type:"sinonim", correct:"intensif", options:["intensif","cetek","dangkal","sepintas lalu"], explanation:"'Intensif' bermaksud sama seperti 'mendalam' dalam konteks kajian."},
+    {word:"berwawasan", type:"sinonim", correct:"berpandangan jauh", options:["berpandangan jauh","tidak berfikir panjang","cetek pemikiran","picik"], explanation:"'Berpandangan jauh' bermaksud sama seperti 'berwawasan'."},
+    {word:"autoriti", type:"sinonim", correct:"kuasa", options:["kuasa","kelemahan","ketidakupayaan","kelesuan"], explanation:"'Kuasa' bermaksud sama seperti 'autoriti'."},
+    {word:"komited", type:"sinonim", correct:"bersungguh-sungguh", options:["bersungguh-sungguh","separuh hati","malas","leka"], explanation:"'Bersungguh-sungguh' bermaksud sama seperti 'komited'."},
+    {word:"relevan", type:"sinonim", correct:"berkaitan", options:["berkaitan","tidak berkaitan","asing","luar topik"], explanation:"'Berkaitan' bermaksud sama seperti 'relevan'."},
+    {word:"proaktif", type:"sinonim", correct:"berinisiatif", options:["berinisiatif","pasif","menunggu arahan","malas"], explanation:"'Berinisiatif' bermaksud sama seperti 'proaktif'."},
+    {word:"berwibawa", type:"antonim", correct:"lemah", options:["lemah","berkarisma","berpengaruh","disegani"], explanation:"'Lemah' ialah lawan kata bagi 'berwibawa'."},
+    {word:"relevan", type:"antonim", correct:"tidak berkaitan", options:["tidak berkaitan","berkaitan","penting","signifikan"], explanation:"'Tidak berkaitan' ialah lawan kata bagi 'relevan'."},
+    {word:"proaktif", type:"antonim", correct:"pasif", options:["pasif","berinisiatif","aktif","cergas"], explanation:"'Pasif' ialah lawan kata bagi 'proaktif'."},
+    {word:"komited", type:"antonim", correct:"separuh hati", options:["separuh hati","bersungguh-sungguh","dedikasi","tekun"], explanation:"'Separuh hati' ialah lawan kata bagi 'komited'."},
+    {word:"mendalam", type:"antonim", correct:"cetek", options:["cetek","dangkal","sepintas lalu","permukaan"], explanation:"'Cetek' ialah lawan kata bagi 'mendalam'."},
+    {word:"berwawasan", type:"antonim", correct:"picik", options:["picik","berpandangan jauh","bijaksana","arif"], explanation:"'Picik' ialah lawan kata bagi 'berwawasan'."},
+    {word:"autoriti", type:"antonim", correct:"ketidakupayaan", options:["ketidakupayaan","kuasa","pengaruh","kewibawaan"], explanation:"'Ketidakupayaan' ialah lawan kata bagi 'autoriti'."},
+    {word:"inovatif", type:"antonim", correct:"kolot", options:["kolot","kreatif","moden","canggih"], explanation:"'Kolot' ialah lawan kata bagi 'inovatif'."},
+  ],
+};
+const TAHUN_LIST = Object.keys(TAHUN_BANKS).map(Number).sort((a,b)=>a-b);
+const SET_SIZE = 16;
+const SET_COUNT = 3; // setiap Tahun ada 48 soalan (3 set x 16) supaya tidak berulang sehingga 3 kali main
+
+/* ================= STATE (in-memory only) ================= */
+let state = {
+  tahun: null,
+  deck: [],
+  qIndex: 0,
+  correctCount: 0,
+  answered: false,
+  stars: {},
+  playCounts: {},
+  studentName: '',
+  studentClass: '',
+  studentId: ''
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================= NAV ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showIdentityScreen(){
+  document.getElementById('idError').textContent = '';
+  document.getElementById('identitySyncStatus').textContent = '';
+  showScreen('screen-identity');
+}
+
+async function submitIdentity(){
+  const nama = document.getElementById('inputNama').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const pin = document.getElementById('inputPin').value.trim();
+  const errEl = document.getElementById('idError');
+  const statusEl = document.getElementById('identitySyncStatus');
+  const btn = document.getElementById('identitySubmitBtn');
+
+  errEl.textContent = '';
+
+  if(!nama || !kelas){
+    errEl.textContent = 'Sila isi nama dan kelas awak.';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(pin)){
+    errEl.textContent = 'PIN mesti 4 digit nombor (contoh: 1234).';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Menyahkan identiti...';
+  statusEl.className = 'sync-status';
+
+  if(!(window.FirebaseAPI && window.FirebaseAPI.isReady())){
+    const fbErr = (window.FirebaseAPI && window.FirebaseAPI.getInitError && window.FirebaseAPI.getInitError()) || '';
+    statusEl.textContent = fbErr ? ('⚠️ Firebase gagal sambung: ' + fbErr) : '⚠️ Sambungan awan belum tersedia — cuba buka fail ini terus dalam pelayar (bukan pratonton chat) untuk sahkan Firebase.';
+    statusEl.className = 'sync-status err';
+    btn.disabled = false;
+    return;
+  }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+
+  try{
+    const pinHash = await window.FirebaseAPI.sha256Hex(pin);
+    const result = await window.FirebaseAPI.verifyOrCreateProfile(studentId, nama, kelas, pinHash);
+
+    if(!result.ok){
+      if(result.status === 'mismatch'){
+        errEl.textContent = 'Nama & kelas ini sudah didaftarkan dengan PIN lain. Sila masukkan PIN asal awak, atau guna nama/kelas sedikit berbeza kalau ini murid lain.';
+      } else {
+        errEl.textContent = 'Gagal menyemak profil. Sila cuba sekali lagi.';
+      }
+      statusEl.textContent = '';
+      btn.disabled = false;
+      return;
+    }
+
+    state.studentName = nama;
+    state.studentClass = kelas;
+    state.studentId = studentId;
+    document.getElementById('studentBadge').textContent = `👋 ${nama} (${kelas})`;
+
+    statusEl.textContent = result.status === 'created' ? 'Profil baru dicipta ✅' : 'PIN disahkan ✅';
+    statusEl.className = 'sync-status ok';
+
+    const levelIds = TAHUN_LIST.map(n=>`tahun-${n}`);
+    const levelData = await window.FirebaseAPI.loadLevelData(state.studentId, levelIds);
+    state.stars = {};
+    state.playCounts = {};
+    for(const lid of levelIds){
+      state.stars[lid] = (levelData[lid] && levelData[lid].stars) || 0;
+      state.playCounts[lid] = (levelData[lid] && levelData[lid].playCount) || 0;
+    }
+
+  }catch(e){
+    statusEl.textContent = 'Gagal sambung — bermain tanpa simpan awan buat masa ini.';
+    statusEl.className = 'sync-status err';
+  }
+
+  btn.disabled = false;
+  goToTahunSelect();
+}
+
+/* ================= TAHUN SELECT ================= */
+function goToTahunSelect(){
+  renderTahunGrid();
+  showScreen('screen-tahun');
+}
+
+function renderTahunGrid(){
+  const grid = document.getElementById('tahunGrid');
+  grid.innerHTML = TAHUN_LIST.map(n=>{
+    const stars = state.stars[`tahun-${n}`] || 0;
+    return `<button class="tahun-btn t${n}" onclick="selectTahun(${n})">
+      <div class="tnum">Tahun ${n}</div>
+      <div class="tstars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectTahun(n){
+  state.tahun = n;
+  startGame();
+}
+
+/* ================= GAME FLOW ================= */
+function startGame(){
+  const levelId = `tahun-${state.tahun}`;
+  const playCount = state.playCounts[levelId] || 0;
+  const setIndex = playCount % SET_COUNT;
+  const fullBank = TAHUN_BANKS[state.tahun];
+  const setQuestions = fullBank.slice(setIndex*SET_SIZE, setIndex*SET_SIZE + SET_SIZE);
+
+  state.deck = shuffle(setQuestions);
+  state.qIndex = 0;
+  state.correctCount = 0;
+
+  document.getElementById('gameTag').textContent = `Sinonim & Antonim · Tahun ${state.tahun}`;
+  showScreen('screen-game');
+  startQuestion();
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  startGame();
+}
+
+function startQuestion(){
+  state.answered = false;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('explainBox').textContent = '';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const total = state.deck.length;
+  document.getElementById('qCount').textContent = `Soalan ${state.qIndex+1} daripada ${total}`;
+  document.getElementById('progressFill').style.width = `${(state.qIndex/total)*100}%`;
+
+  const q = state.deck[state.qIndex];
+  const area = document.getElementById('questionArea');
+  const opts = shuffle(q.options);
+  const typeLabel = q.type === 'sinonim' ? 'SINONIM' : 'ANTONIM';
+  const promptText = q.type === 'sinonim' ? 'Pilih perkataan yang SEERTI (sinonim):' : 'Pilih perkataan yang berLAWAN (antonim):';
+  area.innerHTML = `
+    <span class="type-tag ${q.type}">${typeLabel}</span>
+    <div class="q-word">${q.word}</div>
+    <div class="q-prompt">${promptText}</div>
+    <div class="options-grid">${opts.map(o=>`<button class="opt-btn" onclick="checkMcq(this,${JSON.stringify(o).replace(/"/g,'&quot;')},${JSON.stringify(q.correct).replace(/"/g,'&quot;')})">${o}</button>`).join('')}</div>
+  `;
+}
+
+function checkMcq(btn, chosen, correct){
+  if(state.answered) return;
+  state.answered = true;
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach(b=>b.disabled = true);
+  const isCorrect = chosen === correct;
+  const q = state.deck[state.qIndex];
+  if(isCorrect){
+    btn.classList.add('correct');
+    state.correctCount++;
+    showFeedback(true);
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === correct) b.classList.add('correct'); });
+    showFeedback(false);
+  }
+  document.getElementById('explainBox').textContent = q.explanation || '';
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function showFeedback(good){
+  if(window.FirebaseAPI && window.FirebaseAPI.sound){ good ? window.FirebaseAPI.sound.playCorrect() : window.FirebaseAPI.sound.playWrong(); }
+  const el = document.getElementById('feedback');
+  if(good){
+    el.textContent = 'Betul! Syabas! 🎉';
+    el.className = 'feedback good';
+  } else {
+    el.textContent = 'Belum tepat, cuba lagi nanti!';
+    el.className = 'feedback bad';
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex >= state.deck.length){
+    finishGame();
+  } else {
+    startQuestion();
+  }
+}
+
+async function finishGame(){
+  const total = state.deck.length;
+  const score = state.correctCount;
+  let stars = 0;
+  if(score === total) stars = 3;
+  else if(score >= Math.ceil(total*0.6)) stars = 2;
+  else if(score >= Math.ceil(total*0.4)) stars = 1;
+
+  const levelId = `tahun-${state.tahun}`;
+  const prevStars = state.stars[levelId] || 0;
+  const bestStars = Math.max(stars, prevStars);
+  state.stars[levelId] = bestStars;
+
+  const newPlayCount = (state.playCounts[levelId] || 0) + 1;
+  state.playCounts[levelId] = newPlayCount;
+
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent = `Skor: ${score} / ${total}`;
+
+  let msg = '';
+  if(stars === 3) msg = 'Cemerlang! Awak menguasai sinonim dan antonim Tahun ini.';
+  else if(stars === 2) msg = 'Bagus! Sikit lagi untuk jadi cemerlang.';
+  else if(stars === 1) msg = 'Baik punya cubaan! Cuba lagi untuk tambah bintang.';
+  else msg = 'Jangan risau, cuba lagi ya!';
+  document.getElementById('resultMsg').textContent = msg;
+
+  document.getElementById('resultOverlay').classList.add('active');
+
+  const syncEl = document.getElementById('resultSyncStatus');
+  syncEl.textContent = 'Menyimpan markah...';
+  syncEl.className = 'sync-status';
+
+  if(window.FirebaseAPI && window.FirebaseAPI.isReady() && state.studentId){
+    const res = await window.FirebaseAPI.saveScore(levelId, state.studentId, {
+      name: state.studentName,
+      kelas: state.studentClass,
+      score: score,
+      total: total,
+      stars: bestStars,
+      playCount: newPlayCount
+    });
+    if(res.ok){
+      syncEl.textContent = 'Markah disimpan ke awan ✅';
+      syncEl.className = 'sync-status ok';
+    } else {
+      syncEl.textContent = '⚠️ Gagal simpan ke awan — markah disimpan dalam peranti sahaja buat masa ini.';
+      syncEl.className = 'sync-status err';
+    }
+  } else {
+    syncEl.textContent = '⚠️ Tiada sambungan awan — markah disimpan dalam peranti sahaja buat masa ini.';
+    syncEl.className = 'sync-status err';
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  goToTahunSelect();
+}
+</script>
+</body>
+</html>

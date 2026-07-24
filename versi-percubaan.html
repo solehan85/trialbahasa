@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Versi Penuh Diperlukan — Seronoknya Bahasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Titan+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif; font-size:1.05rem;
+    color:#E8EDF4;
+    background:linear-gradient(180deg,#0A0E1A 0%, #10192C 100%);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 16px;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background-image:url('backgrounds/background-index.jpg');
+    background-size:cover; background-position:center;
+    filter:blur(0.5px) saturate(1.1);
+    opacity:0.35;
+    pointer-events:none;
+  }
+  .card{
+    max-width:440px; width:100%;
+    background:rgba(14,22,38,0.88); backdrop-filter:blur(3px);
+    border-radius:26px; padding:34px 28px;
+    border:3px solid #94A3B8; box-shadow:0 8px 0 rgba(0,0,0,0.4), 0 0 30px rgba(148,163,184,.3);
+    text-align:center;
+  }
+  .icon{font-size:3.2rem; margin-bottom:6px;}
+  h1{font-family:'Titan One',cursive; font-weight:400; font-size:1.4rem; margin:0 0 8px; color:#fff;}
+  p{color:#AAB8CC; line-height:1.6; margin:0 0 24px; font-size:0.95rem;}
+  p strong{color:#fff;}
+  .btn{
+    display:block; width:100%; padding:14px; border-radius:999px; border:none; cursor:pointer;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; text-decoration:none;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,#4ADE80,#16A34A); color:#08350f;
+    box-shadow:0 5px 0 #14532d, 0 0 20px rgba(74,222,128,.5);
+    margin-bottom:14px;
+  }
+  .btn-secondary{
+    background:transparent; color:#38BDF8; border:2px solid #38BDF8;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">🔒</div>
+  <h1 id="titleText">Permainan Ini Dalam Versi Penuh</h1>
+  <p id="introText">Anda sedang guna <strong>Versi Percubaan Percuma</strong> Seronoknya Bahasa. Beli versi penuh untuk buka semua 23 permainan interaktif Bahasa Melayu.</p>
+  <a class="btn btn-primary" href="https://solehanxdigital.bcl.my/form/seronoknya-bahasa-pengguna" target="_blank" rel="noopener">💳 Beli Versi Penuh Sekarang</a>
+  <a class="btn btn-secondary" href="percubaan.html">← Kembali ke Versi Percubaan</a>
+</div>
+
+<script>
+(function(){
+  try{
+    if (localStorage.getItem('seronok_full_access') === 'true') {
+      document.getElementById('titleText').textContent = 'Anda Sudah Ada Akses Penuh!';
+      document.getElementById('introText').innerHTML = 'Peranti ini sudah dibuka sepenuhnya. Kembali untuk main mana-mana daripada 23 permainan.';
+      document.querySelector('.btn-primary').style.display = 'none';
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

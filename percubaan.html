@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seronoknya Bahasa — Cuba Percuma</title>
+<meta name="description" content="Cuba percuma 5 permainan interaktif Bahasa Melayu untuk murid KSSR Tahun 1-6, sebelum beli versi penuh 23 permainan!">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://solehan85.github.io/seronoknyabahasa/percubaan.html">
+<meta property="og:title" content="Seronoknya Bahasa — Cuba Percuma 23 Permainan Interaktif">
+<meta property="og:description" content="Belajar Bahasa Melayu sambil bermain! Cuba percuma sekarang, beli versi penuh untuk buka semua 23 permainan.">
+<meta property="og:image" content="https://solehan85.github.io/seronoknyabahasa/backgrounds/background-index.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Seronoknya Bahasa — Cuba Percuma 23 Permainan Interaktif">
+<meta name="twitter:description" content="Belajar Bahasa Melayu sambil bermain! Cuba percuma sekarang!">
+<meta name="twitter:image" content="https://solehan85.github.io/seronoknyabahasa/backgrounds/background-index.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Bubblegum+Sans&family=Titan+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B3A4B; --wood-dark:#6E4A28; --ink:#2C2A25; --ink-soft:#6B6558;
+    --gold:#E0A527; --coral:#DB2436; --coral-dark:#9F1E2B;
+    --teal:#1F847A; --teal-dark:#166059;
+    --shadow:rgba(0,0,0,0.35); --line:#EFE6D8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    font-size:1.05rem;
+    color:#E8EDF4;
+    background:linear-gradient(180deg,#0A0E1A 0%, #10192C 100%);
+    min-height:100vh;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background-image:url('backgrounds/background-index.jpg');
+    background-size:cover; background-position:center;
+    filter:blur(0.5px) saturate(1.1);
+    opacity:0.4;
+    pointer-events:none;
+  }
+  h1,h2,h3{font-family:'Baloo 2',sans-serif; margin:0;}
+  a{text-decoration:none; color:inherit;}
+
+  @keyframes floaty{
+    0%,100%{ transform:translateY(0) rotate(-3deg); }
+    50%{ transform:translateY(-10px) rotate(3deg); }
+  }
+  @keyframes glowPulse{
+    0%,100%{ filter:drop-shadow(0 0 3px rgba(255,210,90,0.35)) drop-shadow(0 0 0px rgba(255,210,90,0)); }
+    50%{ filter:drop-shadow(0 0 14px rgba(255,210,90,0.95)) drop-shadow(0 0 22px rgba(255,150,90,0.5)); }
+  }
+  .floaty-emoji{
+    display:inline-block;
+    animation:floaty 3.2s ease-in-out infinite, glowPulse 2.6s ease-in-out infinite;
+  }
+
+  .hero{
+    position:relative;
+    padding:50px 20px 46px;
+    text-align:center;
+    color:#fff;
+    background:linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%);
+    overflow:hidden;
+  }
+  .hero-emoji{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:1.1rem; letter-spacing:1px; line-height:1;
+    color:#fff; background:rgba(255,255,255,0.15); backdrop-filter:blur(3px);
+    border:2px solid rgba(255,255,255,0.35); border-radius:999px;
+    padding:8px 20px; display:inline-block;
+  }
+  .hero h1{ margin-top:6px; }
+  .curve-text{
+    display:block; width:100%; max-width:552px; height:auto;
+    margin:0 auto; overflow:visible;
+  }
+  .curve-text text{
+    font-family:'Titan One',cursive; font-size:46px;
+    fill:#fff; stroke:#142033; stroke-width:4; paint-order:stroke fill;
+  }
+  @keyframes floatyText{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-9px); }
+  }
+  @keyframes glowText{
+    0%,100%{ filter:drop-shadow(0 0 6px rgba(255,217,61,0.45)) drop-shadow(0 0 0px rgba(255,150,50,0)); }
+    50%{ filter:drop-shadow(0 0 24px rgba(255,217,61,0.95)) drop-shadow(0 0 40px rgba(255,150,50,0.65)); }
+  }
+  .bahasa-big{
+    font-family:'Titan One',cursive; font-weight:400;
+    font-size:5.05rem; line-height:0.85; margin-top:-8px;
+    letter-spacing:1px;
+    color:#FFD93D;
+    -webkit-text-stroke:3px #7A4A00;
+    text-shadow:0 6px 0 #7A4A00, 0 12px 24px rgba(0,0,0,0.55);
+    animation:floatyText 3s ease-in-out infinite, glowText 2.4s ease-in-out infinite;
+  }
+  @media (max-width:480px){
+    .bahasa-big{font-size:3.7rem;}
+  }
+  .hero .ribbon{
+    display:inline-block; margin-top:14px;
+    background:linear-gradient(180deg,#F472B6,#DB2777);
+    color:#fff; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:0.85rem;
+    padding:8px 22px; border-radius:999px;
+    box-shadow:0 4px 0 #9d2d68;
+    border:2px solid rgba(255,255,255,0.35);
+  }
+  .hero .tagline{font-size:1.05rem; font-weight:600; margin-top:16px; max-width:540px; margin-left:auto; margin-right:auto; opacity:0.95; line-height:1.55;}
+  .hero .tagline .hl{color:#FFD93D; font-weight:800;}
+  .hero .stat-row{display:flex; justify-content:center; gap:14px; margin-top:24px; flex-wrap:wrap;}
+  .hero .stat{
+    display:flex; align-items:center; gap:10px;
+    color:#fff; border-radius:16px; padding:12px 20px; font-weight:700; font-size:0.92rem;
+    border:2px solid rgba(255,255,255,0.3);
+    box-shadow:0 4px 0 rgba(0,0,0,0.3), 0 0 20px var(--glow);
+  }
+  .hero .stat .e{font-size:1.5rem;}
+  .hero .stat b{display:block; font-family:'Titan One',cursive; font-weight:400; font-size:1.5rem; line-height:1;}
+  .stat.s1{background:linear-gradient(180deg,#A78BFA,#7C3AED); --glow:rgba(124,58,237,.55);}
+  .stat.s2{background:linear-gradient(180deg,#4ADE80,#16A34A); --glow:rgba(22,163,74,.55);}
+  .stat.s3{background:linear-gradient(180deg,#FB923C,#EA580C); --glow:rgba(234,88,12,.55);}
+
+  .parent-link{
+    display:inline-flex; align-items:center; gap:8px;
+    margin-top:26px; background:linear-gradient(180deg,#4ADE80,#16A34A); color:#08350f;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; padding:14px 28px;
+    border-radius:999px; border:2px solid rgba(255,255,255,0.4);
+    box-shadow:0 5px 0 #14532d, 0 0 24px rgba(74,222,128,.6);
+    transition:transform .1s ease;
+  }
+  .parent-link:hover{transform:translateY(-3px) scale(1.03);}
+
+  .wrap{max-width:1100px; margin:0 auto; padding:20px 18px 60px;}
+
+  .grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:18px;
+  }
+  .game-card{
+    position:relative;
+    flex:1 1 230px;
+    max-width:260px;
+    background:rgba(14,22,38,0.82);
+    backdrop-filter:blur(3px);
+    border-radius:24px;
+    padding:20px 18px;
+    display:flex; flex-direction:column; gap:10px;
+    align-items:center; text-align:center;
+    transition:transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s ease;
+    border:3px solid var(--accent, #38BDF8);
+    box-shadow:0 6px 0 rgba(0,0,0,0.4), 0 0 18px var(--glow, rgba(56,189,248,.4));
+  }
+  .game-card:hover{transform:translateY(-6px) scale(1.02); box-shadow:0 10px 0 rgba(0,0,0,0.4), 0 0 30px var(--glow, rgba(56,189,248,.6));}
+  .game-card .icon{
+    font-size:1.9rem; width:54px; height:54px; border-radius:15px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--accent, #38BDF8);
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,0.22);
+  }
+  .badge-free, .badge-paid{
+    position:absolute; top:-9px; right:14px;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:0.68rem;
+    padding:5px 11px; border-radius:999px; letter-spacing:0.3px;
+    box-shadow:0 2px 0 rgba(0,0,0,0.3); border:2px solid rgba(255,255,255,0.4);
+  }
+  .badge-free{background:linear-gradient(180deg,#4ADE80,#16A34A); color:#08350f;}
+  .badge-paid{background:linear-gradient(180deg,#94A3B8,#475569); color:#fff;}
+  .game-card .name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.15rem; color:#fff; line-height:1.25;}
+  .game-card .tag{font-size:0.86rem; font-weight:600; color:#AAB8CC; line-height:1.4; flex:1;}
+  .game-card .play{
+    margin-top:4px; align-self:flex-start;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:0.85rem; color:#08131f;
+    background:var(--accent, #38BDF8);
+    padding:8px 18px; border-radius:999px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.35);
+    display:inline-flex; align-items:center; gap:6px;
+    transition:filter .12s ease;
+  }
+  .game-card:hover .play{filter:brightness(1.12);}
+
+  .game-card.c1{ --accent:#4ADE80; --glow:rgba(74,222,128,.5); }
+  .game-card.c2{ --accent:#38BDF8; --glow:rgba(56,189,248,.5); }
+  .game-card.c3{ --accent:#FB923C; --glow:rgba(251,146,60,.5); }
+  .game-card.c4{ --accent:#A78BFA; --glow:rgba(167,139,250,.5); }
+  .game-card.c5{ --accent:#F472B6; --glow:rgba(244,114,182,.5); }
+  .game-card.c6{ --accent:#FBBF24; --glow:rgba(251,191,36,.5); }
+  .game-card.c7{ --accent:#F87171; --glow:rgba(248,113,113,.5); }
+  .game-card.c8{ --accent:#2DD4BF; --glow:rgba(45,212,191,.5); }
+
+  .grid .game-card:nth-child(2) .floaty-emoji{ animation-delay:.3s, .5s; }
+  .grid .game-card:nth-child(3) .floaty-emoji{ animation-delay:.6s, 1s; }
+  .grid .game-card:nth-child(4) .floaty-emoji{ animation-delay:.9s, .2s; }
+  .grid .game-card:nth-child(5) .floaty-emoji{ animation-delay:1.2s, .8s; }
+  .grid .game-card:nth-child(6) .floaty-emoji{ animation-delay:1.5s, .4s; }
+
+  .group-heading{
+    font-family:'Titan One',cursive; font-weight:400; color:#fff;
+    font-size:1.05rem; letter-spacing:0.3px;
+    margin:38px 0 16px; padding:10px 22px;
+    display:inline-flex; align-items:center; gap:10px;
+    border-radius:14px; width:fit-content;
+    box-shadow:0 4px 0 rgba(0,0,0,0.35);
+    border:2px solid rgba(255,255,255,0.25);
+  }
+  .group-heading:first-of-type{margin-top:0;}
+  .group-heading.g1{background:linear-gradient(135deg,#22C55E,#15803D);}
+  .group-heading.g2{background:linear-gradient(135deg,#3B82F6,#1D4ED8);}
+  .group-heading.g3{background:linear-gradient(135deg,#A855F7,#7E22CE);}
+  .group-heading.g4{background:linear-gradient(135deg,#F97316,#C2410C);}
+
+  footer{
+    font-family:'Baloo 2',sans-serif; font-weight:700; text-align:center; color:#AAB8CC;
+    font-size:0.9rem; padding:30px 18px 46px;
+  }
+  footer .bbb{
+    font-family:'Titan One',cursive; font-weight:400; color:#FFD93D; font-size:1.1rem;
+    letter-spacing:1px; margin-bottom:8px;
+    text-shadow:0 2px 0 rgba(0,0,0,0.4);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-emoji floaty-emoji">mosobimo</div>
+  <h1>
+    <svg class="curve-text" viewBox="0 0 420 130" preserveAspectRatio="xMidYMid meet">
+      <path id="titleCurve" d="M 15,110 Q 210,20 405,110" fill="none"/>
+      <text text-anchor="middle">
+        <textPath href="#titleCurve" startOffset="50%">SERONOKNYA</textPath>
+      </text>
+    </svg>
+    <div class="bahasa-big">BAHASA</div>
+  </h1>
+  <div class="ribbon">🎉 Belajar Bahasa Melayu • Sambil Bermain • Lebih Seronok! 🎉</div>
+  <p class="tagline">23 permainan interaktif Bahasa Melayu untuk murid KSSR <span class="hl">Tahun 1 hingga 6</span> — kosa kata, tatabahasa, peribahasa dan kefahaman, dibalut dengan semangat Malaysia.</p>
+  <div class="stat-row">
+    <div class="stat s1"><span class="e floaty-emoji">🎮</span><div><b>23</b>Permainan</div></div>
+    <div class="stat s2"><span class="e floaty-emoji">🎓</span><div><b>6</b>Tahun (1–6)</div></div>
+    <div class="stat s3"><span class="e floaty-emoji">🏆</span><div><b>1</b>Akaun untuk semua</div></div>
+  </div>
+  <br>
+  <a class="parent-link" href="dashboard-ibubapa.html">📊 Dashboard Ibu Bapa &amp; Guru →</a>
+</div>
+
+<div class="wrap">
+
+  <div class="group-heading g1">🎈 KOSA KATA &amp; EJAAN</div>
+  <div class="grid">
+    <a class="game-card c1" href="bm-bingo.html">
+      <span class="badge-free">✨ PERCUMA</span>
+      <div class="icon floaty-emoji">🔢</div>
+      <div class="name">Bingo Kata</div>
+      <div class="tag">Kosa kata pelbagai tema</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c2" href="perkataan-explorer.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🔤</div>
+      <div class="name">Peneroka Perkataan</div>
+      <div class="tag">Kosa kata &amp; fonik/suku kata</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c3" href="teka-gambar-bm.html">
+      <span class="badge-free">✨ PERCUMA</span>
+      <div class="icon floaty-emoji">🖼️</div>
+      <div class="name">Teka Gambar BM</div>
+      <div class="tag">Padan gambar dengan perkataan</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c4" href="sinonim-antonim.html">
+      <span class="badge-free">✨ PERCUMA</span>
+      <div class="icon floaty-emoji">🔀</div>
+      <div class="name">Sinonim &amp; Antonim</div>
+      <div class="tag">Perkataan seerti &amp; lawan</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c5" href="ejaan-tanda-baca-master.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">✍️</div>
+      <div class="name">Pakar Ejaan &amp; Tanda Baca</div>
+      <div class="tag">Ejaan &amp; tanda baca</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c6" href="memory-match-bm.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🃏</div>
+      <div class="name">Padan Ingatan BM</div>
+      <div class="tag">Simpulan bahasa &amp; kosa kata umum</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+  </div>
+
+  <div class="group-heading g2">✍️ TATABAHASA &amp; AYAT</div>
+  <div class="grid">
+    <a class="game-card c7" href="kata-nama-hunter.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🎯</div>
+      <div class="name">Pemburu Kata Nama</div>
+      <div class="tag">Kata nama</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c8" href="susun-bina-ayat.html">
+      <span class="badge-free">✨ PERCUMA</span>
+      <div class="icon floaty-emoji">🧩</div>
+      <div class="name">Susun &amp; Bina Ayat</div>
+      <div class="tag">Struktur ayat &amp; penulisan berpandu</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c1" href="ayat-aktif-pasif.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🔄</div>
+      <div class="name">Ayat Aktif Pasif</div>
+      <div class="tag">Tatabahasa ayat</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c2" href="ayat-majmuk-builder.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🏗️</div>
+      <div class="name">Pembina Ayat Majmuk</div>
+      <div class="tag">Ayat majmuk</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c3" href="imbuhan-adventure.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🧗</div>
+      <div class="name">Kembara Imbuhan</div>
+      <div class="tag">Imbuhan kata</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c4" href="kata-ganda-detektif.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🕵️</div>
+      <div class="name">Detektif Kata Ganda</div>
+      <div class="tag">Kata ganda</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c5" href="penjodoh-bilangan.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🔗</div>
+      <div class="name">Penjodoh Bilangan</div>
+      <div class="tag">Penjodoh bilangan</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c6" href="kata-sendi-mission.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🧭</div>
+      <div class="name">Misi Kata Sendi</div>
+      <div class="tag">Kata sendi nama</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c7" href="larian-bahasa.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🏃</div>
+      <div class="name">Larian Bahasa</div>
+      <div class="tag">Kata kerja &amp; kata hubung</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+  </div>
+
+  <div class="group-heading g3">📖 PERIBAHASA, SASTERA &amp; CERITA</div>
+  <div class="grid">
+    <a class="game-card c8" href="peribahasa-puzzle.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🧠</div>
+      <div class="name">Teka-Teki Peribahasa</div>
+      <div class="tag">Peribahasa</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c1" href="pantun-peribahasa-sambung.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">📜</div>
+      <div class="name">Pantun &amp; Peribahasa Sambung</div>
+      <div class="tag">Pantun &amp; peribahasa</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c2" href="susun-gambar-cerita.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">📖</div>
+      <div class="name">Susun Gambar Cerita</div>
+      <div class="tag">Jujukan &amp; kefahaman cerita</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c3" href="kuiz-roda-bahasa.html">
+      <span class="badge-free">✨ PERCUMA</span>
+      <div class="icon floaty-emoji">🎡</div>
+      <div class="name">Kuiz &amp; Roda Bahasa</div>
+      <div class="tag">Kuiz pelbagai &amp; sastera ringkas</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c4" href="escape-room-bahasa.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🔐</div>
+      <div class="name">Bilik Misteri Bahasa</div>
+      <div class="tag">Kefahaman bacaan &amp; logik</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+  </div>
+
+  <div class="group-heading g4">🌟 PENGEMBARAAN &amp; LATIH TUBI</div>
+  <div class="grid">
+    <a class="game-card c5" href="pengembaraan-kampung-kata.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">🏘️</div>
+      <div class="name">Pengembaraan Kampung Kata</div>
+      <div class="tag">Pelbagai kemahiran — 4 kampung</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c6" href="latih-tubi-bahasa-1.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">📘</div>
+      <div class="name">Latih Tubi Bahasa 1</div>
+      <div class="tag">33 latihan perenggan pelbagai topik</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+    <a class="game-card c7" href="latih-tubi-bahasa-2.html">
+      <span class="badge-paid">🔒 Berbayar</span>
+      <div class="icon floaty-emoji">📗</div>
+      <div class="name">Latih Tubi Bahasa 2</div>
+      <div class="tag">1246 soalan, 20 topik tatabahasa</div>
+      <div class="play">Main sekarang →</div>
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="bbb">⭐ BELAJAR • BERMAIN • BERJAYA ⭐</div>
+  Seronoknya Bahasa &middot; Dibina dengan ❤️ untuk murid-murid Malaysia
+</footer>
+
+<script>
+// Laman TRIAL khas untuk promosi/jualan -- berasingan sepenuhnya daripada
+// index.html (yang kekal tidak disentuh). Alihkan kad game berbayar ke
+// versi-percubaan.html jika belum dibuka.
+(function(){
+  var FREE_GAMES = ['bm-bingo.html','sinonim-antonim.html','teka-gambar-bm.html','susun-bina-ayat.html','kuiz-roda-bahasa.html'];
+  var unlocked = false;
+  try{ unlocked = localStorage.getItem('seronok_full_access') === 'true'; }catch(e){}
+  if(!unlocked){
+    document.querySelectorAll('.game-card').forEach(function(card){
+      var href = card.getAttribute('href');
+      if(href && FREE_GAMES.indexOf(href) === -1){
+        card.setAttribute('href', 'versi-percubaan.html');
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

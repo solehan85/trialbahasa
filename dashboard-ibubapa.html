@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Ibu Bapa & Guru — Seronoknya Bahasa</title>
+<style>
+  :root{
+    --navy:#1B3A4B; --teal:#1F8A8C; --teal-light:#E4F5F4; --gold:#E0A527;
+    --ink:#1B2E33; --muted:#5C7378; --bg:#F3F6F8; --card:#FFFFFF; --line:#DCE6E8;
+    --ok:#2F9E6E; --bad:#D14B3D;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif; background:var(--bg); margin:0; padding:0; color:var(--ink);}
+  .topbar{background:var(--navy); color:#fff; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+  .topbar .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.15rem;}
+  .topbar .brand .emoji{font-size:1.5rem;}
+  .topbar .who{font-size:0.85rem; opacity:0.9; display:flex; align-items:center; gap:10px;}
+  .topbar button{background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.3); border-radius:8px; padding:6px 12px; font-size:0.8rem; cursor:pointer;}
+  .topbar button:hover{background:rgba(255,255,255,0.22);}
+  .wrap{max-width:960px; margin:0 auto; padding:24px 16px 60px;}
+
+  /* ---- Auth screen ---- */
+  .auth-card{max-width:400px; margin:60px auto; background:var(--card); border-radius:16px; padding:30px 26px; box-shadow:0 4px 18px rgba(27,58,75,0.12);}
+  .auth-card h1{font-size:1.3rem; margin:0 0 4px; color:var(--navy);}
+  .auth-card .sub{color:var(--muted); font-size:0.88rem; margin-bottom:20px; line-height:1.5;}
+  .tabs{display:flex; gap:6px; margin-bottom:18px; background:var(--teal-light); border-radius:10px; padding:4px;}
+  .tabs button{flex:1; border:none; background:transparent; padding:8px; border-radius:8px; font-weight:700; font-size:0.85rem; color:var(--teal); cursor:pointer;}
+  .tabs button.active{background:var(--teal); color:#fff;}
+  label{display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin:14px 0 5px;}
+  input[type=email], input[type=password], input[type=text]{
+    width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-size:0.95rem; background:#fbfdfd;
+  }
+  input:focus{outline:none; border-color:var(--teal);}
+  .primary-btn{width:100%; margin-top:20px; padding:12px; border:none; border-radius:10px; background:var(--teal); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer;}
+  .primary-btn:hover{background:#187173;}
+  .primary-btn:disabled{opacity:0.6; cursor:default;}
+  .status-msg{margin-top:12px; font-size:0.85rem; padding:9px 11px; border-radius:8px; display:none; line-height:1.4;}
+  .status-msg.show{display:block;}
+  .status-msg.err{background:#FBE0DB; color:#A32E1F;}
+  .status-msg.ok{background:#DFF3E8; color:#1F7A50;}
+
+  /* ---- Dashboard ---- */
+  .add-child{background:var(--card); border-radius:14px; padding:18px 20px; box-shadow:0 2px 8px rgba(27,58,75,0.08); margin-bottom:22px;}
+  .add-child h2{margin:0 0 4px; font-size:1.05rem; color:var(--navy);}
+  .add-child .sub{color:var(--muted); font-size:0.82rem; margin-bottom:14px;}
+  .add-child form{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;}
+  .add-child .field{flex:1; min-width:140px;}
+  .add-child label{margin:0 0 5px;}
+  .add-child button{padding:10px 18px; border:none; border-radius:9px; background:var(--gold); color:#4A3400; font-weight:800; cursor:pointer; white-space:nowrap;}
+  .add-child button:hover{background:#c78f1e;}
+
+  .empty-state{text-align:center; color:var(--muted); padding:50px 20px; font-size:0.95rem;}
+
+  .child-card{background:var(--card); border-radius:14px; margin-bottom:20px; box-shadow:0 2px 8px rgba(27,58,75,0.08); overflow:hidden;}
+  .child-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; cursor:pointer; user-select:none;}
+  .child-head:hover{background:#FAFCFC;}
+  .child-name{font-weight:800; font-size:1.05rem; color:var(--navy);}
+  .child-kelas{color:var(--muted); font-size:0.82rem; margin-top:2px;}
+  .child-summary{font-size:0.82rem; color:var(--teal); font-weight:700;}
+  .child-actions{display:flex; align-items:center; gap:12px;}
+  .remove-btn{background:none; border:none; color:var(--bad); font-size:0.78rem; cursor:pointer; text-decoration:underline;}
+  .chevron{transition:transform 0.2s; color:var(--muted);}
+  .child-card.open .chevron{transform:rotate(180deg);}
+  .child-body{display:none; padding:0 20px 20px;}
+  .child-card.open .child-body{display:block;}
+  .loading-line{color:var(--muted); font-size:0.85rem; padding:10px 0;}
+
+  table.score-table{width:100%; border-collapse:collapse; font-size:0.82rem;}
+  table.score-table th, table.score-table td{padding:7px 8px; text-align:center; border-bottom:1px solid var(--line);}
+  table.score-table th{color:var(--muted); font-weight:700; font-size:0.75rem; text-transform:uppercase;}
+  table.score-table td.game-name{text-align:left; font-weight:600; color:var(--ink);}
+  .table-scroll{overflow-x:auto; margin-top:10px;}
+  .stars{white-space:nowrap; letter-spacing:1px;}
+  .stars.zero{color:#C8D2D4;}
+  .stars.some{color:var(--gold);}
+  .dash{color:#C8D2D4;}
+
+  .extra-section{margin-top:18px;}
+  .extra-section h3{font-size:0.85rem; color:var(--navy); margin:0 0 10px;}
+  .extra-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px;}
+  .extra-card{background:var(--teal-light); border-radius:10px; padding:12px 14px;}
+  .extra-card .g-name{font-weight:700; font-size:0.85rem; color:var(--navy); margin-bottom:4px;}
+  .extra-card .g-stat{font-size:0.8rem; color:var(--muted);}
+  .extra-card .g-avg{font-weight:700; color:var(--teal);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="emoji">📊</span> Dashboard Ibu Bapa &amp; Guru</div>
+  <div class="who" id="whoBar" style="display:none;">
+    <span id="whoEmail"></span>
+    <button onclick="doSignOut()">Log Keluar</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen">
+    <div class="auth-card">
+      <h1>Selamat Datang</h1>
+      <div class="sub">Log masuk atau daftar untuk pantau kemajuan anak/murid anda merentasi semua permainan Seronoknya Bahasa.</div>
+      <div class="tabs">
+        <button id="tabSignIn" class="active" onclick="switchTab('signin')">Log Masuk</button>
+        <button id="tabSignUp" onclick="switchTab('signup')">Daftar</button>
+      </div>
+      <div>
+        <label>E-mel</label>
+        <input type="email" id="authEmail" placeholder="contoh@emel.com" autocomplete="email">
+        <label>Kata Laluan</label>
+        <input type="password" id="authPassword" placeholder="Minimum 6 aksara" autocomplete="current-password">
+        <button class="primary-btn" id="authSubmitBtn" onclick="submitAuth()">Log Masuk</button>
+        <div class="status-msg" id="authStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div id="dashScreen" style="display:none;">
+    <div class="add-child">
+      <h2>➕ Tambah Anak / Murid</h2>
+      <div class="sub">Masukkan Nama &amp; Kelas <strong>sama persis</strong> seperti yang didaftarkan murid semasa log masuk ke mana-mana permainan.</div>
+      <form onsubmit="addChild(event)">
+        <div class="field">
+          <label>Nama</label>
+          <input type="text" id="childNama" placeholder="Contoh: Ali bin Ahmad">
+        </div>
+        <div class="field">
+          <label>Kelas</label>
+          <input type="text" id="childKelas" placeholder="Contoh: 4 Bestari">
+        </div>
+        <button type="submit">Tambah</button>
+      </form>
+      <div class="status-msg" id="addChildStatus"></div>
+    </div>
+
+    <div id="childrenList"></div>
+  </div>
+
+</div>
+
+<script>window.SERONOK_GAME_ID = 'dashboard';</script>
+<script type="module" src="firebase-shared.js"></script>
+<script>
+const TAHUN_LEVELS = [1,2,3,4,5,6].map(n => `tahun-${n}`);
+
+const STANDARD_GAMES = [
+  {id:'bm-bingo', name:'Bingo Kata'},
+  {id:'kata-nama-hunter', name:'Kata Nama Hunter'},
+  {id:'teka-gambar-bm', name:'Teka Gambar BM'},
+  {id:'peribahasa-puzzle', name:'Teka-Teki Peribahasa'},
+  {id:'ayat-aktif-pasif', name:'Ayat Aktif Pasif'},
+  {id:'perkataan-explorer', name:'Peneroka Perkataan'},
+  {id:'susun-bina-ayat', name:'Susun & Bina Ayat'},
+  {id:'ejaan-tanda-baca-master', name:'Pakar Ejaan & Tanda Baca'},
+  {id:'memory-match-bm', name:'Padan Ingatan BM'},
+  {id:'kuiz-roda-bahasa', name:'Kuiz & Roda Bahasa'},
+  {id:'larian-bahasa', name:'Larian Bahasa'},
+  {id:'kata-sendi-mission', name:'Misi Kata Sendi'},
+  {id:'escape-room-bahasa', name:'Bilik Misteri Bahasa'},
+  {id:'kata-ganda-detektif', name:'Detektif Kata Ganda'},
+  {id:'ayat-majmuk-builder', name:'Pembina Ayat Majmuk'},
+  {id:'susun-gambar-cerita', name:'Susun Gambar Cerita'},
+  {id:'pantun-peribahasa-sambung', name:'Pantun & Peribahasa Sambung'},
+  {id:'imbuhan-adventure', name:'Imbuhan Adventure'},
+  {id:'penjodoh-bilangan', name:'Penjodoh Bilangan'},
+  {id:'sinonim-antonim', name:'Sinonim & Antonim'}
+];
+
+const TOPIC_SLUGS = ['sinonim','antonim','kata-nama','kata-kerja','kata-adjektif','kata-bantu','kata-hubung',
+  'kata-sendi','kata-seru','kata-penguat','kata-pemeri','kata-bilangan','kata-banyak-makna','kata-tepat',
+  'penjodoh-bilangan','peribahasa','penggandaan','pengimbuhan','penanda-wacana','ayat-sama-maksud'];
+
+const EXTRA_GAMES = [
+  {id:'kampung-kata', name:'Pengembaraan Kampung Kata', levels:['padan','suku','tatabahasa','peribahasa']},
+  {id:'latih-tubi-bahasa-1', name:'Latih Tubi Bahasa 1', levels: Array.from({length:33},(_,i)=>`latihan-${i+1}`)},
+  {id:'latih-tubi-bahasa-2', name:'Latih Tubi Bahasa 2', levels: TOPIC_SLUGS.map(s=>`topik-${s}`)}
+];
+
+let fbReady = false;
+let currentUser = null;
+let authMode = 'signin';
+
+window.addEventListener('firebase-api-ready', () => {
+  fbReady = true;
+  window.FirebaseAPI.auth.onChange(user => {
+    currentUser = user;
+    if (user) {
+      showDashboard(user);
+    } else {
+      showAuthScreen();
+    }
+  });
+});
+
+function switchTab(mode) {
+  authMode = mode;
+  document.getElementById('tabSignIn').classList.toggle('active', mode === 'signin');
+  document.getElementById('tabSignUp').classList.toggle('active', mode === 'signup');
+  document.getElementById('authSubmitBtn').textContent = mode === 'signin' ? 'Log Masuk' : 'Daftar Akaun';
+  hideStatus('authStatus');
+}
+
+function showStatus(elId, msg, isErr) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = 'status-msg show ' + (isErr ? 'err' : 'ok');
+}
+function hideStatus(elId) {
+  const el = document.getElementById(elId);
+  el.className = 'status-msg';
+}
+
+async function submitAuth() {
+  if (!fbReady) { showStatus('authStatus', 'Sambungan awan belum sedia, sila tunggu sebentar.', true); return; }
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { showStatus('authStatus', 'Sila isi e-mel dan kata laluan.', true); return; }
+
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true;
+  hideStatus('authStatus');
+
+  const fbErr = window.FirebaseAPI.getInitError();
+  if (fbErr) {
+    showStatus('authStatus', '⚠️ Firebase gagal sambung: ' + fbErr, true);
+    btn.disabled = false;
+    return;
+  }
+
+  const result = authMode === 'signin'
+    ? await window.FirebaseAPI.auth.signIn(email, password)
+    : await window.FirebaseAPI.auth.signUp(email, password);
+
+  btn.disabled = false;
+  if (!result.ok) {
+    showStatus('authStatus', result.reason, true);
+  }
+  // onChange listener will handle showing the dashboard on success
+}
+
+function doSignOut() {
+  window.FirebaseAPI.auth.signOutUser();
+}
+
+function showAuthScreen() {
+  document.getElementById('authScreen').style.display = 'block';
+  document.getElementById('dashScreen').style.display = 'none';
+  document.getElementById('whoBar').style.display = 'none';
+}
+
+async function showDashboard(user) {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashScreen').style.display = 'block';
+  document.getElementById('whoBar').style.display = 'flex';
+  document.getElementById('whoEmail').textContent = '👋 ' + user.email;
+  await refreshChildren();
+}
+
+async function addChild(evt) {
+  evt.preventDefault();
+  const nama = document.getElementById('childNama').value.trim();
+  const kelas = document.getElementById('childKelas').value.trim();
+  if (!nama || !kelas) { showStatus('addChildStatus', 'Sila isi nama dan kelas.', true); return; }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+  const profile = await window.FirebaseAPI.getStudentProfile(studentId);
+  if (!profile) {
+    showStatus('addChildStatus', `Murid "${nama}" (${kelas}) tidak dijumpai. Pastikan nama & kelas ditaip SAMA seperti yang murid gunakan semasa log masuk ke permainan.`, true);
+    return;
+  }
+  const res = await window.FirebaseAPI.addChildToParent(currentUser.uid, studentId);
+  if (!res.ok) {
+    showStatus('addChildStatus', res.reason, true);
+    return;
+  }
+  showStatus('addChildStatus', `${profile.name} (${profile.kelas}) berjaya ditambah!`, false);
+  document.getElementById('childNama').value = '';
+  document.getElementById('childKelas').value = '';
+  await refreshChildren();
+}
+
+async function removeChild(studentId) {
+  if (!confirm('Buang murid ini daripada senarai anda? (Markah murid TIDAK akan dipadam, cuma dibuang daripada dashboard anda.)')) return;
+  await window.FirebaseAPI.removeChildFromParent(currentUser.uid, studentId);
+  await refreshChildren();
+}
+
+async function refreshChildren() {
+  const listEl = document.getElementById('childrenList');
+  const parentDoc = await window.FirebaseAPI.getParentDoc(currentUser.uid);
+  const childIds = parentDoc.children || [];
+
+  if (childIds.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">Belum ada anak/murid ditambah. Guna borang di atas untuk mula.</div>';
+    return;
+  }
+
+  const profiles = await Promise.all(childIds.map(id => window.FirebaseAPI.getStudentProfile(id)));
+
+  listEl.innerHTML = childIds.map((id, i) => {
+    const p = profiles[i] || { name: id, kelas: '?' };
+    return `
+      <div class="child-card" id="card-${cssSafe(id)}">
+        <div class="child-head" onclick="toggleChild('${id}')">
+          <div>
+            <div class="child-name">${escapeHtml(p.name)}</div>
+            <div class="child-kelas">${escapeHtml(p.kelas)}</div>
+          </div>
+          <div class="child-actions">
+            <button class="remove-btn" onclick="event.stopPropagation(); removeChild('${id}')">Buang</button>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+        <div class="child-body" id="body-${cssSafe(id)}">
+          <div class="loading-line">Memuatkan markah...</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function cssSafe(id) { return id.replace(/[^a-zA-Z0-9]/g, '_'); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function toggleChild(studentId) {
+  const card = document.getElementById('card-' + cssSafe(studentId));
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open', !isOpen);
+  if (!isOpen && !card.dataset.loaded) {
+    card.dataset.loaded = '1';
+    await loadChildScores(studentId);
+  }
+}
+
+async function loadChildScores(studentId) {
+  const bodyEl = document.getElementById('body-' + cssSafe(studentId));
+
+  // Standard tahun-1..6 games
+  const standardResults = await Promise.all(
+    STANDARD_GAMES.map(async g => {
+      const scores = await Promise.all(TAHUN_LEVELS.map(lid => window.FirebaseAPI.getScoreAny(g.id, lid, studentId)));
+      return { game: g, scores };
+    })
+  );
+
+  // Extra games with their own level schemes
+  const extraResults = await Promise.all(
+    EXTRA_GAMES.map(async g => {
+      const scores = await Promise.all(g.levels.map(lid => window.FirebaseAPI.getScoreAny(g.id, lid, studentId)));
+      return { game: g, scores };
+    })
+  );
+
+  const tableRows = standardResults.map(({ game, scores }) => {
+    const cells = scores.map(s => {
+      if (!s || typeof s.stars !== 'number') return '<td><span class="dash">–</span></td>';
+      const stars = starIcons(s.stars);
+      return `<td><span class="stars ${s.stars > 0 ? 'some' : 'zero'}">${stars}</span></td>`;
+    }).join('');
+    return `<tr><td class="game-name">${escapeHtml(game.name)}</td>${cells}</tr>`;
+  }).join('');
+
+  const extraCards = extraResults.map(({ game, scores }) => {
+    const played = scores.filter(s => s && typeof s.stars === 'number');
+    const totalStars = played.reduce((sum, s) => sum + s.stars, 0);
+    const avg = played.length ? (totalStars / played.length).toFixed(1) : '0.0';
+    return `
+      <div class="extra-card">
+        <div class="g-name">${escapeHtml(game.name)}</div>
+        <div class="g-stat">${played.length} / ${scores.length} level dimainkan</div>
+        <div class="g-stat">Purata: <span class="g-avg">${avg} ⭐</span></div>
+      </div>
+    `;
+  }).join('');
+
+  bodyEl.innerHTML = `
+    <div class="table-scroll">
+      <table class="score-table">
+        <thead><tr><th style="text-align:left;">Permainan</th><th>Thn 1</th><th>Thn 2</th><th>Thn 3</th><th>Thn 4</th><th>Thn 5</th><th>Thn 6</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+    <div class="extra-section">
+      <h3>Latihan Tambahan</h3>
+      <div class="extra-grid">${extraCards}</div>
+    </div>
+  `;
+}
+
+function starIcons(n) {
+  const filled = '⭐'.repeat(n);
+  const empty = '☆'.repeat(3 - n);
+  return filled + empty;
+}
+</script>
+</body>
+</html>

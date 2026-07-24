@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuiz & Roda Bahasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#F6F3D5;
+    --bg-bottom:#F0E9A8;
+    --ink:#2C2A25;
+    --ink-soft:#6B6558;
+    --wood-dark:#6E4A28;
+    --gold:#6B2FC6;
+    --green:#4C9A6C;
+    --green-dark:#3B7C56;
+    --indigo:#3D458F;
+    --indigo-dark:#292F65;
+    --coral:#557F15;
+    --coral-dark:#2E450D;
+    --card:#FFFFFF;
+    --shadow:rgba(44,42,37,0.18);
+    --good:#3B7C56;
+    --bad:#C94F36;
+    --theme:#7E762A;
+    --theme-dark:#575119;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:url('backgrounds/langkawi.jpg');background-size:cover;background-position:center;filter:blur(1px);opacity:0.40;pointer-events:none;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:560px;}
+  h1,h2,h3{font-family:'Bubblegum Sans',sans-serif; margin:0;}
+  button{font-family:'Nunito',sans-serif; cursor:pointer; border:none; outline-offset:2px;}
+  button:focus-visible{outline:3px solid var(--indigo);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-title{font-size:1.05rem; font-weight:700; color:var(--wood-dark);}
+  .student-badge{font-size:0.8rem; font-weight:700; color:var(--ink-soft);}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .home-card{background:var(--card); border-radius:28px; padding:34px 26px 30px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .mascot-emoji{font-size:4.2rem; line-height:1;}
+  .home-card h1{font-size:1.9rem; color:var(--wood-dark); line-height:1.15; margin-top:8px;}
+  .home-card .tagline{color:var(--ink-soft); font-size:1rem; margin-top:10px; line-height:1.5;}
+  .cta-btn{margin-top:24px; background:var(--coral); color:#fff; font-family:'Bubblegum Sans',sans-serif; font-weight:700; font-size:1.15rem; padding:14px 36px; border-radius:999px; box-shadow:0 5px 0 var(--coral-dark); transition:transform .08s ease;}
+  .cta-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--coral-dark);}
+  .cta-btn:disabled{opacity:.5; cursor:default;}
+
+  .identity-card{background:var(--card); border-radius:28px; padding:32px 26px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .identity-card h2{color:var(--wood-dark); font-size:1.4rem;}
+  .identity-card p.tagline{margin-top:8px;}
+  .id-field{text-align:left; margin-top:18px;}
+  .id-field label{display:block; font-weight:700; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;}
+  .id-field input{width:100%; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700; padding:12px 14px; border-radius:12px; border:2px solid #EAE2D2; background:#FBF8F1; color:var(--ink);}
+  .id-field input:focus{outline:none; border-color:var(--theme);}
+  .id-error{color:var(--bad); font-weight:700; font-size:0.85rem; margin-top:10px; min-height:18px;}
+  .sync-status{text-align:center; font-size:0.8rem; font-weight:700; margin-top:10px; color:var(--ink-soft);}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.err{color:var(--bad);}
+
+  /* ---------- Tahun select ---------- */
+  .tahun-wrap{background:var(--card); border-radius:28px; padding:26px 22px 28px; box-shadow:0 8px 0 var(--shadow);}
+  .tahun-title{text-align:center; color:var(--wood-dark); font-size:1.3rem; margin-bottom:18px;}
+  .tahun-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  .tahun-btn{
+    --btn-light:#FFFFFF; --btn-base:#FBF8F1; --btn-dark:#EAE2D2;
+    background:linear-gradient(160deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
+    border:none; border-radius:18px; padding:18px 8px 16px; text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 6px 0 var(--btn-dark),
+      0 10px 18px rgba(0,0,0,0.25);
+  }
+  .tahun-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 9px 0 var(--btn-dark),
+      0 14px 22px rgba(0,0,0,0.3);
+  }
+  .tahun-btn:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(0,0,0,0.18),
+      0 2px 0 var(--btn-dark),
+      0 4px 8px rgba(0,0,0,0.2);
+  }
+  .tahun-btn .tnum{font-family:'Bubblegum Sans',sans-serif; font-weight:800; font-size:1.35rem; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,0.28);}
+  .tahun-btn .tstars{font-size:0.95rem; margin-top:6px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));}
+  .tahun-btn.t1{--btn-light:#FF8A7E; --btn-base:#FF5C4D; --btn-dark:#D93A2B;}
+  .tahun-btn.t2{--btn-light:#FFC168; --btn-base:#FF9F1C; --btn-dark:#CC7900;}
+  .tahun-btn.t3{--btn-light:#6EE2A0; --btn-base:#2ECC71; --btn-dark:#1F9C57;}
+  .tahun-btn.t4{--btn-light:#6BD9EC; --btn-base:#17B6D4; --btn-dark:#0E8CA6;}
+  .tahun-btn.t5{--btn-light:#B79CFA; --btn-base:#8B5CF6; --btn-dark:#6636D9;}
+  .tahun-btn.t6{--btn-light:#F589BC; --btn-base:#EC4899; --btn-dark:#C22D74;}
+  @media (max-width:420px){ .tahun-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
+  .game-card{background:var(--card); border-radius:28px; padding:22px 20px 26px; box-shadow:0 8px 0 var(--shadow);}
+  .game-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .back-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.9rem; padding:6px 10px; border-radius:10px;}
+  .back-btn:hover{background:#F2EEE4;}
+  .game-tag{font-family:'Bubblegum Sans',sans-serif; font-weight:700; padding:6px 14px; border-radius:999px; color:#fff; font-size:0.85rem; background:var(--theme);}
+  .progress-track{height:10px; background:#EFEAE0; border-radius:999px; overflow:hidden; margin-bottom:20px;}
+  .progress-fill{height:100%; border-radius:999px; transition:width .35s ease; background:var(--theme);}
+  .q-count{text-align:center; color:var(--ink-soft); font-weight:700; font-size:0.85rem; margin-bottom:12px; letter-spacing:.03em; text-transform:uppercase;}
+
+  .wheel-stage{display:flex; flex-direction:column; align-items:center; margin-bottom:16px;}
+  .wheel-pointer{font-size:1.4rem; margin-bottom:-6px;}
+  .wheel{
+    width:150px; height:150px; border-radius:50%;
+    display:block;
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    transition:transform 1.1s cubic-bezier(.2,.8,.2,1);
+  }
+  .wheel text{ pointer-events:none; }
+  .cat-chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px;}
+  .cat-chip{font-family:'Bubblegum Sans',sans-serif; font-weight:700; font-size:0.78rem; padding:6px 12px; border-radius:999px; background:#F2EEE4; color:var(--ink-soft);}
+  .cat-chip.c0{background:#FFEFD9; color:#B5720B;}
+  .cat-chip.c1{background:#E4F3E8; color:var(--good);}
+  .cat-chip.c2{background:#EFE8FE; color:#6636D9;}
+  .cat-chip.c3{background:#FDE4F0; color:#C22D74;}
+  .cat-chip.active{outline:3px solid var(--theme); transform:scale(1.08);}
+
+  .spin-btn{display:block; margin:0 auto; background:var(--theme); color:#fff; font-family:'Bubblegum Sans',sans-serif; font-weight:700; font-size:1rem; padding:12px 30px; border-radius:999px; box-shadow:0 4px 0 var(--theme-dark);}
+  .spin-btn:active{transform:translateY(2px); box-shadow:0 2px 0 var(--theme-dark);}
+  .spin-btn:disabled{opacity:.5; cursor:default;}
+
+  .q-prompt{text-align:center; font-size:1.1rem; font-weight:700; margin:16px 0; line-height:1.4; color:var(--wood-dark);}
+  .options-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .opt-btn{background:#FBF8F1; border:2px solid #EAE2D2; border-radius:16px; padding:14px 10px; font-size:0.95rem; font-weight:700; color:var(--ink); text-align:center; transition:all .12s ease;}
+  .opt-btn:hover:not(:disabled){border-color:var(--gold); background:#FFF9EC;}
+  .opt-btn.correct{background:#E4F3E8; border-color:var(--good); color:var(--good);}
+  .opt-btn.wrong{background:#FBE7E2; border-color:var(--bad); color:var(--bad);}
+  .opt-btn:disabled{cursor:default;}
+
+  .feedback{text-align:center; font-weight:800; font-family:'Bubblegum Sans',sans-serif; font-size:1.05rem; min-height:30px; margin:14px 0 4px;}
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  .next-btn{display:block; margin:14px auto 0; background:var(--indigo); color:#fff; font-family:'Bubblegum Sans',sans-serif; font-weight:700; font-size:1rem; padding:12px 30px; border-radius:999px; box-shadow:0 4px 0 var(--indigo-dark);}
+  .next-btn:active{transform:translateY(2px); box-shadow:0 2px 0 var(--indigo-dark);}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,42,37,0.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.active{display:flex;}
+  .result-card{background:var(--card); border-radius:26px; padding:32px 26px; text-align:center; max-width:380px; width:100%; box-shadow:0 10px 0 var(--shadow);}
+  .result-stars{font-size:2.4rem; letter-spacing:6px; margin:14px 0;}
+  .result-score{font-family:'Bubblegum Sans',sans-serif; font-size:1.3rem; font-weight:700; color:var(--wood-dark);}
+  .result-msg{color:var(--ink-soft); margin:10px 0 20px; line-height:1.5;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .result-btn{font-family:'Bubblegum Sans',sans-serif; font-weight:700; padding:11px 22px; border-radius:999px; font-size:0.95rem;}
+  .result-btn.primary{background:var(--green); color:#fff; box-shadow:0 4px 0 var(--green-dark);}
+  .result-btn.secondary{background:#F2EEE4; color:var(--ink);}
+
+  @media (max-width:420px){
+    .options-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#7E762A"/><text x="17" y="23" font-size="17" text-anchor="middle" font-family="Bubblegum Sans">🎡</text></svg>
+      <span class="brand-title">Kuiz & Roda Bahasa</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="student-badge" id="studentBadge"></span>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <div class="mascot-emoji">🎡❓</div>
+      <h1>Kuiz & Roda Bahasa</h1>
+      <p class="tagline">Putar roda untuk dedahkan kategori soalan, kemudian jawab kuiz pelbagai — kosa kata, tatabahasa, peribahasa dan sastera ringkas!</p>
+      <button class="cta-btn" onclick="showIdentityScreen()">Mula Main</button>
+    </div>
+  </section>
+
+  <!-- IDENTITY SCREEN -->
+  <section class="screen" id="screen-identity">
+    <div class="identity-card">
+      <h2>Siapa nama awak?</h2>
+      <p class="tagline">Kami perlukan nama, kelas dan PIN untuk simpan markah awak — PIN yang sama boleh digunakan untuk semua permainan Seronoknya Bahasa.</p>
+      <div class="id-field">
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Contoh: Ali bin Ahmad" maxlength="40">
+      </div>
+      <div class="id-field">
+        <label for="inputKelas">Kelas</label>
+        <input type="text" id="inputKelas" placeholder="Contoh: 4 Bestari" maxlength="30">
+      </div>
+      <div class="id-field">
+        <label for="inputPin">PIN (4 digit)</label>
+        <input type="text" id="inputPin" placeholder="Contoh: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <div style="font-size:0.75rem; color:var(--ink-soft); font-weight:600; margin-top:5px;">Kali pertama? Cipta PIN baru. Dah pernah main? Masukkan PIN yang sama.</div>
+      </div>
+      <div class="id-error" id="idError"></div>
+      <button class="cta-btn" id="identitySubmitBtn" onclick="submitIdentity()">Sedia, Mula!</button>
+      <div class="sync-status" id="identitySyncStatus"></div>
+      <button class="back-btn" style="display:block; margin:14px auto 0;" onclick="playAsGuest()">Main sebagai tetamu (tanpa simpan markah) →</button>
+    </div>
+  </section>
+
+  <!-- TAHUN SELECT SCREEN -->
+  <section class="screen" id="screen-tahun">
+    <div class="tahun-wrap">
+      <h2 class="tahun-title">Pilih Tahun</h2>
+      <div class="tahun-grid" id="tahunGrid"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screen-game">
+    <div class="game-card">
+      <div class="game-header">
+        <button class="back-btn" onclick="goToTahunSelect()">← Tahun</button>
+        <span class="game-tag" id="gameTag">Kuiz & Roda Bahasa</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="q-count" id="qCount"></div>
+
+      <div class="wheel-stage">
+        <div class="wheel-pointer">🔻</div>
+        <svg class="wheel" id="wheel" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="98" fill="#fff"/>
+          <path d="M100,100 L100,8 A92,92 0 0,1 192,100 Z" fill="#FF9F1C"/>
+          <path d="M100,100 L192,100 A92,92 0 0,1 100,192 Z" fill="#2ECC71"/>
+          <path d="M100,100 L100,192 A92,92 0 0,1 8,100 Z" fill="#8B5CF6"/>
+          <path d="M100,100 L8,100 A92,92 0 0,1 100,8 Z" fill="#EC4899"/>
+          <text x="139" y="61" text-anchor="middle" dominant-baseline="middle" font-family="'Bubblegum Sans',sans-serif" font-size="13" font-weight="700" fill="#fff">Kosa Kata</text>
+          <text x="139" y="139" text-anchor="middle" dominant-baseline="middle" font-family="'Bubblegum Sans',sans-serif" font-size="12" font-weight="700" fill="#fff">Tatabahasa</text>
+          <text x="61" y="139" text-anchor="middle" dominant-baseline="middle" font-family="'Bubblegum Sans',sans-serif" font-size="12" font-weight="700" fill="#fff">Peribahasa</text>
+          <text x="61" y="61" text-anchor="middle" dominant-baseline="middle" font-family="'Bubblegum Sans',sans-serif" font-size="13" font-weight="700" fill="#fff">Sastera</text>
+        </svg>
+        <div class="cat-chips" id="catChips"></div>
+      </div>
+
+      <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Putar Roda</button>
+
+      <div id="questionArea" style="display:none;">
+        <div class="q-prompt" id="qPrompt"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Seterusnya →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <h2 id="resultTitle" style="color:var(--wood-dark);">Selesai!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="sync-status" id="resultSyncStatus"></div>
+    <div class="result-actions">
+      <button class="result-btn secondary" onclick="retryGame()">Main Lagi</button>
+      <button class="result-btn primary" onclick="closeResult()">Tahun Lain</button>
+    </div>
+  </div>
+</div>
+
+<script>window.SERONOK_GAME_ID = 'kuiz-roda-bahasa';</script>
+<script type="module" src="firebase-shared.js"></script>
+
+<script>
+/* ================= DATA ================= */
+const CATS = ['Kosa Kata','Tatabahasa','Peribahasa','Sastera'];
+const TAHUN_BANKS = {
+  1: [
+    {category:'Kosa Kata', prompt:'Apakah warna pisang yang masak?', correct:'Kuning', options:['Kuning','Merah','Biru','Hijau']},
+    {category:'Kosa Kata', prompt:'Haiwan yang mengeong ialah?', correct:'Kucing', options:['Kucing','Anjing','Ayam','Itik']},
+    {category:'Tatabahasa', prompt:"Kata nama bagi 'sekolah, rumah, kedai' dipanggil?", correct:'Kata nama am', options:['Kata nama am','Kata kerja','Kata adjektif','Kata ganti nama']},
+    {category:'Kosa Kata', prompt:'Apakah bunyi kucing?', correct:'Mengeong', options:['Mengeong','Menggonggong','Berkokok','Mengaum']},
+    {category:'Sastera', prompt:'Lagu kanak-kanak biasanya mempunyai...?', correct:'Rima yang mudah diingati', options:['Rima yang mudah diingati','Angka yang rumit','Bahasa asing','Simbol matematik']},
+    {category:'Kosa Kata', prompt:'Buah yang berwarna merah dan bulat ialah?', correct:'Epal', options:['Epal','Pisang','Nanas','Tembikai']},
+    {category:'Tatabahasa', prompt:"'Saya', 'kamu', 'dia' dipanggil?", correct:'Kata ganti nama', options:['Kata ganti nama','Kata nama am','Kata kerja','Kata sendi']},
+    {category:'Peribahasa', prompt:"Apakah maksud 'rajin belajar'?", correct:'Selalu berusaha menuntut ilmu', options:['Selalu berusaha menuntut ilmu','Suka bermain sahaja','Tidur sepanjang hari','Malas ke sekolah']},
+    {category:'Kosa Kata', prompt:'Alat untuk menulis di dalam kelas ialah?', correct:'Pensel', options:['Pensel','Kasut','Payung','Cermin']},
+    {category:'Sastera', prompt:'Puisi kanak-kanak ringkas selalunya bertujuan untuk?', correct:'Menghiburkan dan mendidik', options:['Menghiburkan dan mendidik','Menakutkan pembaca','Mengelirukan pembaca','Menyusahkan pembaca']},
+    {category:'Kosa Kata', prompt:'Apakah bunyi anjing?', correct:'Menyalak', options:['Menyalak','Mengeong','Berkokok','Mengaum']},
+    {category:'Kosa Kata', prompt:'Apakah warna daun?', correct:'Hijau', options:['Hijau','Merah','Biru','Kuning']},
+    {category:'Kosa Kata', prompt:'Buah yang berwarna kuning dan panjang ialah?', correct:'Pisang', options:['Pisang','Epal','Oren','Anggur']},
+    {category:'Tatabahasa', prompt:"'Buku, meja, kerusi' adalah contoh?", correct:'Kata nama am', options:['Kata nama am','Kata kerja','Kata adjektif','Kata bilangan']},
+    {category:'Kosa Kata', prompt:'Haiwan yang tinggal di dalam air ialah?', correct:'Ikan', options:['Ikan','Kucing','Ayam','Kambing']},
+    {category:'Sastera', prompt:'Cerita untuk kanak-kanak biasanya mempunyai?', correct:'Pengajaran yang baik', options:['Pengajaran yang baik','Bahasa yang sukar','Watak yang menakutkan','Tiada tajuk']},
+    {category:'Kosa Kata', prompt:'Alat untuk memotong kertas ialah?', correct:'Gunting', options:['Gunting','Pensel','Pemadam','Pembaris']},
+    {category:'Tatabahasa', prompt:"Perkataan 'berlari' menunjukkan?", correct:'Perbuatan', options:['Perbuatan','Nama','Sifat','Bilangan']},
+    {category:'Peribahasa', prompt:"Apakah maksud 'murah hati'?", correct:'Suka menolong dan memberi', options:['Suka menolong dan memberi','Suka marah','Suka menangis','Suka tidur']},
+    {category:'Kosa Kata', prompt:'Kenderaan beroda dua yang dikayuh ialah?', correct:'Basikal', options:['Basikal','Kereta','Bas','Kapal']},
+    {category:'Sastera', prompt:'Lagu kanak-kanak biasanya dinyanyikan dengan?', correct:'Nada yang ceria', options:['Nada yang ceria','Nada yang sedih','Nada yang garang','Tiada nada']},
+    {category:'Kosa Kata', prompt:'Tempat murid belajar ialah?', correct:'Sekolah', options:['Sekolah','Hospital','Kedai','Pasar']},
+    {category:'Tatabahasa', prompt:"'Saya, dia, kami' dipanggil?", correct:'Kata ganti nama', options:['Kata ganti nama','Kata nama am','Kata kerja','Kata sendi']},
+    {category:'Kosa Kata', prompt:'Anggota badan untuk mencium bau ialah?', correct:'Hidung', options:['Hidung','Mata','Telinga','Mulut']},
+    {category:'Peribahasa', prompt:"Apakah maksud 'ringan tulang'?", correct:'Rajin bekerja', options:['Rajin bekerja','Malas bekerja','Suka tidur','Suka bermain']},
+    {category:'Kosa Kata', prompt:'Haiwan yang mengaum ialah?', correct:'Singa', options:['Singa','Kucing','Arnab','Itik']},
+    {category:'Sastera', prompt:'Watak utama dalam sesebuah cerita dipanggil?', correct:'Watak utama', options:['Watak utama','Watak sampingan','Penulis','Pembaca']},
+    {category:'Kosa Kata', prompt:'Bentuk seperti bola dipanggil?', correct:'Bulat', options:['Bulat','Segi tiga','Segi empat','Panjang']},
+    {category:'Tatabahasa', prompt:"'Cantik, besar, kecil' adalah contoh?", correct:'Kata adjektif', options:['Kata adjektif','Kata nama','Kata kerja','Kata ganti nama']},
+    {category:'Kosa Kata', prompt:'Alat untuk menulis di buku ialah?', correct:'Pensel', options:['Pensel','Gunting','Pemadam','Pembaris']},
+  ],
+  2: [
+    {category:'Kosa Kata', prompt:"Apakah lawan bagi perkataan 'besar'?", correct:'Kecil', options:['Kecil','Tinggi','Berat','Panjang']},
+    {category:'Tatabahasa', prompt:"Kata kerja bagi 'makan, minum, tidur' menunjukkan?", correct:'Perbuatan', options:['Perbuatan','Nama','Sifat','Bilangan']},
+    {category:'Peribahasa', prompt:"'Ringan tulang' bermaksud?", correct:'Rajin bekerja', options:['Rajin bekerja','Malas bekerja','Suka tidur','Suka makan']},
+    {category:'Kosa Kata', prompt:"Apakah sinonim bagi 'gembira'?", correct:'Riang', options:['Riang','Sedih','Marah','Takut']},
+    {category:'Sastera', prompt:'Pantun biasanya mempunyai berapa baris?', correct:'Empat baris', options:['Empat baris','Dua baris','Enam baris','Lapan baris']},
+    {category:'Tatabahasa', prompt:"'Merah, biru, hijau' ialah contoh kata?", correct:'Adjektif', options:['Adjektif','Kerja','Nama','Ganti nama']},
+    {category:'Kosa Kata', prompt:"Apakah antonim bagi 'tinggi'?", correct:'Rendah', options:['Rendah','Gemuk','Kurus','Panjang']},
+    {category:'Peribahasa', prompt:"'Berat mulut' bermaksud?", correct:'Pendiam', options:['Pendiam','Suka bercakap','Suka menyanyi','Suka ketawa']},
+    {category:'Sastera', prompt:'Rima akhir pantun biasanya berpola?', correct:'a-b-a-b', options:['a-b-a-b','a-a-a-a','a-b-c-d','a-a-b-b']},
+    {category:'Kosa Kata', prompt:'Apakah nama tempat kita membeli buku?', correct:'Kedai buku', options:['Kedai buku','Kolam renang','Padang bola','Dapur']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'cantik' ialah?", correct:'Indah', options:['Indah','Buruk','Kotor','Hodoh']},
+    {category:'Tatabahasa', prompt:"Kata kerja bagi 'menulis, membaca' menunjukkan?", correct:'Perbuatan', options:['Perbuatan','Nama','Sifat','Bilangan']},
+    {category:'Peribahasa', prompt:"'Naik angin' bermaksud?", correct:'Menjadi marah', options:['Menjadi marah','Menjadi gembira','Naik ke bukit','Berasa mengantuk']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'panas' ialah?", correct:'Sejuk', options:['Sejuk','Basah','Kering','Lembap']},
+    {category:'Sastera', prompt:'Pantun mempunyai berapa rangkap dalam satu bait biasanya?', correct:'Empat baris', options:['Empat baris','Dua baris','Enam baris','Lapan baris']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'kecil' ialah?", correct:'Halus', options:['Halus','Besar','Gemuk','Tinggi']},
+    {category:'Tatabahasa', prompt:"Kata bantu 'akan, telah, sedang' menunjukkan?", correct:'Waktu perbuatan', options:['Waktu perbuatan','Bilangan','Nama tempat','Sifat']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'besar' ialah?", correct:'Kecil', options:['Kecil','Tinggi','Berat','Panjang']},
+    {category:'Peribahasa', prompt:"'Tangan kosong' bermaksud?", correct:'Tiada wang atau barang', options:['Tiada wang atau barang','Suka menolong orang','Rajin bersukan','Tangan yang cedera']},
+    {category:'Sastera', prompt:'Rima akhir pantun biasa berpola?', correct:'a-b-a-b', options:['a-b-a-b','a-a-a-a','a-b-c-d','a-a-b-b']},
+    {category:'Kosa Kata', prompt:'Tempat membeli ubat ialah?', correct:'Farmasi', options:['Farmasi','Pasar','Perpustakaan','Stadium']},
+    {category:'Tatabahasa', prompt:"Kata hubung 'dan, atau, tetapi' digunakan untuk?", correct:'Menghubungkan ayat', options:['Menghubungkan ayat','Menunjukkan bilangan','Menamakan objek','Menunjukkan perbuatan']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'pandai' ialah?", correct:'Bijak', options:['Bijak','Malas','Nakal','Lemah']},
+    {category:'Peribahasa', prompt:"'Buah mulut' bermaksud?", correct:'Bahan cerita orang ramai', options:['Bahan cerita orang ramai','Buah yang manis','Seseorang yang suka makan','Kata-kata tidak benar']},
+    {category:'Sastera', prompt:'Watak jahat dalam cerita dipanggil?', correct:'Antagonis', options:['Antagonis','Protagonis','Narator','Pengarang']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'tinggi' ialah?", correct:'Rendah', options:['Rendah','Gemuk','Kurus','Panjang']},
+    {category:'Tatabahasa', prompt:"Penjodoh bilangan bagi 'seorang guru' menunjukkan?", correct:'Bilangan bagi manusia', options:['Bilangan bagi manusia','Bilangan bagi haiwan','Bilangan bagi benda pipih','Bilangan bagi buah-buahan']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'sedih' ialah?", correct:'Pilu', options:['Pilu','Gembira','Riang','Ceria']},
+    {category:'Peribahasa', prompt:"'Otak udang' bermaksud?", correct:'Bodoh atau lambat berfikir', options:['Bodoh atau lambat berfikir','Sangat bijak','Suka makan udang','Pandai memasak']},
+    {category:'Sastera', prompt:'Watak baik dalam cerita dipanggil?', correct:'Protagonis', options:['Protagonis','Antagonis','Narator','Pengarang']},
+  ],
+  3: [
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'pintar' ialah?", correct:'Bijak', options:['Bijak','Malas','Nakal','Lemah']},
+    {category:'Tatabahasa', prompt:'Kata hubung digunakan untuk?', correct:'Menghubungkan dua ayat atau frasa', options:['Menghubungkan dua ayat atau frasa','Menunjukkan bilangan','Menamakan objek','Menunjukkan perbuatan']},
+    {category:'Peribahasa', prompt:"'Panjang tangan' bermaksud?", correct:'Suka mencuri', options:['Suka mencuri','Suka menolong','Suka membaca','Suka bermain']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'gelap' ialah?", correct:'Terang', options:['Terang','Suram','Kelam','Malap']},
+    {category:'Sastera', prompt:'Sajak berbeza daripada pantun kerana sajak?', correct:'Tidak terikat dengan rima dan bilangan baris', options:['Tidak terikat dengan rima dan bilangan baris','Mesti empat baris','Mesti berima a-b-a-b','Mesti ditulis dalam bahasa Inggeris']},
+    {category:'Tatabahasa', prompt:"Penjodoh bilangan bagi 'seekor kucing' menunjukkan?", correct:'Bilangan bagi haiwan', options:['Bilangan bagi haiwan','Bilangan bagi manusia','Bilangan bagi benda pipih','Bilangan bagi buah-buahan']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'cantik' ialah?", correct:'Indah', options:['Indah','Buruk','Hodoh','Kotor']},
+    {category:'Peribahasa', prompt:"'Besar kepala' bermaksud?", correct:'Sombong', options:['Sombong','Rendah diri','Pemurah','Peramah']},
+    {category:'Sastera', prompt:'Apakah fungsi utama pembayang dalam pantun?', correct:'Membayangkan maksud tersirat sebelum maksud sebenar', options:['Membayangkan maksud tersirat sebelum maksud sebenar','Menyatakan maksud secara terus','Menunjukkan jumlah baris','Menggantikan tajuk']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'kuat' ialah?", correct:'Lemah', options:['Lemah','Gagah','Tangkas','Cergas']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'indah' ialah?", correct:'Cantik', options:['Cantik','Buruk','Kotor','Kusam']},
+    {category:'Tatabahasa', prompt:'Kata perintah digunakan untuk?', correct:'Menyuruh melakukan sesuatu', options:['Menyuruh melakukan sesuatu','Menunjukkan bilangan','Menamakan objek','Menunjukkan tempat']},
+    {category:'Peribahasa', prompt:"'Hati batu' bermaksud?", correct:'Tidak mudah simpati', options:['Tidak mudah simpati','Sangat penyayang','Suka menangis','Mudah tersentuh']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'terang' ialah?", correct:'Gelap', options:['Gelap','Cerah','Jelas','Nyata']},
+    {category:'Sastera', prompt:'Sajak berbeza daripada pantun kerana?', correct:'Tidak terikat dengan rima', options:['Tidak terikat dengan rima','Mesti empat baris','Mesti berima a-b-a-b','Ditulis dalam bahasa Inggeris']},
+    {category:'Tatabahasa', prompt:"Penjodoh bilangan bagi 'sebiji epal' menunjukkan?", correct:'Bilangan bagi benda bulat', options:['Bilangan bagi benda bulat','Bilangan bagi manusia','Bilangan bagi haiwan','Bilangan bagi kertas']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'gigih' ialah?", correct:'Tekun', options:['Tekun','Malas','Lalai','Leka']},
+    {category:'Peribahasa', prompt:"'Mulut manis' bermaksud?", correct:'Pandai memujuk', options:['Pandai memujuk','Suka makan gula-gula','Pendiam','Suka menyanyi']},
+    {category:'Sastera', prompt:'Fungsi pembayang dalam pantun ialah?', correct:'Membayangkan maksud tersirat', options:['Membayangkan maksud tersirat','Menyatakan maksud terus','Menunjukkan jumlah baris','Menggantikan tajuk']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'lambat' ialah?", correct:'Cepat', options:['Cepat','Perlahan','Malas','Leka']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'rajin' ialah?", correct:'Gigih', options:['Gigih','Malas','Leka','Lalai']},
+    {category:'Tatabahasa', prompt:'Ayat tunggal mempunyai berapa subjek dan predikat?', correct:'Satu', options:['Satu','Dua','Tiga','Empat']},
+    {category:'Peribahasa', prompt:"'Darah muda' bermaksud?", correct:'Panas baran remaja', options:['Panas baran remaja','Penyabar','Sakit','Bijaksana']},
+    {category:'Sastera', prompt:'Cerpen ialah singkatan bagi?', correct:'Cerita pendek', options:['Cerita pendek','Cerita panjang','Cerita rakyat','Cerita dongeng']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'jauh' ialah?", correct:'Dekat', options:['Dekat','Panjang','Tinggi','Rendah']},
+    {category:'Tatabahasa', prompt:'Kata seru digunakan untuk menyatakan?', correct:'Perasaan yang kuat', options:['Perasaan yang kuat','Bilangan','Nama tempat','Perbuatan']},
+    {category:'Peribahasa', prompt:"'Busuk hati' bermaksud?", correct:'Jahat atau dengki', options:['Jahat atau dengki','Baik hati','Periang','Pemurah']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'bijak' ialah?", correct:'Pintar', options:['Pintar','Malas','Nakal','Degil']},
+    {category:'Sastera', prompt:'Novel ialah karya sastera yang?', correct:'Panjang dan berbab', options:['Panjang dan berbab','Pendek dan ringkas','Hanya empat baris','Tanpa watak']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'cepat' ialah?", correct:'Perlahan', options:['Perlahan','Laju','Pantas','Deras']},
+  ],
+  4: [
+    {category:'Tatabahasa', prompt:'Ayat aktif menekankan?', correct:'Pelaku yang melakukan perbuatan', options:['Pelaku yang melakukan perbuatan','Objek yang menerima perbuatan','Masa perbuatan berlaku','Tempat perbuatan berlaku']},
+    {category:'Peribahasa', prompt:"'Tinggi hati' bermaksud?", correct:'Megah dan sombong', options:['Megah dan sombong','Rendah diri','Peramah','Bertimbang rasa']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'usaha' ialah?", correct:'Ikhtiar', options:['Ikhtiar','Kegagalan','Kemalasan','Keluhan']},
+    {category:'Sastera', prompt:'Tema sesebuah sajak merujuk kepada?', correct:'Persoalan utama yang dibawa oleh penyajak', options:['Persoalan utama yang dibawa oleh penyajak','Bilangan baris dalam sajak','Nama penyajak sahaja','Tarikh sajak ditulis']},
+    {category:'Tatabahasa', prompt:"Imbuhan 'meN-' biasanya digunakan untuk membentuk?", correct:'Kata kerja aktif', options:['Kata kerja aktif','Kata nama abstrak','Kata bilangan','Kata sendi nama']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'rajin' ialah?", correct:'Malas', options:['Malas','Tekun','Gigih','Cergas']},
+    {category:'Peribahasa', prompt:"'Murah hati' bermaksud?", correct:'Pemurah', options:['Pemurah','Kedekut','Bengis','Sombong']},
+    {category:'Sastera', prompt:'Nilai murni yang boleh dipetik daripada sesebuah pantun disebut?', correct:'Pengajaran', options:['Pengajaran','Pembayang','Rima','Bait']},
+    {category:'Tatabahasa', prompt:'Ayat pasif menggunakan imbuhan?', correct:'di-', options:['di-','meN-','ber-','ke-...-an']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'gembira' ialah?", correct:'Girang', options:['Girang','Sedih','Bimbang','Marah']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'jujur' ialah?", correct:'Bohong', options:['Bohong','Amanah','Ikhlas','Setia']},
+    {category:'Tatabahasa', prompt:'Kata bilangan menunjukkan?', correct:'Jumlah atau bilangan', options:['Jumlah atau bilangan','Perbuatan','Sifat','Tempat']},
+    {category:'Peribahasa', prompt:"'Panjang tangan' bermaksud?", correct:'Suka mencuri', options:['Suka mencuri','Suka menolong','Suka membaca','Suka bermain']},
+    {category:'Sastera', prompt:'Puisi moden yang bebas daripada peraturan disebut?', correct:'Sajak bebas', options:['Sajak bebas','Pantun','Syair','Gurindam']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'cekap' ialah?", correct:'Mahir', options:['Mahir','Malas','Cuai','Lalai']},
+    {category:'Tatabahasa', prompt:'Kata tanya digunakan untuk?', correct:'Bertanya sesuatu', options:['Bertanya sesuatu','Menyatakan perbuatan','Menunjukkan bilangan','Menghubungkan ayat']},
+    {category:'Peribahasa', prompt:"'Berat mulut' bermaksud?", correct:'Pendiam', options:['Pendiam','Suka bercakap','Suka menyanyi','Suka ketawa']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'mudah' ialah?", correct:'Sukar', options:['Sukar','Ringan','Senang','Simple']},
+    {category:'Sastera', prompt:'Prosa tradisional termasuklah?', correct:'Hikayat', options:['Hikayat','Sajak','Pantun','Gurindam']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'lekas' ialah?", correct:'Cepat', options:['Cepat','Perlahan','Lambat','Malas']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'senang' ialah?", correct:'Susah', options:['Susah','Mudah','Ringan','Selesa']},
+    {category:'Tatabahasa', prompt:'Kata ganti diri pertama ialah?', correct:'Saya atau aku', options:['Saya atau aku','Awak atau kamu','Dia atau mereka','Kami atau kita']},
+    {category:'Peribahasa', prompt:"'Ringan tulang' bermaksud?", correct:'Rajin bekerja', options:['Rajin bekerja','Malas bekerja','Suka tidur','Suka makan']},
+    {category:'Sastera', prompt:'Bahagian cerita yang menceritakan kisah disebut?', correct:'Naratif', options:['Naratif','Dialog','Pembayang','Rima']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'kuat' ialah?", correct:'Gagah', options:['Gagah','Lemah','Longlai','Lesu']},
+    {category:'Tatabahasa', prompt:'Kata adjektif menerangkan?', correct:'Sifat sesuatu', options:['Sifat sesuatu','Perbuatan','Bilangan','Nama tempat']},
+    {category:'Peribahasa', prompt:"'Busuk hati' bermaksud?", correct:'Jahat atau dengki', options:['Jahat atau dengki','Baik hati','Periang','Pemurah']},
+    {category:'Sastera', prompt:'Latar tempat dalam cerita merujuk kepada?', correct:'Lokasi peristiwa berlaku', options:['Lokasi peristiwa berlaku','Watak utama cerita','Tajuk cerita','Pengarang cerita']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'gelap' ialah?", correct:'Terang', options:['Terang','Malap','Suram','Kelam']},
+    {category:'Tatabahasa', prompt:"Imbuhan apitan 'ke-...-an' membentuk?", correct:'Kata nama abstrak', options:['Kata nama abstrak','Kata kerja aktif','Kata bilangan','Kata sendi nama']},
+  ],
+  5: [
+    {category:'Tatabahasa', prompt:'Kata majmuk terbentuk daripada?', correct:'Gabungan dua kata dasar atau lebih', options:['Gabungan dua kata dasar atau lebih','Satu kata dasar sahaja','Imbuhan sahaja','Kata pinjaman sahaja']},
+    {category:'Peribahasa', prompt:"'Kaki ayam' bermaksud?", correct:'Berjalan tanpa kasut', options:['Berjalan tanpa kasut','Berlari pantas','Memakai kasut baru','Bermain bola']},
+    {category:'Sastera', prompt:"Apakah maksud 'maksud tersirat' dalam sesebuah sajak?", correct:'Makna yang tidak dinyatakan secara terus', options:['Makna yang tidak dinyatakan secara terus','Makna yang dinyatakan terus','Tajuk sajak','Nama penyajak']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'bijaksana' ialah?", correct:'Arif', options:['Arif','Dungu','Nakal','Degil']},
+    {category:'Tatabahasa', prompt:"Kata pemeri 'ialah' dan 'adalah' digunakan untuk?", correct:'Menerangkan kata nama atau frasa nama', options:['Menerangkan kata nama atau frasa nama','Menunjukkan perbuatan','Menunjukkan bilangan','Menghubungkan dua ayat']},
+    {category:'Peribahasa', prompt:"'Air muka' bermaksud?", correct:'Keadaan wajah atau maruah seseorang', options:['Keadaan wajah atau maruah seseorang','Air minuman','Air hujan','Air sungai']},
+    {category:'Sastera', prompt:'Gurindam ialah sejenis puisi tradisional yang terdiri daripada?', correct:'Dua baris serangkap dengan hubungan sebab-akibat', options:['Dua baris serangkap dengan hubungan sebab-akibat','Empat baris berima a-b-a-b','Lapan baris bebas','Satu baris sahaja']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'gembira' ialah?", correct:'Sedih', options:['Sedih','Riang','Gembira','Ceria']},
+    {category:'Tatabahasa', prompt:"Frasa 'sangat cantik' terbentuk daripada?", correct:'Kata penguat dan kata adjektif', options:['Kata penguat dan kata adjektif','Dua kata nama','Kata kerja dan kata nama','Kata sendi dan kata nama']},
+    {category:'Peribahasa', prompt:"'Mata duitan' bermaksud?", correct:'Sangat mementingkan wang', options:['Sangat mementingkan wang','Sangat pemurah','Sangat rajin','Sangat peramah']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'usaha' ialah?", correct:'Daya', options:['Daya','Kegagalan','Kemalasan','Keluhan']},
+    {category:'Tatabahasa', prompt:'Ayat majmuk pancangan mengandungi?', correct:'Ayat kecil dalam ayat besar', options:['Ayat kecil dalam ayat besar','Dua ayat tunggal berasingan','Kata nama sahaja','Kata kerja sahaja']},
+    {category:'Peribahasa', prompt:"'Buah tangan' bermaksud?", correct:'Hadiah', options:['Hadiah','Kerja tangan','Barang curi','Alat tangan']},
+    {category:'Sastera', prompt:'Syair ialah puisi tradisional yang?', correct:'Empat baris seuntai', options:['Empat baris seuntai','Dua baris sahaja','Enam baris bebas','Lapan baris berima']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'kuat' ialah?", correct:'Lemah', options:['Lemah','Gagah','Tangkas','Cergas']},
+    {category:'Tatabahasa', prompt:'Kata nama khas ditulis dengan?', correct:'Huruf besar di awal', options:['Huruf besar di awal','Huruf kecil sahaja','Huruf condong','Huruf tebal']},
+    {category:'Peribahasa', prompt:"'Darah muda' bermaksud?", correct:'Panas baran remaja', options:['Panas baran remaja','Penyabar','Sakit','Bijaksana']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'megah' ialah?", correct:'Bangga', options:['Bangga','Malu','Rendah diri','Sedih']},
+    {category:'Sastera', prompt:'Tujuan utama karangan naratif ialah?', correct:'Bercerita', options:['Bercerita','Berhujah','Menerangkan proses','Memberi arahan']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'tinggi' ialah?", correct:'Rendah', options:['Rendah','Gemuk','Kurus','Panjang']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'panjang' ialah?", correct:'Pendek', options:['Pendek','Lebar','Luas','Sempit']},
+    {category:'Tatabahasa', prompt:'Kata kerja transitif memerlukan?', correct:'Objek', options:['Objek','Kata sendi','Kata seru','Kata bilangan']},
+    {category:'Peribahasa', prompt:"'Berat mulut' bermaksud?", correct:'Pendiam', options:['Pendiam','Suka bercakap','Suka menyanyi','Suka ketawa']},
+    {category:'Sastera', prompt:'Peribahasa tergolong dalam bidang?', correct:'Kesusasteraan rakyat', options:['Kesusasteraan rakyat','Sains','Matematik','Teknologi']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'sukar' ialah?", correct:'Payah', options:['Payah','Mudah','Senang','Ringan']},
+    {category:'Tatabahasa', prompt:'Kata kerja tak transitif tidak memerlukan?', correct:'Objek', options:['Objek','Subjek','Kata kerja','Predikat']},
+    {category:'Peribahasa', prompt:"'Naik angin' bermaksud?", correct:'Menjadi marah', options:['Menjadi marah','Menjadi gembira','Naik ke bukit','Berasa mengantuk']},
+    {category:'Sastera', prompt:'Simile ialah bahasa kiasan yang menggunakan perkataan?', correct:'Bagai atau seperti', options:['Bagai atau seperti','Rima dan bait','Pembayang sahaja','Watak dan plot']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'kaya' ialah?", correct:'Miskin', options:['Miskin','Mewah','Berada','Kaya-raya']},
+    {category:'Tatabahasa', prompt:"Kata adjektif taraf perbandingan 'lebih' menunjukkan?", correct:'Perbandingan darjah tinggi', options:['Perbandingan darjah tinggi','Perbandingan darjah rendah','Bilangan','Waktu']},
+  ],
+  6: [
+    {category:'Sastera', prompt:"Apakah maksud 'perlambangan' dalam puisi?", correct:'Penggunaan sesuatu untuk mewakili idea atau perasaan lain', options:['Penggunaan sesuatu untuk mewakili idea atau perasaan lain','Penggunaan angka dalam puisi','Penggunaan bahasa asing','Penggunaan huruf besar sahaja']},
+    {category:'Tatabahasa', prompt:'Ayat majmuk gabungan menggunakan kata hubung seperti?', correct:'dan, atau, tetapi', options:['dan, atau, tetapi','di, ke, dari','ini, itu, mereka','akan, telah, sedang']},
+    {category:'Peribahasa', prompt:"'Lidah bercabang' bermaksud?", correct:'Suka berbohong', options:['Suka berbohong','Sentiasa berkata benar','Pandai berpidato','Suka berdiam diri']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'gigih' ialah?", correct:'Tekun', options:['Tekun','Malas','Lalai','Leka']},
+    {category:'Sastera', prompt:'Nilai patriotisme dalam sebuah sajak biasanya menonjolkan?', correct:'Semangat cinta akan tanah air', options:['Semangat cinta akan tanah air','Semangat individualistik','Semangat mementingkan diri','Semangat malas belajar']},
+    {category:'Tatabahasa', prompt:"Kata terbitan 'pembangunan' terbentuk daripada imbuhan?", correct:'pe-...-an', options:['pe-...-an','meN-','ber-','di-']},
+    {category:'Peribahasa', prompt:"'Tangan besi' bermaksud?", correct:'Pemerintahan yang kejam dan tegas', options:['Pemerintahan yang kejam dan tegas','Pemerintahan yang adil','Pemerintahan yang lemah','Pemerintahan yang bijaksana']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'kemakmuran' ialah?", correct:'Kemiskinan', options:['Kemiskinan','Kekayaan','Kejayaan','Keharmonian']},
+    {category:'Sastera', prompt:'Syair berbeza daripada pantun kerana syair?', correct:'Keempat-empat barisnya adalah isi, tiada pembayang', options:['Keempat-empat barisnya adalah isi, tiada pembayang','Mempunyai pembayang dan maksud','Hanya dua baris serangkap','Tidak mempunyai rima']},
+    {category:'Peribahasa', prompt:"'Berat sebelah' bermaksud?", correct:'Tidak adil, memihak kepada satu pihak', options:['Tidak adil, memihak kepada satu pihak','Sangat adil','Sangat pemurah','Sangat rajin']},
+    {category:'Tatabahasa', prompt:'Ayat kompleks mengandungi?', correct:'Klausa utama dan bawahan', options:['Klausa utama dan bawahan','Satu klausa sahaja','Kata nama sahaja','Kata kerja sahaja']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'unggul' ialah?", correct:'Cemerlang', options:['Cemerlang','Lemah','Biasa','Rendah']},
+    {category:'Peribahasa', prompt:"'Buah fikiran' bermaksud?", correct:'Idea atau pendapat', options:['Idea atau pendapat','Buah kegemaran','Hasil tuaian','Barang curi']},
+    {category:'Sastera', prompt:'Drama pentas mempunyai unsur?', correct:'Dialog dan lakonan', options:['Dialog dan lakonan','Rima sahaja','Pembayang sahaja','Bait sahaja']},
+    {category:'Tatabahasa', prompt:'Kata ganda penuh contohnya?', correct:'Rumah-rumah', options:['Rumah-rumah','Rumah besar','Rumah itu','Rumah kami']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'moden' ialah?", correct:'Tradisional', options:['Tradisional','Terkini','Canggih','Baharu']},
+    {category:'Peribahasa', prompt:"'Hati kering' bermaksud?", correct:'Hilang harapan', options:['Hilang harapan','Penuh harapan','Sangat gembira','Sangat sihat']},
+    {category:'Sastera', prompt:'Biografi ialah kisah hidup?', correct:'Seseorang tokoh', options:['Seseorang tokoh','Haiwan liar','Tempat bersejarah','Negara asing']},
+    {category:'Tatabahasa', prompt:"Kata sendi nama 'di, ke, dari' menunjukkan?", correct:'Tempat atau arah', options:['Tempat atau arah','Bilangan','Perbuatan','Sifat']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'basah' ialah?", correct:'Kering', options:['Kering','Lembap','Lembik','Beku']},
+    {category:'Tatabahasa', prompt:'Kata hubung pancangan relatif ialah?', correct:'yang', options:['yang','dan','atau','tetapi']},
+    {category:'Peribahasa', prompt:"'Kepala angin' bermaksud?", correct:'Fikiran tidak keruan', options:['Fikiran tidak keruan','Fikiran yang tenang','Sangat bijak','Sangat sabar']},
+    {category:'Sastera', prompt:'Metafora ialah bahasa kiasan tanpa menggunakan perkataan?', correct:'Bagai atau seperti', options:['Bagai atau seperti','Rima dan bait','Pembayang sahaja','Watak dan plot']},
+    {category:'Kosa Kata', prompt:"Sinonim bagi 'terkenal' ialah?", correct:'Masyhur', options:['Masyhur','Asing','Biasa','Tersembunyi']},
+    {category:'Tatabahasa', prompt:"Kata penegas 'memang, sungguh' digunakan untuk?", correct:'Menegaskan sesuatu', options:['Menegaskan sesuatu','Menunjukkan bilangan','Menghubungkan ayat','Menunjukkan tempat']},
+    {category:'Peribahasa', prompt:"'Air tenang jangan disangka tiada buaya' bermaksud?", correct:'Orang pendiam belum tentu tiada bahaya', options:['Orang pendiam belum tentu tiada bahaya','Sungai selamat diseberangi','Buaya suka air tenang','Orang yang suka bercakap']},
+    {category:'Sastera', prompt:'Klimaks dalam sesebuah cerita ialah?', correct:'Puncak peristiwa', options:['Puncak peristiwa','Permulaan cerita','Latar tempat','Nama pengarang']},
+    {category:'Kosa Kata', prompt:"Antonim bagi 'subur' ialah?", correct:'Tandus', options:['Tandus','Segar','Hijau','Rimbun']},
+    {category:'Tatabahasa', prompt:'Ayat seruan biasanya diakhiri dengan?', correct:'Tanda seru', options:['Tanda seru','Tanda soal','Tanda noktah','Tanda koma']},
+    {category:'Peribahasa', prompt:"'Bagai pinang dibelah dua' bermaksud?", correct:'Dua orang yang sangat mirip', options:['Dua orang yang sangat mirip','Dua orang yang sangat berbeza','Buah pinang yang dibelah','Sesuatu yang dikongsi sama rata']},
+  ],
+};
+const TAHUN_LIST = Object.keys(TAHUN_BANKS).map(Number).sort((a,b)=>a-b);
+const SET_SIZE = 10;
+const SET_COUNT = 3; // setiap Tahun ada 30 soalan (3 set x 10) supaya tidak berulang sehingga 3 kali main
+
+/* ================= STATE (in-memory only) ================= */
+let state = {
+  tahun: null,
+  deck: [],
+  qIndex: 0,
+  correctCount: 0,
+  answered: false,
+  wheelRotation: 0,
+  stars: {},
+  playCounts: {},
+  studentName: '',
+  studentClass: '',
+  studentId: ''
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================= NAV ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showIdentityScreen(){
+  document.getElementById('idError').textContent = '';
+  document.getElementById('identitySyncStatus').textContent = '';
+  showScreen('screen-identity');
+}
+
+function playAsGuest(){
+  state.studentName = 'Tetamu';
+  state.studentClass = '-';
+  state.studentId = '';
+  state.stars = {};
+  state.playCounts = {};
+  document.getElementById('studentBadge').textContent = '👋 Main sebagai tetamu';
+  goToTahunSelect();
+}
+
+async function submitIdentity(){
+  const nama = document.getElementById('inputNama').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const pin = document.getElementById('inputPin').value.trim();
+  const errEl = document.getElementById('idError');
+  const statusEl = document.getElementById('identitySyncStatus');
+  const btn = document.getElementById('identitySubmitBtn');
+
+  errEl.textContent = '';
+
+  if(!nama || !kelas){
+    errEl.textContent = 'Sila isi nama dan kelas awak.';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(pin)){
+    errEl.textContent = 'PIN mesti 4 digit nombor (contoh: 1234).';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Menyahkan identiti...';
+  statusEl.className = 'sync-status';
+
+  if(!(window.FirebaseAPI && window.FirebaseAPI.isReady())){
+    const fbErr = (window.FirebaseAPI && window.FirebaseAPI.getInitError && window.FirebaseAPI.getInitError()) || '';
+    statusEl.textContent = fbErr ? ('⚠️ Firebase gagal sambung: ' + fbErr) : '⚠️ Sambungan awan belum tersedia — cuba buka fail ini terus dalam pelayar (bukan pratonton chat) untuk sahkan Firebase.';
+    statusEl.className = 'sync-status err';
+    btn.disabled = false;
+    return;
+  }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+
+  try{
+    const pinHash = await window.FirebaseAPI.sha256Hex(pin);
+    const result = await window.FirebaseAPI.verifyOrCreateProfile(studentId, nama, kelas, pinHash);
+
+    if(!result.ok){
+      if(result.status === 'mismatch'){
+        errEl.textContent = 'Nama & kelas ini sudah didaftarkan dengan PIN lain. Sila masukkan PIN asal awak, atau guna nama/kelas sedikit berbeza kalau ini murid lain.';
+      } else {
+        errEl.textContent = 'Gagal menyemak profil. Sila cuba sekali lagi.';
+      }
+      statusEl.textContent = '';
+      btn.disabled = false;
+      return;
+    }
+
+    state.studentName = nama;
+    state.studentClass = kelas;
+    state.studentId = studentId;
+    document.getElementById('studentBadge').textContent = `👋 ${nama} (${kelas})`;
+
+    statusEl.textContent = result.status === 'created' ? 'Profil baru dicipta ✅' : 'PIN disahkan ✅';
+    statusEl.className = 'sync-status ok';
+
+    const levelIds = TAHUN_LIST.map(n=>`tahun-${n}`);
+    const levelData = await window.FirebaseAPI.loadLevelData(state.studentId, levelIds);
+    state.stars = {};
+    state.playCounts = {};
+    for(const lid of levelIds){
+      state.stars[lid] = (levelData[lid] && levelData[lid].stars) || 0;
+      state.playCounts[lid] = (levelData[lid] && levelData[lid].playCount) || 0;
+    }
+
+  }catch(e){
+    statusEl.textContent = 'Gagal sambung — bermain tanpa simpan awan buat masa ini.';
+    statusEl.className = 'sync-status err';
+  }
+
+  btn.disabled = false;
+  goToTahunSelect();
+}
+
+/* ================= TAHUN SELECT ================= */
+function goToTahunSelect(){
+  renderTahunGrid();
+  showScreen('screen-tahun');
+}
+
+function renderTahunGrid(){
+  const grid = document.getElementById('tahunGrid');
+  grid.innerHTML = TAHUN_LIST.map(n=>{
+    const stars = state.stars[`tahun-${n}`] || 0;
+    return `<button class="tahun-btn t${n}" onclick="selectTahun(${n})">
+      <div class="tnum">Tahun ${n}</div>
+      <div class="tstars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectTahun(n){
+  state.tahun = n;
+  startGame();
+}
+
+/* ================= GAME FLOW ================= */
+function startGame(){
+  const levelId = `tahun-${state.tahun}`;
+  const playCount = state.playCounts[levelId] || 0;
+  const setIndex = playCount % SET_COUNT;
+  const fullBank = TAHUN_BANKS[state.tahun];
+  const setQuestions = fullBank.slice(setIndex*SET_SIZE, setIndex*SET_SIZE + SET_SIZE);
+
+  state.deck = shuffle(setQuestions);
+  state.qIndex = 0;
+  state.correctCount = 0;
+  state.wheelRotation = 0;
+
+  document.getElementById('gameTag').textContent = `Kuiz & Roda Bahasa · Tahun ${state.tahun}`;
+  showScreen('screen-game');
+  startRound();
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  startGame();
+}
+
+function startRound(){
+  state.answered = false;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('questionArea').style.display = 'none';
+  document.getElementById('spinBtn').style.display = 'block';
+  document.getElementById('spinBtn').disabled = false;
+
+  const total = state.deck.length;
+  document.getElementById('qCount').textContent = `Soalan ${state.qIndex+1} daripada ${total}`;
+  document.getElementById('progressFill').style.width = `${(state.qIndex/total)*100}%`;
+
+  document.getElementById('catChips').innerHTML = CATS.map((c,i)=>`<span class="cat-chip c${i}" id="chip-${i}">${c}</span>`).join('');
+}
+
+function spinWheel(){
+  document.getElementById('spinBtn').disabled = true;
+  state.wheelRotation += 720 + Math.floor(Math.random()*360);
+  document.getElementById('wheel').style.transform = `rotate(${state.wheelRotation}deg)`;
+
+  setTimeout(()=>{
+    revealQuestion();
+  }, 1150);
+}
+
+function revealQuestion(){
+  const q = state.deck[state.qIndex];
+  const catIdx = CATS.indexOf(q.category);
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  const chip = document.getElementById(`chip-${catIdx}`);
+  if(chip) chip.classList.add('active');
+
+  document.getElementById('spinBtn').style.display = 'none';
+  document.getElementById('questionArea').style.display = 'block';
+  document.getElementById('qPrompt').textContent = q.prompt;
+
+  const opts = shuffle(q.options);
+  document.getElementById('optionsGrid').innerHTML = opts.map(o=>`<button class="opt-btn" onclick="checkMcq(this,${JSON.stringify(o).replace(/"/g,'&quot;')},${JSON.stringify(q.correct).replace(/"/g,'&quot;')})">${o}</button>`).join('');
+}
+
+function checkMcq(btn, chosen, correct){
+  if(state.answered) return;
+  state.answered = true;
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach(b=>b.disabled = true);
+  const isCorrect = chosen === correct;
+  if(isCorrect){
+    btn.classList.add('correct');
+    state.correctCount++;
+    showFeedback(true);
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent === correct) b.classList.add('correct'); });
+    showFeedback(false);
+  }
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function showFeedback(good, customMsg){
+  if(window.FirebaseAPI && window.FirebaseAPI.sound){ good ? window.FirebaseAPI.sound.playCorrect() : window.FirebaseAPI.sound.playWrong(); }
+  const el = document.getElementById('feedback');
+  if(good){
+    el.textContent = 'Betul! Syabas! 🎉';
+    el.className = 'feedback good';
+  } else {
+    el.textContent = customMsg || 'Belum tepat, cuba lagi nanti!';
+    el.className = 'feedback bad';
+  }
+}
+
+function nextQuestion(){
+  state.qIndex++;
+  if(state.qIndex >= state.deck.length){
+    finishGame();
+  } else {
+    startRound();
+  }
+}
+
+async function finishGame(){
+  const total = state.deck.length;
+  const score = state.correctCount;
+  let stars = 0;
+  if(score === total) stars = 3;
+  else if(score >= Math.ceil(total*0.6)) stars = 2;
+  else if(score >= Math.ceil(total*0.4)) stars = 1;
+
+  const levelId = `tahun-${state.tahun}`;
+  const prevStars = state.stars[levelId] || 0;
+  const bestStars = Math.max(stars, prevStars);
+  state.stars[levelId] = bestStars;
+
+  const newPlayCount = (state.playCounts[levelId] || 0) + 1;
+  state.playCounts[levelId] = newPlayCount;
+
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent = `Skor: ${score} / ${total}`;
+
+  let msg = '';
+  if(stars === 3) msg = 'Cemerlang! Awak Master Kuiz Bahasa sejati.';
+  else if(stars === 2) msg = 'Bagus! Sikit lagi untuk jadi cemerlang.';
+  else if(stars === 1) msg = 'Baik punya cubaan! Cuba lagi untuk tambah bintang.';
+  else msg = 'Jangan risau, cuba lagi ya!';
+  document.getElementById('resultMsg').textContent = msg;
+
+  document.getElementById('resultOverlay').classList.add('active');
+
+  const syncEl = document.getElementById('resultSyncStatus');
+  syncEl.textContent = 'Menyimpan markah...';
+  syncEl.className = 'sync-status';
+
+  if(window.FirebaseAPI && window.FirebaseAPI.isReady() && state.studentId){
+    const res = await window.FirebaseAPI.saveScore(levelId, state.studentId, {
+      name: state.studentName,
+      kelas: state.studentClass,
+      score: score,
+      total: total,
+      stars: bestStars,
+      playCount: newPlayCount
+    });
+    if(res.ok){
+      syncEl.textContent = 'Markah disimpan ke awan ✅';
+      syncEl.className = 'sync-status ok';
+    } else {
+      syncEl.textContent = '⚠️ Gagal simpan ke awan — markah disimpan dalam peranti sahaja buat masa ini.';
+      syncEl.className = 'sync-status err';
+    }
+  } else {
+    syncEl.textContent = '⚠️ Tiada sambungan awan — markah disimpan dalam peranti sahaja buat masa ini.';
+    syncEl.className = 'sync-status err';
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  goToTahunSelect();
+}
+</script>
+</body>
+</html>

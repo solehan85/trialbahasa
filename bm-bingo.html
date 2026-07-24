@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bingo Kata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Titan+One:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#F6D5E9;
+    --bg-bottom:#F0A8D3;
+    --ink:#2C2A25;
+    --ink-soft:#6B6558;
+    --wood-dark:#6E4A28;
+    --gold:#1F847A;
+    --green:#4C9A6C;
+    --green-dark:#3B7C56;
+    --indigo:#398457;
+    --indigo-dark:#255B3A;
+    --coral:#DB2436;
+    --coral-dark:#9F1E2B;
+    --card:#FFFFFF;
+    --shadow:rgba(44,42,37,0.18);
+    --good:#3B7C56;
+    --bad:#C94F36;
+    --theme:#993370;
+    --theme-dark:#732152;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:url('backgrounds/batik.jpg');background-size:cover;background-position:center;filter:blur(1px);opacity:0.40;pointer-events:none;}
+  body{
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bottom) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 14px 40px;
+  }
+  .app{width:100%; max-width:560px;}
+  h1,h2,h3{font-family:'Titan One',sans-serif; margin:0;}
+  button{font-family:'Nunito',sans-serif; cursor:pointer; border:none; outline-offset:2px;}
+  button:focus-visible{outline:3px solid var(--indigo);}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-title{font-size:1.05rem; font-weight:700; color:var(--wood-dark);}
+  .star-tally{display:flex; align-items:center; gap:6px; background:var(--card); padding:6px 12px; border-radius:999px; box-shadow:0 3px 0 var(--shadow); font-weight:800; font-family:'Titan One',sans-serif; color:var(--gold); font-size:0.95rem;}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .home-card{background:var(--card); border-radius:28px; padding:34px 26px 30px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .mascot-emoji{font-size:4.2rem; line-height:1;}
+  .home-card h1{font-size:1.9rem; color:var(--wood-dark); line-height:1.15; margin-top:8px;}
+  .home-card .tagline{color:var(--ink-soft); font-size:1rem; margin-top:10px; line-height:1.5;}
+  .cta-btn{margin-top:24px; background:var(--coral); color:#fff; font-family:'Titan One',sans-serif; font-weight:700; font-size:1.15rem; padding:14px 36px; border-radius:999px; box-shadow:0 5px 0 var(--coral-dark); transition:transform .08s ease;}
+  .cta-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--coral-dark);}
+  .cta-btn:disabled{opacity:.5; cursor:default;}
+
+  .identity-card{background:var(--card); border-radius:28px; padding:32px 26px; text-align:center; box-shadow:0 8px 0 var(--shadow);}
+  .identity-card h2{color:var(--wood-dark); font-size:1.4rem;}
+  .identity-card p.tagline{margin-top:8px;}
+  .id-field{text-align:left; margin-top:18px;}
+  .id-field label{display:block; font-weight:700; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px;}
+  .id-field input{width:100%; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700; padding:12px 14px; border-radius:12px; border:2px solid #EAE2D2; background:#FBF8F1; color:var(--ink);}
+  .id-field input:focus{outline:none; border-color:var(--theme);}
+  .id-error{color:var(--bad); font-weight:700; font-size:0.85rem; margin-top:10px; min-height:18px;}
+  .sync-status{text-align:center; font-size:0.8rem; font-weight:700; margin-top:10px; color:var(--ink-soft);}
+  .sync-status.ok{color:var(--good);}
+  .sync-status.err{color:var(--bad);}
+  .student-badge{font-size:0.8rem; font-weight:700; color:var(--ink-soft);}
+
+  /* ---------- Tahun select ---------- */
+  .tahun-wrap{background:var(--card); border-radius:28px; padding:26px 22px 28px; box-shadow:0 8px 0 var(--shadow);}
+  .tahun-title{text-align:center; color:var(--wood-dark); font-size:1.3rem; margin-bottom:18px;}
+  .tahun-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .tahun-btn{
+    --btn-light:#FFFFFF; --btn-base:#FBF8F1; --btn-dark:#EAE2D2;
+    background:linear-gradient(160deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
+    border:none; border-radius:18px; padding:18px 8px 16px; text-align:center;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 6px 0 var(--btn-dark),
+      0 10px 18px rgba(0,0,0,0.25);
+  }
+  .tahun-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -4px 6px rgba(0,0,0,0.18),
+      0 9px 0 var(--btn-dark),
+      0 14px 22px rgba(0,0,0,0.3);
+  }
+  .tahun-btn:active{
+    transform:translateY(3px);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 4px rgba(0,0,0,0.18),
+      0 2px 0 var(--btn-dark),
+      0 4px 8px rgba(0,0,0,0.2);
+  }
+  .tahun-btn .tnum{font-family:'Titan One',sans-serif; font-weight:800; font-size:1.35rem; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,0.28);}
+  .tahun-btn .tstars{font-size:0.95rem; margin-top:6px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));}
+  .tahun-btn.t1{--btn-light:#FF8A7E; --btn-base:#FF5C4D; --btn-dark:#D93A2B;}
+  .tahun-btn.t2{--btn-light:#FFC168; --btn-base:#FF9F1C; --btn-dark:#CC7900;}
+  .tahun-btn.t3{--btn-light:#6EE2A0; --btn-base:#2ECC71; --btn-dark:#1F9C57;}
+  .tahun-btn.t4{--btn-light:#6BD9EC; --btn-base:#17B6D4; --btn-dark:#0E8CA6;}
+  .tahun-btn.t5{--btn-light:#B79CFA; --btn-base:#8B5CF6; --btn-dark:#6636D9;}
+  .tahun-btn.t6{--btn-light:#F589BC; --btn-base:#EC4899; --btn-dark:#C22D74;}
+  @media (max-width:420px){ .tahun-grid{grid-template-columns:repeat(2,1fr);} }
+
+  .game-card{background:var(--card); border-radius:28px; padding:22px 20px 26px; box-shadow:0 8px 0 var(--shadow);}
+  .game-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .back-btn{background:transparent; color:var(--ink-soft); font-weight:700; font-size:0.9rem; padding:6px 10px; border-radius:10px;}
+  .back-btn:hover{background:#F2EEE4;}
+  .game-tag{font-family:'Titan One',sans-serif; font-weight:700; padding:6px 14px; border-radius:999px; color:#fff; font-size:0.85rem; background:var(--theme);}
+
+  .clue-box{background:#EEF8FA; border:2px dashed var(--theme); border-radius:16px; padding:14px 16px; text-align:center; margin-bottom:16px; position:relative;}
+  .clue-label{font-size:0.75rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--theme-dark); margin-bottom:4px;}
+  .clue-text{font-size:1.05rem; font-weight:700; color:var(--ink); line-height:1.4;}
+  .clue-flash{font-family:'Titan One',sans-serif; font-weight:800; color:var(--good); font-size:0.95rem; height:0; opacity:0; overflow:visible;}
+  .clue-flash.show{animation:flashUp .9s ease forwards;}
+  @keyframes flashUp{
+    0%{opacity:0; transform:translateY(4px);}
+    15%{opacity:1; transform:translateY(0);}
+    75%{opacity:1;}
+    100%{opacity:0;}
+  }
+
+  .bingo-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-bottom:8px;}
+  .bingo-cell{aspect-ratio:1/1; min-width:0; overflow:hidden; background:#FBF8F1; border:2px solid #EAE2D2; border-radius:10px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:0.68rem; font-weight:700; color:var(--ink); padding:3px; line-height:1.12; overflow-wrap:break-word; word-break:break-word; hyphens:auto; transition:all .12s ease;}
+  .bingo-cell:hover:not(.marked){border-color:var(--gold); background:#FFF9EC;}
+  .bingo-cell.marked{background:#E4F3E8; border-color:var(--good); color:var(--good);}
+  .bingo-cell.wrong-flash{background:#FBE7E2; border-color:var(--bad);}
+
+  .clues-count{text-align:center; color:var(--ink-soft); font-weight:700; font-size:0.8rem; margin-top:10px;}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,42,37,0.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;}
+  .overlay.active{display:flex;}
+  .result-card{background:var(--card); border-radius:26px; padding:32px 26px; text-align:center; max-width:380px; width:100%; box-shadow:0 10px 0 var(--shadow);}
+  .result-stars{font-size:2.4rem; letter-spacing:6px; margin:14px 0;}
+  .result-score{font-family:'Titan One',sans-serif; font-size:1.3rem; font-weight:700; color:var(--wood-dark);}
+  .result-msg{color:var(--ink-soft); margin:10px 0 20px; line-height:1.5;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .result-btn{font-family:'Titan One',sans-serif; font-weight:700; padding:11px 22px; border-radius:999px; font-size:0.95rem;}
+  .result-btn.primary{background:var(--green); color:#fff; box-shadow:0 4px 0 var(--green-dark);}
+  .result-btn.secondary{background:#F2EEE4; color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#993370"/><text x="17" y="23" font-size="15" text-anchor="middle" font-family="Titan One">🔢</text></svg>
+      <span class="brand-title">Bingo Kata</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="student-badge" id="studentBadge"></span>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <div class="mascot-emoji">🔢🎯</div>
+      <h1>Bingo Kata</h1>
+      <p class="tagline">Dengar petunjuk, cari perkataan yang betul pada papan bingo awak. Lengkapkan satu baris, lajur atau pepenjuru untuk menang!</p>
+      <button class="cta-btn" onclick="showIdentityScreen()">Mula Main</button>
+    </div>
+  </section>
+
+  <!-- IDENTITY SCREEN -->
+  <section class="screen" id="screen-identity">
+    <div class="identity-card">
+      <h2>Siapa nama awak?</h2>
+      <p class="tagline">Kami perlukan nama, kelas dan PIN untuk simpan markah awak — PIN yang sama boleh digunakan untuk semua permainan Seronoknya Bahasa.</p>
+      <div class="id-field">
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Contoh: Ali bin Ahmad" maxlength="40">
+      </div>
+      <div class="id-field">
+        <label for="inputKelas">Kelas</label>
+        <input type="text" id="inputKelas" placeholder="Contoh: 4 Bestari" maxlength="30">
+      </div>
+      <div class="id-field">
+        <label for="inputPin">PIN (4 digit)</label>
+        <input type="text" id="inputPin" placeholder="Contoh: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+        <div style="font-size:0.75rem; color:var(--ink-soft); font-weight:600; margin-top:5px;">Kali pertama? Cipta PIN baru. Dah pernah main? Masukkan PIN yang sama.</div>
+      </div>
+      <div class="id-error" id="idError"></div>
+      <button class="cta-btn" id="identitySubmitBtn" onclick="submitIdentity()">Sedia, Mula!</button>
+      <div class="sync-status" id="identitySyncStatus"></div>
+    </div>
+  </section>
+
+  <!-- TAHUN SELECT SCREEN -->
+  <section class="screen" id="screen-tahun">
+    <div class="tahun-wrap">
+      <h2 class="tahun-title">Pilih Tahun</h2>
+      <div class="tahun-grid" id="tahunGrid"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section class="screen" id="screen-game">
+    <div class="game-card">
+      <div class="game-header">
+        <button class="back-btn" onclick="goToTahunSelect()">← Tahun</button>
+        <span class="game-tag" id="gameTag">Bingo Kata</span>
+      </div>
+
+      <div class="clue-box">
+        <div class="clue-label">Petunjuk</div>
+        <div class="clue-text" id="clueText"></div>
+        <div class="clue-flash" id="clueFlash"></div>
+      </div>
+
+      <div class="bingo-grid" id="bingoGrid"></div>
+      <div class="clues-count" id="cluesCount"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resultOverlay">
+  <div class="result-card">
+    <h2 id="resultTitle" style="color:var(--wood-dark);">BINGO!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <p class="result-msg" id="resultMsg"></p>
+    <div class="sync-status" id="resultSyncStatus"></div>
+    <div class="result-actions">
+      <button class="result-btn secondary" onclick="retryGame()">Main Lagi</button>
+      <button class="result-btn primary" onclick="closeResult()">Tahun Lain</button>
+    </div>
+  </div>
+</div>
+
+<script>window.SERONOK_GAME_ID = 'bm-bingo';</script>
+<script type="module" src="firebase-shared.js"></script>
+
+<script>
+/* ================= DATA ================= */
+const TAHUN_BANKS = {
+  1: [
+    {word:'kucing', clue:"Haiwan peliharaan yang suka menangkap tikus dan berbunyi 'meow'."},
+    {word:'anjing', clue:'Haiwan peliharaan yang setia dan suka menyalak.'},
+    {word:'ayam', clue:'Unggas yang bertelur dan biasa dipelihara di kampung.'},
+    {word:'itik', clue:'Unggas yang suka berenang di kolam.'},
+    {word:'epal', clue:'Buah berwarna merah atau hijau, bulat dan rangup.'},
+    {word:'pisang', clue:'Buah panjang berwarna kuning apabila masak.'},
+    {word:'mata', clue:'Anggota badan untuk melihat.'},
+    {word:'hidung', clue:'Anggota badan untuk menghidu bau.'},
+    {word:'telinga', clue:'Anggota badan untuk mendengar.'},
+    {word:'tangan', clue:'Anggota badan untuk memegang sesuatu.'},
+    {word:'merah', clue:'Warna seperti tomato masak.'},
+    {word:'biru', clue:'Warna seperti langit yang cerah.'},
+    {word:'kuning', clue:'Warna seperti pisang masak.'},
+    {word:'hijau', clue:'Warna seperti daun pokok.'},
+    {word:'rumah', clue:'Tempat tinggal keluarga.'},
+    {word:'buku', clue:'Benda yang kita baca, ada banyak muka surat.'},
+    {word:'pensel', clue:'Alat tulis yang boleh dipadam.'},
+    {word:'bola', clue:'Benda bulat yang digunakan untuk bermain sukan.'},
+    {word:'ikan', clue:'Haiwan yang hidup di dalam air dan bernafas menggunakan insang.'},
+    {word:'burung', clue:'Haiwan yang mempunyai bulu dan boleh terbang.'},
+    {word:'arnab', clue:'Haiwan berbulu lembut dengan telinga panjang dan suka melompat.'},
+    {word:'kambing', clue:'Haiwan ternakan yang mengembik dan berjanggut.'},
+    {word:'lembu', clue:'Haiwan ternakan besar yang menghasilkan susu.'},
+    {word:'kaki', clue:'Anggota badan untuk berjalan dan berlari.'},
+    {word:'mulut', clue:'Anggota badan untuk makan dan bercakap.'},
+    {word:'rambut', clue:'Tumbuh di atas kepala manusia.'},
+    {word:'jari', clue:'Bahagian kecil di hujung tangan atau kaki.'},
+    {word:'perut', clue:'Bahagian badan tempat makanan dihadam.'},
+    {word:'putih', clue:'Warna seperti kapas atau susu.'},
+    {word:'hitam', clue:'Warna paling gelap, seperti malam tanpa cahaya.'},
+    {word:'oren', clue:'Warna seperti buah oren yang masak.'},
+    {word:'ungu', clue:'Warna campuran merah dan biru.'},
+    {word:'mangga', clue:'Buah berwarna kuning atau hijau dengan biji besar di tengah.'},
+    {word:'nanas', clue:'Buah berduri di luar dan manis di dalam.'},
+    {word:'tembikai', clue:'Buah besar berwarna hijau di luar dan merah di dalam.'},
+    {word:'anggur', clue:'Buah kecil yang tumbuh berkelompok, ada warna hijau dan ungu.'},
+    {word:'ayah', clue:'Ahli keluarga lelaki yang menjaga anak-anak.'},
+    {word:'ibu', clue:'Ahli keluarga perempuan yang melahirkan dan menjaga anak-anak.'},
+    {word:'adik', clue:'Ahli keluarga yang lebih muda daripada kita.'},
+    {word:'abang', clue:'Ahli keluarga lelaki yang lebih tua daripada kita.'},
+    {word:'topi', clue:'Pakaian yang dipakai di kepala untuk melindungi daripada panas.'},
+    {word:'baju', clue:'Pakaian yang dipakai di badan.'},
+    {word:'kasut', clue:'Pakaian kaki yang dipakai semasa berjalan di luar.'},
+    {word:'jam', clue:'Alat yang menunjukkan waktu.'},
+    {word:'beg', clue:'Bekas untuk membawa barang seperti buku.'},
+    {word:'pintu', clue:'Bahagian rumah untuk masuk dan keluar.'},
+    {word:'bulat', clue:'Bentuk seperti bola atau roda.'},
+    {word:'segi tiga', clue:'Bentuk yang mempunyai tiga sisi.'},
+  ],
+  2: [
+    {word:'sekolah', clue:'Tempat murid-murid belajar setiap hari.'},
+    {word:'guru', clue:'Orang yang mengajar di sekolah.'},
+    {word:'kereta', clue:'Kenderaan beroda empat yang biasa digunakan keluarga.'},
+    {word:'bas', clue:'Kenderaan besar yang membawa ramai penumpang.'},
+    {word:'basikal', clue:'Kenderaan beroda dua yang dikayuh.'},
+    {word:'hujan', clue:'Titisan air yang turun dari langit semasa cuaca mendung.'},
+    {word:'matahari', clue:'Objek di langit yang memberi cahaya pada waktu siang.'},
+    {word:'bulan', clue:'Objek di langit yang kelihatan pada waktu malam.'},
+    {word:'pasar', clue:'Tempat orang membeli-belah barangan harian.'},
+    {word:'kedai', clue:'Tempat menjual pelbagai barang.'},
+    {word:'dapur', clue:'Bahagian rumah tempat memasak.'},
+    {word:'payung', clue:'Alat untuk berlindung daripada hujan.'},
+    {word:'kasut', clue:'Pakaian kaki yang dipakai semasa keluar rumah.'},
+    {word:'beg sekolah', clue:'Bekas untuk membawa buku ke sekolah.'},
+    {word:'jam', clue:'Alat untuk menunjukkan waktu.'},
+    {word:'pintu', clue:'Bahagian rumah untuk masuk dan keluar.'},
+    {word:'tingkap', clue:'Bahagian rumah untuk melihat ke luar dan biar udara masuk.'},
+    {word:'bilik tidur', clue:'Bahagian rumah tempat kita tidur.'},
+    {word:'murid', clue:'Orang yang belajar di sekolah.'},
+    {word:'kelas', clue:'Bilik tempat murid belajar di sekolah.'},
+    {word:'buku latihan', clue:'Buku untuk murid membuat latihan sekolah.'},
+    {word:'kantin sekolah', clue:'Tempat murid membeli makanan semasa waktu rehat.'},
+    {word:'padang sekolah', clue:'Kawasan lapang di sekolah untuk bersukan.'},
+    {word:'lif', clue:'Alat untuk naik turun bangunan bertingkat.'},
+    {word:'teksi', clue:'Kenderaan disewa untuk membawa penumpang ke destinasi.'},
+    {word:'motosikal', clue:'Kenderaan beroda dua yang menggunakan enjin.'},
+    {word:'kapal', clue:'Kenderaan besar yang belayar di laut.'},
+    {word:'kapal terbang', clue:'Kenderaan yang terbang tinggi di udara membawa penumpang.'},
+    {word:'ribut', clue:'Cuaca buruk dengan angin kencang dan hujan lebat.'},
+    {word:'awan', clue:'Wap air yang kelihatan di langit.'},
+    {word:'pelangi', clue:'Lengkung berwarna-warni yang muncul selepas hujan.'},
+    {word:'kilat', clue:'Cahaya terang yang berkelip semasa ribut petir.'},
+    {word:'bandar', clue:'Kawasan yang mempunyai banyak bangunan dan penduduk ramai.'},
+    {word:'kampung', clue:'Kawasan luar bandar dengan rumah-rumah dan sawah.'},
+    {word:'hospital', clue:'Tempat pesakit dirawat oleh doktor dan jururawat.'},
+    {word:'klinik', clue:'Tempat kecil untuk mendapatkan rawatan ringan.'},
+    {word:'balai polis', clue:'Tempat polis menjalankan tugas menjaga keselamatan.'},
+    {word:'balai bomba', clue:'Tempat bomba bersedia memadam kebakaran.'},
+    {word:'stesen bas', clue:'Tempat bas berhenti untuk menaikkan dan menurunkan penumpang.'},
+    {word:'sungai kecil', clue:'Aliran air kecil yang mengalir melalui kampung.'},
+    {word:'ruang tamu', clue:'Bahagian rumah untuk berehat dan menyambut tetamu.'},
+    {word:'bilik mandi', clue:'Bahagian rumah tempat kita mandi.'},
+    {word:'longkang', clue:'Saluran kecil untuk mengalirkan air hujan di tepi jalan.'},
+    {word:'lampu jalan', clue:'Lampu yang menerangi jalan pada waktu malam.'},
+    {word:'lampu isyarat', clue:'Lampu di simpang jalan untuk mengawal pergerakan kenderaan.'},
+    {word:'kolam renang', clue:'Tempat berenang yang dipenuhi air.'},
+    {word:'taman', clue:'Kawasan hijau untuk berehat dan bersenam.'},
+    {word:'gerai', clue:'Tempat kecil menjual makanan atau barangan di tepi jalan.'},
+  ],
+  3: [
+    {word:'petani', clue:'Orang yang bekerja menanam padi atau sayur di sawah/ladang.'},
+    {word:'nelayan', clue:'Orang yang bekerja menangkap ikan di laut.'},
+    {word:'peniaga', clue:'Orang yang menjual barang untuk mendapat keuntungan.'},
+    {word:'polis', clue:'Orang yang bertugas menjaga keselamatan dan keamanan.'},
+    {word:'bomba', clue:'Orang yang bertugas memadam kebakaran.'},
+    {word:'doktor', clue:'Orang yang merawat pesakit di hospital atau klinik.'},
+    {word:'hutan', clue:'Kawasan luas dipenuhi pokok-pokok dan hidupan liar.'},
+    {word:'sungai', clue:'Aliran air semula jadi yang mengalir ke laut.'},
+    {word:'gunung', clue:'Bentuk muka bumi yang tinggi dan curam.'},
+    {word:'pantai', clue:'Kawasan bertepikan laut dengan pasir.'},
+    {word:'sawah', clue:'Kawasan tanah yang ditanami padi.'},
+    {word:'ladang', clue:'Kawasan tanah luas untuk menanam tanaman atau menternak.'},
+    {word:'perpustakaan', clue:'Tempat menyimpan dan meminjam buku.'},
+    {word:'kantin', clue:'Tempat murid membeli makanan di sekolah.'},
+    {word:'padang', clue:'Kawasan lapang untuk bersukan atau berlari.'},
+    {word:'taman permainan', clue:'Tempat kanak-kanak bermain seperti buaian dan gelongsor.'},
+    {word:'kompas', clue:'Alat untuk menunjukkan arah.'},
+    {word:'peta', clue:'Lukisan yang menunjukkan lokasi sesuatu tempat.'},
+    {word:'jururawat', clue:'Orang yang membantu doktor merawat pesakit.'},
+    {word:'peguam', clue:'Orang yang mewakili klien dalam soal undang-undang.'},
+    {word:'arkitek', clue:'Orang yang merancang bentuk seni bina sesebuah bangunan.'},
+    {word:'jurutera', clue:'Orang yang mereka bentuk dan membina struktur seperti jambatan.'},
+    {word:'tukang masak', clue:'Orang yang menyediakan makanan di dapur atau restoran.'},
+    {word:'pemandu', clue:'Orang yang memandu kenderaan seperti bas atau teksi.'},
+    {word:'juruterbang', clue:'Orang yang mengemudi kapal terbang.'},
+    {word:'ahli sukan', clue:'Orang yang bertanding dalam acara sukan secara profesional.'},
+    {word:'wartawan', clue:'Orang yang menulis dan melaporkan berita.'},
+    {word:'tukang kebun', clue:'Orang yang menjaga dan menyiram tanaman di taman.'},
+    {word:'tasik', clue:'Kawasan air bertakung yang luas dikelilingi daratan.'},
+    {word:'lembah', clue:'Kawasan rendah di antara dua bukit atau gunung.'},
+    {word:'bukit', clue:'Bentuk muka bumi yang tinggi tetapi lebih rendah daripada gunung.'},
+    {word:'gua', clue:'Lubang besar semula jadi di dalam bukit atau gunung.'},
+    {word:'air terjun', clue:'Air yang jatuh dari tempat tinggi ke tempat rendah.'},
+    {word:'muara', clue:'Tempat sungai bertemu dengan laut.'},
+    {word:'delta', clue:'Kawasan tanah beralun yang terbentuk di muara sungai.'},
+    {word:'zoo', clue:'Tempat pelbagai haiwan dipelihara untuk tontonan orang ramai.'},
+    {word:'muzium', clue:'Tempat menyimpan dan mempamerkan barangan bersejarah.'},
+    {word:'planetarium', clue:'Tempat mempelajari bintang dan alam semesta melalui tayangan khas.'},
+    {word:'akuarium', clue:'Tempat menyimpan dan mempamerkan hidupan air.'},
+    {word:'stadium', clue:'Tempat besar untuk mengadakan pertandingan sukan.'},
+    {word:'dermaga', clue:'Tempat kapal atau bot berlabuh di tepi laut.'},
+    {word:'kilang', clue:'Tempat barangan dikeluarkan secara besar-besaran menggunakan mesin.'},
+    {word:'ladang ternakan', clue:'Kawasan untuk memelihara haiwan seperti lembu dan ayam.'},
+    {word:'termometer', clue:'Alat untuk mengukur suhu badan atau persekitaran.'},
+    {word:'teleskop', clue:'Alat untuk melihat objek yang jauh seperti bintang.'},
+    {word:'mikroskop', clue:'Alat untuk melihat objek yang sangat kecil.'},
+    {word:'radas', clue:'Alat atau kelengkapan yang digunakan dalam eksperimen sains.'},
+    {word:'plot tanah', clue:'Sebidang tanah yang diperuntukkan untuk sesuatu kegunaan seperti pertanian.'},
+  ],
+  4: [
+    {word:'kerjasama', clue:'Sikap saling membantu antara satu sama lain untuk mencapai matlamat.'},
+    {word:'disiplin', clue:'Sikap patuh kepada peraturan dan menjaga tingkah laku.'},
+    {word:'tanggungjawab', clue:'Kewajipan yang perlu dilaksanakan dengan penuh amanah.'},
+    {word:'sukan', clue:'Aktiviti fizikal yang dipertandingkan seperti bola sepak dan renang.'},
+    {word:'gotong-royong', clue:'Kerja bersama-sama dalam sesuatu komuniti tanpa mengharapkan bayaran.'},
+    {word:'kebersihan', clue:'Keadaan bersih dan terhindar daripada kotoran.'},
+    {word:'kejiranan', clue:'Hubungan baik antara penduduk yang tinggal berdekatan.'},
+    {word:'kemudahan awam', clue:'Kemudahan yang boleh digunakan oleh semua orang seperti taman dan perpustakaan.'},
+    {word:'alam sekitar', clue:'Persekitaran semula jadi termasuk udara, air dan tumbuhan.'},
+    {word:'tenaga suria', clue:'Tenaga yang diperoleh daripada cahaya matahari.'},
+    {word:'kitar semula', clue:'Proses memproses semula bahan buangan untuk kegunaan baharu.'},
+    {word:'pencemaran', clue:'Keadaan alam sekitar tercemar oleh bahan buangan atau asap.'},
+    {word:'kejujuran', clue:'Sikap bercakap benar dan tidak menipu.'},
+    {word:'kesihatan', clue:'Keadaan tubuh badan yang sihat dan cergas.'},
+    {word:'teknologi', clue:'Ciptaan atau alat yang memudahkan kehidupan manusia.'},
+    {word:'komunikasi', clue:'Cara menyampaikan maklumat antara satu sama lain.'},
+    {word:'warisan', clue:'Sesuatu yang diturunkan daripada generasi terdahulu.'},
+    {word:'budaya', clue:'Cara hidup, adat dan kepercayaan sesuatu masyarakat.'},
+    {word:'kesukarelawanan', clue:'Sikap menyumbang tenaga tanpa mengharapkan bayaran.'},
+    {word:'empati', clue:'Keupayaan memahami dan merasai perasaan orang lain.'},
+    {word:'toleransi', clue:'Sikap bertolak ansur dan menghormati perbezaan orang lain.'},
+    {word:'hormat-menghormati', clue:'Sikap saling menghargai antara satu sama lain.'},
+    {word:'keselamatan jalan raya', clue:'Amalan berhati-hati semasa menggunakan jalan raya.'},
+    {word:'pemakanan seimbang', clue:'Amalan makan pelbagai jenis makanan berkhasiat mengikut kadar yang betul.'},
+    {word:'senaman', clue:'Aktiviti fizikal untuk menjaga kesihatan tubuh badan.'},
+    {word:'pencegahan penyakit', clue:'Usaha mengelakkan diri daripada dijangkiti penyakit.'},
+    {word:'pembaziran', clue:'Perbuatan menggunakan sesuatu secara berlebihan tanpa keperluan.'},
+    {word:'penjimatan air', clue:'Amalan menggunakan air secara berhemat.'},
+    {word:'penjimatan tenaga', clue:'Amalan menggunakan tenaga elektrik secara berhemat.'},
+    {word:'pengangkutan awam', clue:'Kenderaan seperti bas dan keretapi yang digunakan bersama orang ramai.'},
+    {word:'kemudahan kesihatan', clue:'Kemudahan seperti klinik dan hospital untuk merawat masyarakat.'},
+    {word:'kesedaran awam', clue:'Kefahaman masyarakat tentang sesuatu isu penting.'},
+    {word:'aktiviti kokurikulum', clue:'Aktiviti seperti sukan dan kelab yang dijalankan di luar waktu kelas.'},
+    {word:'persatuan sekolah', clue:'Kumpulan murid yang ditubuhkan berdasarkan minat tertentu di sekolah.'},
+    {word:'pertandingan', clue:'Acara di mana peserta bersaing untuk mencapai kemenangan.'},
+    {word:'anugerah', clue:'Ganjaran yang diberikan atas sesuatu pencapaian.'},
+    {word:'sijil penghargaan', clue:'Dokumen yang diberikan sebagai tanda pengiktirafan atas usaha seseorang.'},
+    {word:'kemudahan internet', clue:'Capaian rangkaian yang membolehkan seseorang melayari laman sesawang.'},
+    {word:'aplikasi telefon', clue:'Perisian yang dipasang dalam telefon pintar untuk kegunaan tertentu.'},
+    {word:'e-mel', clue:'Surat elektronik yang dihantar melalui internet.'},
+    {word:'video pendidikan', clue:'Rakaman yang digunakan untuk membantu proses pembelajaran.'},
+    {word:'perpustakaan digital', clue:'Koleksi bahan bacaan yang boleh diakses secara dalam talian.'},
+    {word:'bencana alam', clue:'Kejadian buruk yang berlaku secara semula jadi seperti banjir dan gempa bumi.'},
+    {word:'banjir kilat', clue:'Banjir yang berlaku secara tiba-tiba akibat hujan lebat.'},
+    {word:'tanah runtuh', clue:'Kejadian tanah di cerun bukit jatuh secara mengejut.'},
+    {word:'pusat pemindahan', clue:'Tempat sementara untuk mangsa bencana alam berlindung.'},
+    {word:'khidmat masyarakat', clue:'Aktiviti membantu masyarakat sekeliling secara sukarela.'},
+    {word:'nilai murni', clue:'Sifat-sifat baik yang perlu diamalkan dalam kehidupan seharian.'},
+  ],
+  5: [
+    {word:'demokrasi', clue:'Sistem pemerintahan yang memberi rakyat hak untuk memilih pemimpin.'},
+    {word:'ekonomi', clue:'Bidang berkaitan pengeluaran, perdagangan dan penggunaan wang dalam sesebuah negara.'},
+    {word:'globalisasi', clue:'Proses dunia menjadi semakin saling berhubung antara negara.'},
+    {word:'inovasi', clue:'Ciptaan atau idea baharu yang membawa perubahan lebih baik.'},
+    {word:'kelestarian', clue:'Keupayaan untuk mengekalkan sesuatu dalam jangka masa panjang tanpa merosakkannya.'},
+    {word:'perpaduan', clue:'Keadaan hidup bersatu padu tanpa mengira kaum atau agama.'},
+    {word:'kedaulatan', clue:'Kuasa tertinggi sesebuah negara untuk mentadbir tanpa campur tangan luar.'},
+    {word:'infrastruktur', clue:'Kemudahan asas seperti jalan raya, jambatan dan bekalan elektrik.'},
+    {word:'media sosial', clue:'Platform dalam talian untuk berkongsi maklumat dan berhubung dengan orang lain.'},
+    {word:'kecerdasan buatan', clue:'Teknologi komputer yang meniru cara manusia berfikir dan membuat keputusan.'},
+    {word:'sumber asli', clue:'Bahan yang terdapat secara semula jadi seperti minyak dan mineral.'},
+    {word:'pelaburan', clue:'Perbuatan meletakkan wang untuk mendapat keuntungan pada masa depan.'},
+    {word:'kemerdekaan', clue:'Kebebasan sesebuah negara daripada penjajahan kuasa asing.'},
+    {word:'patriotisme', clue:'Perasaan cinta dan taat setia kepada negara sendiri.'},
+    {word:'integriti', clue:'Sikap jujur dan berpegang teguh kepada prinsip moral.'},
+    {word:'diplomasi', clue:'Cara berunding secara aman antara negara-negara.'},
+    {word:'biodiversiti', clue:'Kepelbagaian hidupan flora dan fauna di sesuatu kawasan.'},
+    {word:'urbanisasi', clue:'Proses perpindahan penduduk dari luar bandar ke bandar.'},
+    {word:'parlimen', clue:'Badan yang menggubal undang-undang sesebuah negara.'},
+    {word:'perlembagaan', clue:'Dokumen undang-undang tertinggi sesebuah negara.'},
+    {word:'pilihan raya', clue:'Proses rakyat memilih wakil untuk mentadbir negara.'},
+    {word:'belanjawan', clue:'Rancangan perbelanjaan dan pendapatan sesebuah kerajaan atau organisasi.'},
+    {word:'inflasi', clue:'Kenaikan harga barangan secara umum dalam sesebuah negara.'},
+    {word:'perindustrian', clue:'Bidang berkaitan pengeluaran barangan secara besar-besaran.'},
+    {word:'eksport', clue:'Barangan yang dijual ke negara lain.'},
+    {word:'import', clue:'Barangan yang dibawa masuk daripada negara lain.'},
+    {word:'pelancongan', clue:'Aktiviti melawat tempat menarik untuk berehat atau belajar sesuatu.'},
+    {word:'warisan budaya', clue:'Kesenian dan adat resam yang diwarisi daripada generasi terdahulu.'},
+    {word:'pemuliharaan', clue:'Usaha melindungi dan menjaga sesuatu daripada kerosakan.'},
+    {word:'pertanian moden', clue:'Kaedah bercucuk tanam menggunakan teknologi terkini.'},
+    {word:'akuakultur', clue:'Aktiviti menternak hidupan air seperti ikan dan udang.'},
+    {word:'tenaga boleh baharu', clue:'Sumber tenaga yang tidak akan habis seperti angin dan matahari.'},
+    {word:'perubahan iklim', clue:'Perubahan corak cuaca dunia dalam jangka masa panjang.'},
+    {word:'gas rumah hijau', clue:'Gas yang memerangkap haba di atmosfera dan menyebabkan pemanasan global.'},
+    {word:'pemanasan global', clue:'Peningkatan suhu purata bumi akibat pelepasan gas berbahaya.'},
+    {word:'kepupusan', clue:'Keadaan sesuatu spesies hilang sepenuhnya daripada muka bumi.'},
+    {word:'ekosistem', clue:'Sistem interaksi antara hidupan dan persekitarannya.'},
+    {word:'rantaian bekalan', clue:'Proses barangan bergerak daripada pengeluar hingga ke pengguna.'},
+    {word:'e-dagang', clue:'Aktiviti jual beli dilakukan secara dalam talian.'},
+    {word:'mata wang digital', clue:'Bentuk wang yang wujud secara elektronik sahaja.'},
+    {word:'keusahawanan sosial', clue:'Perniagaan yang dijalankan untuk menyelesaikan masalah sosial.'},
+    {word:'jaringan sosial', clue:'Platform yang menghubungkan orang ramai secara dalam talian.'},
+    {word:'privasi data', clue:'Hak seseorang untuk melindungi maklumat peribadi dalam talian.'},
+    {word:'jenayah siber', clue:'Kesalahan yang dilakukan menggunakan komputer atau internet.'},
+    {word:'literasi kewangan', clue:'Kemahiran memahami dan menguruskan wang dengan bijak.'},
+    {word:'simpanan', clue:'Wang yang disimpan untuk kegunaan masa depan.'},
+    {word:'kadar faedah', clue:'Peratusan tambahan yang dikenakan ke atas pinjaman atau simpanan.'},
+    {word:'insurans', clue:'Perlindungan kewangan terhadap risiko seperti kemalangan atau kerosakan.'},
+  ],
+  6: [
+    {word:'transformasi', clue:'Perubahan besar dalam bentuk, sifat atau fungsi sesuatu.'},
+    {word:'kelestarian alam', clue:'Usaha menjaga alam sekitar supaya kekal seimbang untuk generasi akan datang.'},
+    {word:'revolusi industri', clue:'Zaman perubahan besar dalam cara pengeluaran menggunakan mesin.'},
+    {word:'literasi digital', clue:'Kemahiran menggunakan teknologi digital dengan bijak dan bertanggungjawab.'},
+    {word:'etika', clue:'Prinsip moral yang membimbing tingkah laku seseorang.'},
+    {word:'meritokrasi', clue:'Sistem yang memberi ganjaran berdasarkan kebolehan dan usaha seseorang.'},
+    {word:'kepelbagaian budaya', clue:'Kewujudan pelbagai budaya dan kaum dalam sesebuah masyarakat.'},
+    {word:'kelangsungan hidup', clue:'Keupayaan untuk terus hidup dan berkembang walaupun menghadapi cabaran.'},
+    {word:'tadbir urus', clue:'Cara sesebuah organisasi atau negara ditadbir dengan telus dan cekap.'},
+    {word:'kesejahteraan', clue:'Keadaan hidup yang aman, selamat dan sentosa.'},
+    {word:'pembangunan mampan', clue:'Pembangunan yang memenuhi keperluan masa kini tanpa menjejaskan generasi akan datang.'},
+    {word:'hak asasi', clue:'Hak asas yang dimiliki setiap manusia sejak lahir.'},
+    {word:'kepimpinan', clue:'Keupayaan memimpin dan membimbing orang lain ke arah matlamat bersama.'},
+    {word:'inisiatif', clue:'Tindakan yang diambil sendiri tanpa disuruh untuk menyelesaikan masalah.'},
+    {word:'kolaborasi', clue:'Usaha bekerjasama antara pelbagai pihak untuk mencapai matlamat sama.'},
+    {word:'daya tahan', clue:'Kebolehan untuk bangkit semula selepas menghadapi kesukaran.'},
+    {word:'kepenggunaan', clue:'Aspek berkaitan tabiat dan hak pengguna dalam membeli-belah.'},
+    {word:'sivik', clue:'Berkaitan hak dan tanggungjawab sebagai warganegara.'},
+    {word:'geopolitik', clue:'Kajian tentang pengaruh faktor geografi terhadap politik antarabangsa.'},
+    {word:'hubungan diplomatik', clue:'Hubungan rasmi antara dua buah negara.'},
+    {word:'organisasi antarabangsa', clue:'Badan yang dianggotai oleh pelbagai negara untuk tujuan kerjasama global.'},
+    {word:'keselamatan negara', clue:'Usaha melindungi negara daripada ancaman dalaman dan luaran.'},
+    {word:'dasar luar', clue:'Pendirian sesebuah negara dalam berhubung dengan negara lain.'},
+    {word:'ketahanan negara', clue:'Keupayaan negara menghadapi dan bangkit daripada pelbagai cabaran.'},
+    {word:'kestabilan sosial', clue:'Keadaan masyarakat yang aman dan harmoni.'},
+    {word:'mobiliti sosial', clue:'Keupayaan seseorang meningkatkan taraf hidup dalam masyarakat.'},
+    {word:'jurang digital', clue:'Perbezaan capaian teknologi antara golongan masyarakat.'},
+    {word:'automasi', clue:'Penggunaan mesin atau sistem untuk menggantikan kerja manusia.'},
+    {word:'robotik', clue:'Bidang sains yang mengkaji reka bentuk dan penggunaan robot.'},
+    {word:'bioteknologi', clue:'Bidang sains yang menggunakan organisma hidup untuk menghasilkan produk berguna.'},
+    {word:'nanoteknologi', clue:'Bidang sains yang mengkaji dan memanipulasi jirim pada skala amat kecil.'},
+    {word:'kejuruteraan genetik', clue:'Teknik mengubah suai bahan genetik sesuatu organisma.'},
+    {word:'kepelbagaian biologi', clue:'Kepelbagaian spesies hidupan di sesuatu kawasan atau planet.'},
+    {word:'pembangunan lestari', clue:'Pembangunan yang mengambil kira keperluan generasi masa kini dan akan datang.'},
+    {word:'jejak karbon', clue:'Jumlah gas karbon dioksida yang dihasilkan oleh sesuatu aktiviti.'},
+    {word:'ekonomi hijau', clue:'Sistem ekonomi yang mengutamakan kelestarian alam sekitar.'},
+    {word:'keadilan sosial', clue:'Prinsip memastikan setiap individu mendapat layanan dan peluang yang saksama.'},
+    {word:'kesamarataan gender', clue:'Prinsip memberi hak dan peluang yang sama kepada lelaki dan perempuan.'},
+    {word:'hak kanak-kanak', clue:'Hak asas yang perlu dinikmati oleh setiap kanak-kanak di dunia.'},
+    {word:'undang-undang antarabangsa', clue:'Peraturan yang mengawal hubungan dan tingkah laku antara negara.'},
+    {word:'perjanjian antarabangsa', clue:'Persetujuan rasmi yang dimeterai antara dua atau lebih buah negara.'},
+    {word:'perdamaian dunia', clue:'Keadaan aman tanpa peperangan di seluruh dunia.'},
+    {word:'krisis kemanusiaan', clue:'Keadaan buruk yang menjejaskan keselamatan dan kesejahteraan ramai orang.'},
+    {word:'bantuan kemanusiaan', clue:'Sokongan yang diberikan kepada mangsa bencana atau krisis.'},
+    {word:'migrasi', clue:'Perpindahan penduduk dari satu tempat ke tempat lain.'},
+    {word:'integrasi kaum', clue:'Proses menggabungkan pelbagai kaum menjadi satu masyarakat harmoni.'},
+    {word:'wawasan negara', clue:'Matlamat jangka panjang yang ingin dicapai oleh sesebuah negara.'},
+    {word:'anjakan paradigma', clue:'Perubahan besar dalam cara berfikir atau melakukan sesuatu.'},
+  ],
+};
+const TAHUN_LIST = Object.keys(TAHUN_BANKS).map(Number).sort((a,b)=>a-b);
+const SET_SIZE = 16;
+const SET_COUNT = 3; // setiap Tahun ada 48 perkataan (3 set x 16) supaya papan bingo tidak berulang sehingga 3 kali main
+
+/* ================= STATE (in-memory only) ================= */
+let state = {
+  tahun: null,
+  board: [],
+  marked: [],
+  clueQueue: [],
+  clueIndex: 0,
+  stars: {}, // 'tahun-N' -> stars
+  playCounts: {},
+  studentName: '',
+  studentClass: '',
+  studentId: '',
+  busy: false
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================= NAV ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showIdentityScreen(){
+  document.getElementById('idError').textContent = '';
+  document.getElementById('identitySyncStatus').textContent = '';
+  showScreen('screen-identity');
+}
+
+async function submitIdentity(){
+  const nama = document.getElementById('inputNama').value.trim();
+  const kelas = document.getElementById('inputKelas').value.trim();
+  const pin = document.getElementById('inputPin').value.trim();
+  const errEl = document.getElementById('idError');
+  const statusEl = document.getElementById('identitySyncStatus');
+  const btn = document.getElementById('identitySubmitBtn');
+
+  errEl.textContent = '';
+
+  if(!nama || !kelas){
+    errEl.textContent = 'Sila isi nama dan kelas awak.';
+    return;
+  }
+  if(!/^[0-9]{4}$/.test(pin)){
+    errEl.textContent = 'PIN mesti 4 digit nombor (contoh: 1234).';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Menyahkan identiti...';
+  statusEl.className = 'sync-status';
+
+  if(!(window.FirebaseAPI && window.FirebaseAPI.isReady())){
+    const fbErr = (window.FirebaseAPI && window.FirebaseAPI.getInitError && window.FirebaseAPI.getInitError()) || '';
+    statusEl.textContent = fbErr ? ('⚠️ Firebase gagal sambung: ' + fbErr) : '⚠️ Sambungan awan belum tersedia — cuba buka fail ini terus dalam pelayar (bukan pratonton chat) untuk sahkan Firebase.';
+    statusEl.className = 'sync-status err';
+    btn.disabled = false;
+    return;
+  }
+
+  const studentId = window.FirebaseAPI.slugify(`${kelas}-${nama}`);
+
+  try{
+    const pinHash = await window.FirebaseAPI.sha256Hex(pin);
+    const result = await window.FirebaseAPI.verifyOrCreateProfile(studentId, nama, kelas, pinHash);
+
+    if(!result.ok){
+      if(result.status === 'mismatch'){
+        errEl.textContent = 'Nama & kelas ini sudah didaftarkan dengan PIN lain. Sila masukkan PIN asal awak, atau guna nama/kelas sedikit berbeza kalau ini murid lain.';
+      } else {
+        errEl.textContent = 'Gagal menyemak profil. Sila cuba sekali lagi.';
+      }
+      statusEl.textContent = '';
+      btn.disabled = false;
+      return;
+    }
+
+    state.studentName = nama;
+    state.studentClass = kelas;
+    state.studentId = studentId;
+    document.getElementById('studentBadge').textContent = `👋 ${nama} (${kelas})`;
+
+    statusEl.textContent = result.status === 'created' ? 'Profil baru dicipta ✅' : 'PIN disahkan ✅';
+    statusEl.className = 'sync-status ok';
+
+    const levelIds = TAHUN_LIST.map(n=>`tahun-${n}`);
+    const levelData = await window.FirebaseAPI.loadLevelData(state.studentId, levelIds);
+    state.stars = {};
+    state.playCounts = {};
+    for(const lid of levelIds){
+      state.stars[lid] = (levelData[lid] && levelData[lid].stars) || 0;
+      state.playCounts[lid] = (levelData[lid] && levelData[lid].playCount) || 0;
+    }
+
+  }catch(e){
+    statusEl.textContent = 'Gagal sambung — bermain tanpa simpan awan buat masa ini.';
+    statusEl.className = 'sync-status err';
+  }
+
+  btn.disabled = false;
+  goToTahunSelect();
+}
+
+/* ================= TAHUN SELECT ================= */
+function goToTahunSelect(){
+  renderTahunGrid();
+  showScreen('screen-tahun');
+}
+
+function renderTahunGrid(){
+  const grid = document.getElementById('tahunGrid');
+  grid.innerHTML = TAHUN_LIST.map(n=>{
+    const stars = state.stars[`tahun-${n}`] || 0;
+    return `<button class="tahun-btn t${n}" onclick="selectTahun(${n})">
+      <div class="tnum">Tahun ${n}</div>
+      <div class="tstars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectTahun(n){
+  state.tahun = n;
+  startGame();
+}
+
+/* ================= GAME FLOW ================= */
+function startGame(){
+  const levelId = `tahun-${state.tahun}`;
+  const playCount = state.playCounts[levelId] || 0;
+  const setIndex = playCount % SET_COUNT;
+  const fullBank = TAHUN_BANKS[state.tahun];
+  const bank = fullBank.slice(setIndex*SET_SIZE, setIndex*SET_SIZE + SET_SIZE);
+  state.board = shuffle(bank);
+  state.marked = new Array(16).fill(false);
+  state.clueQueue = shuffle(bank);
+  state.clueIndex = 0;
+  state.busy = false;
+
+  document.getElementById('gameTag').textContent = `Bingo Kata · Tahun ${state.tahun}`;
+  renderBoard();
+  showNextClue();
+  showScreen('screen-game');
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  startGame();
+}
+
+function renderBoard(){
+  const grid = document.getElementById('bingoGrid');
+  grid.innerHTML = state.board.map((item,i)=>
+    `<button class="bingo-cell" id="cell-${i}" onclick="clickCell(${i})">${item.word}</button>`
+  ).join('');
+}
+
+function showNextClue(){
+  document.getElementById('clueText').textContent = state.clueQueue[state.clueIndex].clue;
+  document.getElementById('cluesCount').textContent = `Petunjuk ${state.clueIndex+1} daripada ${state.clueQueue.length}`;
+}
+
+function clickCell(i){
+  if(state.busy || state.marked[i]) return;
+  const cellWord = state.board[i].word;
+  const currentWord = state.clueQueue[state.clueIndex].word;
+
+  if(cellWord === currentWord){
+    if(window.FirebaseAPI && window.FirebaseAPI.sound) window.FirebaseAPI.sound.playCorrect();
+    state.marked[i] = true;
+    const cellEl = document.getElementById(`cell-${i}`);
+    cellEl.classList.add('marked');
+    flashCorrect();
+    state.clueIndex++;
+
+    if(checkBingo()){
+      finishGame(true);
+      return;
+    }
+    if(state.clueIndex >= state.clueQueue.length){
+      finishGame(false);
+      return;
+    }
+    showNextClue();
+  } else {
+    if(window.FirebaseAPI && window.FirebaseAPI.sound) window.FirebaseAPI.sound.playWrong();
+    const cellEl = document.getElementById(`cell-${i}`);
+    cellEl.classList.add('wrong-flash');
+    setTimeout(()=>cellEl.classList.remove('wrong-flash'), 400);
+  }
+}
+
+function flashCorrect(){
+  const el = document.getElementById('clueFlash');
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.textContent = '✔ Betul!';
+  el.classList.add('show');
+}
+
+function checkBingo(){
+  const m = state.marked;
+  const lines = [
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+    [0,5,10,15],[3,6,9,12]
+  ];
+  return lines.some(line => line.every(idx => m[idx]));
+}
+
+async function finishGame(bingo){
+  state.busy = true;
+  const cluesUsed = state.clueIndex;
+  const totalClues = state.clueQueue.length;
+  let stars = 0;
+  if(cluesUsed <= 8) stars = 3;
+  else if(cluesUsed <= 12) stars = 2;
+  else stars = 1;
+
+  const levelId = `tahun-${state.tahun}`;
+  const prevStars = state.stars[levelId] || 0;
+  const bestStars = Math.max(stars, prevStars);
+  state.stars[levelId] = bestStars;
+
+  const newPlayCount = (state.playCounts[levelId] || 0) + 1;
+  state.playCounts[levelId] = newPlayCount;
+
+  document.getElementById('resultTitle').textContent = 'BINGO!';
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent = `Petunjuk digunakan: ${cluesUsed} / ${totalClues}`;
+
+  let msg = '';
+  if(stars === 3) msg = 'Laju sungguh! Bingo dalam masa yang sangat singkat.';
+  else if(stars === 2) msg = 'Bagus! Bingo dengan pantas.';
+  else msg = 'Bingo! Cuba lagi untuk lebih pantas dan dapat lebih bintang.';
+  document.getElementById('resultMsg').textContent = msg;
+
+  document.getElementById('resultOverlay').classList.add('active');
+
+  const syncEl = document.getElementById('resultSyncStatus');
+  syncEl.textContent = 'Menyimpan markah...';
+  syncEl.className = 'sync-status';
+
+  if(window.FirebaseAPI && window.FirebaseAPI.isReady() && state.studentId){
+    const res = await window.FirebaseAPI.saveScore(levelId, state.studentId, {
+      name: state.studentName,
+      kelas: state.studentClass,
+      score: cluesUsed,
+      total: totalClues,
+      stars: bestStars,
+      playCount: newPlayCount
+    });
+    if(res.ok){
+      syncEl.textContent = 'Markah disimpan ke awan ✅';
+      syncEl.className = 'sync-status ok';
+    } else {
+      syncEl.textContent = '⚠️ Gagal simpan ke awan — markah disimpan dalam peranti sahaja buat masa ini.';
+      syncEl.className = 'sync-status err';
+    }
+  } else {
+    syncEl.textContent = '⚠️ Tiada sambungan awan — markah disimpan dalam peranti sahaja buat masa ini.';
+    syncEl.className = 'sync-status err';
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  goToTahunSelect();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buka Akses Penuh — Seronoknya Bahasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Titan+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif; font-size:1.05rem;
+    color:#E8EDF4;
+    background:linear-gradient(180deg,#0A0E1A 0%, #10192C 100%);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 16px;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background-image:url('backgrounds/background-index.jpg');
+    background-size:cover; background-position:center;
+    filter:blur(0.5px) saturate(1.1);
+    opacity:0.35;
+    pointer-events:none;
+  }
+  .card{
+    max-width:440px; width:100%;
+    background:rgba(14,22,38,0.88); backdrop-filter:blur(3px);
+    border-radius:26px; padding:34px 28px;
+    border:3px solid #38BDF8; box-shadow:0 8px 0 rgba(0,0,0,0.4), 0 0 30px rgba(56,189,248,.4);
+    text-align:center;
+  }
+  .icon{font-size:3.2rem; margin-bottom:6px;}
+  h1{font-family:'Titan One',cursive; font-weight:400; font-size:1.5rem; margin:0 0 8px; color:#fff;}
+  p{color:#AAB8CC; line-height:1.55; margin:0 0 20px; font-size:0.95rem;}
+  .status{
+    border-radius:16px; padding:16px 18px; margin-bottom:20px;
+    font-weight:700; font-size:0.95rem; line-height:1.5; display:none;
+  }
+  .status.show{display:block;}
+  .status.ok{background:rgba(74,222,128,0.15); border:2px solid #4ADE80; color:#4ADE80;}
+  .status.err{background:rgba(248,113,113,0.15); border:2px solid #F87171; color:#F87171;}
+  label{display:block; text-align:left; font-weight:700; font-size:0.85rem; color:#fff; margin-bottom:6px;}
+  input[type=text]{
+    width:100%; padding:12px 14px; border-radius:12px; border:2px solid #2A3A52;
+    background:#0F1826; color:#fff; font-size:1rem; font-weight:700; letter-spacing:1px;
+    text-align:center; margin-bottom:14px;
+  }
+  input[type=text]:focus{outline:none; border-color:#38BDF8;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px; border-radius:999px; border:none; cursor:pointer;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,#4ADE80,#16A34A); color:#08350f;
+    box-shadow:0 5px 0 #14532d, 0 0 20px rgba(74,222,128,.5);
+    margin-bottom:12px;
+  }
+  .btn-secondary{
+    background:transparent; color:#38BDF8; border:2px solid #38BDF8;
+  }
+  .divider{color:#5A6B85; font-size:0.8rem; margin:18px 0; display:flex; align-items:center; gap:10px;}
+  .divider::before, .divider::after{content:''; flex:1; height:1px; background:#2A3A52;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">🔓</div>
+  <h1 id="titleText">Membuka Akses Penuh...</h1>
+  <p id="introText">Sila tunggu sebentar semasa kami sahkan akses anda.</p>
+
+  <div class="status" id="statusBox"></div>
+
+  <div id="manualSection" style="display:none;">
+    <label for="codeInput">Ada kod akses? Masukkan di sini</label>
+    <input type="text" id="codeInput" placeholder="Contoh: SERONOK2026">
+    <button class="btn btn-primary" onclick="tryManualCode()">Buka Akses Penuh</button>
+  </div>
+
+  <div class="divider">ATAU</div>
+  <a class="btn btn-secondary" href="percubaan.html">← Kembali ke Versi Percubaan</a>
+</div>
+
+<script>
+// Laman ini berdiri sendiri (tiada pergantungan pada firebase-shared.js) --
+// hanya digunakan oleh pautan trial (percubaan.html / versi-percubaan.html),
+// tidak menyentuh index.html atau mana-mana 23 fail game sebenar.
+var UNLOCK_CODE = 'SERONOK2026';
+
+function showStatus(msg, ok){
+  var box = document.getElementById('statusBox');
+  box.textContent = msg;
+  box.className = 'status show ' + (ok ? 'ok' : 'err');
+}
+
+function attemptUnlock(code, fromLink){
+  var ok = !!(code && code.trim().toUpperCase() === UNLOCK_CODE);
+  if(ok){
+    try{ localStorage.setItem('seronok_full_access', 'true'); }catch(e){}
+    document.getElementById('titleText').textContent = 'Akses Penuh Berjaya Dibuka! 🎉';
+    document.getElementById('introText').textContent = 'Terima kasih kerana membeli! Semua 23 permainan kini terbuka pada peranti/pelayar ini.';
+    showStatus('✅ Akses penuh diaktifkan. Selamat belajar!', true);
+    document.getElementById('manualSection').style.display = 'none';
+  } else if(fromLink === false || code){
+    document.getElementById('titleText').textContent = 'Kod Tidak Sah';
+    document.getElementById('introText').textContent = 'Kod yang dimasukkan tidak betul. Sila semak semula e-mel pembelian anda, atau masukkan kod dengan tepat.';
+    showStatus('⚠️ Kod tidak sah — sila cuba lagi.', false);
+    document.getElementById('manualSection').style.display = 'block';
+  } else {
+    document.getElementById('titleText').textContent = 'Masukkan Kod Akses Anda';
+    document.getElementById('introText').textContent = 'Sila masukkan kod akses yang diterima melalui e-mel selepas pembelian.';
+    document.getElementById('manualSection').style.display = 'block';
+  }
+}
+
+function tryManualCode(){
+  var code = document.getElementById('codeInput').value;
+  attemptUnlock(code, false);
+}
+
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var key = params.get('key');
+  if(key){
+    attemptUnlock(key, true);
+  } else {
+    attemptUnlock(null, null);
+  }
+})();
+</script>
+</body>
+</html>
